@@ -81,15 +81,17 @@ class const PlayerControls({
           ),
           child: Row(
             // mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: .end,
             children: <Widget>[
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: titleStyle,
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.left,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: titleStyle,
+                ),
               ),
-              Spacer(),
               if (playlistLength > 0) ...<Widget>[
                 Gap.small(),
                 Text(
