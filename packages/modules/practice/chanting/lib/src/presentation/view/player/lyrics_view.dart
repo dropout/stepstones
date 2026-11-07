@@ -8,8 +8,6 @@ import 'package:chanting/src/presentation/view/player/lyric_text_style.dart';
 import 'package:chanting/src/presentation/view/player/lyrics_effects_config.dart';
 import 'package:chanting/src/presentation/view/player/unculled_varied_extent_list.dart';
 import 'package:chanting/src/presentation/view/player/worm_line.dart';
-import 'package:core/core.dart';
-
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -177,11 +175,11 @@ class _LyricsViewState extends State<LyricsView>
   List<double> _calculateLyricLineHeights() {
     final lh = <double>[];
     for (final line in widget.chantingState.lyricsDocument?.lines ?? []) {
-      final height = calculateTextHeight(
-        LyricLine.displayText(line),
+      final height = LyricLine.calculateHeight(
+        context,
+        line,
         _lyricsTextStyle,
         widget.maxWidth,
-        LyricLine.getLinePaddingForWidth(widget.maxWidth),
       );
       lh.add(height);
     }
