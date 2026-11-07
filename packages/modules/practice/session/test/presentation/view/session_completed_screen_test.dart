@@ -150,6 +150,59 @@ void main() {
       ).called(1);
     });
 
+    testWidgets('logs and displays a new session when the screen is reused', (
+      WidgetTester tester,
+    ) async {
+      final profile = Faker().createProfile().copyWith(
+        settings: const ProfileSettings(
+          showStats: false,
+          usePresenceFeature: false,
+        ),
+      );
+      final first = Faker().createSessionEntity().copyWith(
+        id: 'first',
+        type: SessionEntityType.chanting,
+        duration: const Duration(minutes: 5),
+      );
+      final second = first.copyWith(
+        id: 'second',
+        duration: const Duration(minutes: 12),
+      );
+      var currentSession = first;
+      when(() => mockAuthBloc.state)
+          .thenReturn(AuthState.signedIn(userId: profile.id));
+      when(() => profileCubit.state)
+          .thenReturn(ProfileState.loaded(profile: profile));
+      when(() => sessionCompletedCubit.state).thenAnswer(
+        (_) => SessionCompletedState.saved(
+          updateResult: UpdateProfileStatsResultEntity(
+            oldProfile: profile,
+            updatedProfile: profile,
+            session: currentSession,
+          ).toApi(),
+        ),
+      );
+
+      await pumpScreen(tester, first);
+      expect(
+        tester.widget<SessionResult>(find.byType(SessionResult)).session.duration,
+        const Duration(minutes: 5),
+      );
+      await pumpScreen(tester, first);
+      verify(() => sessionCompletedCubit.logSession(profile.id, first.toApi()))
+          .called(1);
+
+      currentSession = second;
+      await pumpScreen(tester, second);
+
+      verify(() => sessionCompletedCubit.logSession(profile.id, second.toApi()))
+          .called(1);
+      expect(
+        tester.widget<SessionResult>(find.byType(SessionResult)).session.duration,
+        const Duration(minutes: 12),
+      );
+    });
+
     testWidgets('shows loading while the profile is loading', (
       WidgetTester tester,
     ) async {

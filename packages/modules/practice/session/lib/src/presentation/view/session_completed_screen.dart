@@ -54,6 +54,7 @@ class const SessionCompletedScreen({
     ProfileLoadedState state,
   ) {
     return SmartBlocProvider<SessionCompletedCubit, SessionCompletedState>(
+      key: ValueKey(session.id),
       create: (context) {
         final cubit = GetIt.I.get<SessionCompletedCubit>();
         cubit.logSession(state.profile.id, session);
