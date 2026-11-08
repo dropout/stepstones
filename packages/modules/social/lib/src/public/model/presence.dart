@@ -22,7 +22,6 @@ sealed class Presence with _$Presence {
 
   static List<Presence> fakeList({int count = 12}) {
     return List.generate(count, (index) {
-      final randomInt = Random().nextInt(100);
       final isMale = Random().nextBool();
       return Presence(
         id: 'presence-$index',
@@ -30,8 +29,6 @@ sealed class Presence with _$Presence {
           id: 'profile-$index',
           firstName: _randomName(isMale ? maleFirstnames : femaleFirstnames),
           lastName: _randomName(lastNames),
-          photoUrl:
-              'https://randomuser.me/api/portraits/thumb/${isMale ? 'men' : 'women'}/$randomInt.jpg',
           photoBlurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
         ),
         startedAt: DateTime.now(),

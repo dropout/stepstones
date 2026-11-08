@@ -7,7 +7,6 @@ extension SocialProfileMapper on SocialProfileEntity {
       id: id,
       firstName: firstName,
       lastName: lastName,
-      photoUrl: photoUrl,
       photoBlurhash: photoBlurhash,
       location: location,
     );
@@ -20,7 +19,6 @@ extension SocialProfileEntityMapper on SocialProfile {
       id: id,
       firstName: firstName,
       lastName: lastName,
-      photoUrl: photoUrl,
       photoBlurhash: photoBlurhash,
       location: location,
     );

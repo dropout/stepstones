@@ -22,7 +22,6 @@ abstract class Profile with _$Profile {
     required String firstName,
     required String lastName,
     required String email,
-    required String? photoUrl,
     required String? photoBlurhash,
     @Default(ProfileSettings()) ProfileSettings settings,
     @DateTimeConverter() required DateTime signupDate,
@@ -37,7 +36,6 @@ abstract class Profile with _$Profile {
       firstName: DefaultProfileData.firstName,
       lastName: DefaultProfileData.lastName,
       email: '',
-      photoUrl: DefaultProfileData.photoUrl,
       photoBlurhash: DefaultProfileData.photoBlurhash,
       signupDate: DateTime.now(),
       statsReport: const ProfileStatsReport(),
@@ -55,7 +53,5 @@ abstract class Profile with _$Profile {
   String get profileImageStoragePath =>
     '/profiles/$id/photo.jpg';  
 
-  // bool get hasProfileImage =>
-  //   photoUrl != null && photoUrl!.isNotEmpty;
   
 }

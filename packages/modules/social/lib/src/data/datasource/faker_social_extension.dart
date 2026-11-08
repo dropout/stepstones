@@ -12,7 +12,6 @@ extension FakerSocialExtension on Faker {
         id: faker.guid.guid(),
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
-        photoUrl: faker.internet.httpsUrl(),
         photoBlurhash: null,        
       ),
 

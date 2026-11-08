@@ -42,7 +42,6 @@ class _ProfileStatsViewState extends State<ProfileStatsView>
         StatsDataAreaSliver(
           profile: widget.profile,
           profileName: widget.profile.displayName,
-          profilePhotoUrl: widget.profile.profileImageStoragePath,
           profilePhotoBlurhash: widget.profile.photoBlurhash,
         ),
         ...buildBarchartSlivers(context, widget.profile.id),

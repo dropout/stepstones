@@ -102,7 +102,6 @@ void main() {
                 profileName: profile.displayName,
                 signupDate: profile.signupDate,
                 profileStatsReport: profile.statsReport,
-                profilePhotoUrl: profile.photoUrl,
                 profilePhotoBlurhash: profile.photoBlurhash,
               ),
             )

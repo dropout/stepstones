@@ -22,14 +22,12 @@ enum _Gender {
 
 SocialProfileEntity _randomPublicProfile(_Gender gender) {
   final Faker faker = Faker();
-  int randomInt = Random().nextInt(20);
   switch (gender) {
     case _Gender.male:
       return SocialProfileEntity(
         id: faker.guid.guid(),
         firstName: randomName(maleFirstnames),
         lastName: randomName(lastNames),
-        photoUrl: 'https://randomuser.me/api/portraits/thumb/men/$randomInt.jpg',
         photoBlurhash: DefaultProfileData.photoBlurhash,
       );
     case _Gender.female:
@@ -37,7 +35,6 @@ SocialProfileEntity _randomPublicProfile(_Gender gender) {
         id: faker.guid.guid(),
         firstName: randomName(femaleFirstnames),
         lastName: randomName(lastNames),
-        photoUrl: 'https://randomuser.me/api/portraits/thumb/women/$randomInt.jpg',
         photoBlurhash: DefaultProfileData.photoBlurhash,
       );
   }

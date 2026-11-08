@@ -111,7 +111,6 @@ extension FakerCoreExtension on Faker {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
       email: faker.internet.email(),
-      photoUrl: null,
       photoBlurhash: null,
       signupDate: DateTime.now().subtract(Duration(days: randomGenerator.integer(365))),
       statsReport: ProfileStatsReport(

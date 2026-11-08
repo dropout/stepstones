@@ -48,7 +48,7 @@ void main() {
       when(() => mockServices.resourceResolver)
           .thenReturn(mockResourceResolver);
       when(() => mockResourceResolver.resolveStoragePath(any()))
-          .thenAnswer((_) async => profile.photoUrl!);
+          .thenAnswer((_) async => faker.profilePhotoUrl());
 
       nock.cleanAll();
     });
@@ -57,7 +57,6 @@ void main() {
       WidgetTester tester,
     ) async {
       final profileWithoutPhoto = profile.copyWith(
-        photoUrl: null,
         photoBlurhash: null,
       );
 

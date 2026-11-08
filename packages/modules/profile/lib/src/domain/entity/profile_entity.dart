@@ -24,7 +24,6 @@ abstract class ProfileEntity with _$ProfileEntity implements SerializableEntity,
     required String firstName,
     required String lastName,
     required String email,
-    required String? photoUrl,
     required String? photoBlurhash,
     @Default(ProfileSettingsEntity()) ProfileSettingsEntity settings,
     @DateTimeConverter() required DateTime signupDate,
@@ -50,6 +49,6 @@ abstract class ProfileEntity with _$ProfileEntity implements SerializableEntity,
 
   @override
   bool get hasProfileImage =>
-    photoUrl != null && photoUrl!.isNotEmpty;
+    photoBlurhash != null;
   
 }

@@ -6,13 +6,11 @@ import 'package:core/core.dart';
 class StatsDataAreaSliver extends StatelessWidget {
   final Profile profile;
   final String profileName;
-  final String? profilePhotoUrl;
   final String? profilePhotoBlurhash;
 
   const StatsDataAreaSliver({
     required this.profile,
     required this.profileName,
-    required this.profilePhotoUrl,
     required this.profilePhotoBlurhash,
     super.key,
   });
@@ -31,7 +29,6 @@ class StatsDataAreaSliver extends StatelessWidget {
               profileName: profile.displayName,
               signupDate: profile.signupDate,
               profileStatsReport: profile.statsReport,
-              profilePhotoUrl: profile.photoUrl,
               profilePhotoBlurhash: profile.photoBlurhash,
             ),
             Gap.medium(),

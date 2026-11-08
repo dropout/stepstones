@@ -18,7 +18,6 @@ sealed class SocialProfileEntity with _$SocialProfileEntity {
     required String id,
     required String firstName,
     required String lastName,
-    required String? photoUrl,
     required String? photoBlurhash,
     Location? location,
   }) = _SocialProfileEntity;
@@ -30,7 +29,6 @@ sealed class SocialProfileEntity with _$SocialProfileEntity {
       id: profile.id,
       firstName: profile.firstName,
       lastName: profile.lastName,
-      photoUrl: profile.photoUrl,
       photoBlurhash: profile.photoBlurhash,
       location: profile.location,
     );
@@ -41,7 +39,6 @@ sealed class SocialProfileEntity with _$SocialProfileEntity {
       id: const Uuid().v4(),
       firstName: DefaultProfileData.firstName,
       lastName: DefaultProfileData.lastName,
-      photoUrl: DefaultProfileData.photoUrl,
       photoBlurhash: DefaultProfileData.photoBlurhash,
     );
   }

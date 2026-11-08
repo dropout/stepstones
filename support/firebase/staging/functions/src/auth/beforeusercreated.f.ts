@@ -29,7 +29,6 @@ export default beforeUserCreated(async (event:AuthBlockingEvent) => {
       firstName: "",
       lastName: userRecord.displayName || "",
       email: userRecord.email || "",
-      photoUrl: null,
       photoBlurhash: null,
       signupDate: Date.now(),
       statsReport: {

@@ -9,7 +9,6 @@ extension FakerSessionExtension on Faker {
     String firstName = '',
     String lastName = '',
     String email = '',
-    String? photoUrl,
     String? photoBlurhash,
   }) {
     return Profile(
@@ -17,7 +16,6 @@ extension FakerSessionExtension on Faker {
       firstName: firstName,
       lastName: lastName,
       email: email,
-      photoUrl: photoUrl,
       photoBlurhash: photoBlurhash,
       signupDate: DateTime.now(),
       statsReport: const ProfileStatsReport(),

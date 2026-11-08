@@ -16,7 +16,6 @@ sealed class SocialProfile with _$SocialProfile implements ProfileDisplayable {
     required String id,
     required String firstName,
     required String lastName,
-    String? photoUrl,
     String? photoBlurhash,
     Location? location,
   }) = _SocialProfile;
@@ -28,7 +27,6 @@ sealed class SocialProfile with _$SocialProfile implements ProfileDisplayable {
       id: profile.id,
       firstName: profile.firstName,
       lastName: profile.lastName,
-      photoUrl: profile.photoUrl,
       photoBlurhash: profile.photoBlurhash,
       location: profile.location,
     );
@@ -44,6 +42,6 @@ sealed class SocialProfile with _$SocialProfile implements ProfileDisplayable {
 
   @override
   bool get hasProfileImage =>
-    photoUrl != null && photoUrl!.isNotEmpty;
+    photoBlurhash != null;
 
 }

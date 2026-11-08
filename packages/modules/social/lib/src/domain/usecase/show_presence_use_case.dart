@@ -25,7 +25,6 @@ class ShowPresenceUseCase {
           id: profileId,
           firstName: firstName,
           lastName: lastName,
-          photoUrl: null,
           photoBlurhash: photoBlurhash,
           location: location,
         ),

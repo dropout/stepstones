@@ -7,7 +7,6 @@ class DetailedProfileView extends StatelessWidget {
   final String profileName;
   final DateTime signupDate;
   final ProfileStatsReport profileStatsReport;
-  final String? profilePhotoUrl;
   final String? profilePhotoBlurhash;
 
   const DetailedProfileView({
@@ -15,7 +14,6 @@ class DetailedProfileView extends StatelessWidget {
     required this.profileName,
     required this.signupDate,
     required this.profileStatsReport,
-    this.profilePhotoUrl,
     this.profilePhotoBlurhash,
     super.key,
   });

@@ -68,7 +68,6 @@ void main() {
       firstName: 'Ada',
       lastName: 'Lovelace',
       email: 'ada@stepstones.app',
-      photoUrl: null,
       photoBlurhash: null,
       settings: ProfileSettings(usePresenceFeature: usePresenceFeature),
       signupDate: DateTime(2026, 1, 1),

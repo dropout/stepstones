@@ -20,7 +20,6 @@ import 'package:core/src/util/services.dart';
 
 void main() {
   final profileWithoutPhoto = Faker().createProfile().copyWith(
-    photoUrl: null,
     photoBlurhash: null,
   );
 

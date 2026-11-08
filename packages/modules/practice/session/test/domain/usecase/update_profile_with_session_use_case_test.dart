@@ -46,7 +46,6 @@ void main() {
       firstName: 'Ada',
       lastName: 'Lovelace',
       email: 'ada@stepstones.app',
-      photoUrl: null,
       photoBlurhash: null,
       signupDate: DateTime(2026, 1, 1),
       statsReport: const ProfileStatsReport(),
