@@ -38,3 +38,7 @@ If no build mode specified, use `debug`.
     - Example: `bash support/maintenance_scripts/distribute_ios.sh staging`
     - Firebase project and app id are read from `apps/mobile_app/ios/config/<flavor>/GoogleService-Info.plist`; `FIREBASE_IOS_APP_ID` overrides the app id.
     - Requires a clean git tree; bumps only the build number in `apps/mobile_app/pubspec.yaml` and commits it after success.
+- Android to Firebase App Distribution (`android_testers`) + Crashlytics symbols: `bash support/maintenance_scripts/distribute_android.sh <dev|qa|staging|prod> [--notes "<text>"] [--dry-run]`
+    - Example: `bash support/maintenance_scripts/distribute_android.sh staging`
+    - Firebase project and app id are read from `apps/mobile_app/android/app/src/<flavor>/google-services.json`; `FIREBASE_ANDROID_APP_ID` overrides the app id.
+    - Requires a clean git tree; bumps only the build number in `apps/mobile_app/pubspec.yaml` and commits it after success.
