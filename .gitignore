@@ -10,6 +10,7 @@
 .history
 .svn/
 .swiftpm/
+.crashlytics/
 migrate_working_dir/
 build/
 
