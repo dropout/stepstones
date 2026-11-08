@@ -14,6 +14,7 @@ class DefaultSessionNavigator extends SessionNavigator {
     required DateTime endTime,
     required Duration duration,
     required SessionType sessionType,
+    List<String> completedChantIds = const [],
     NavigationType navigationType = NavigationType.push,
   }) async { 
     final session = Session(
@@ -22,6 +23,7 @@ class DefaultSessionNavigator extends SessionNavigator {
       endTime: endTime,
       duration: duration,
       type: sessionType,
+      completedChantIds: completedChantIds,
     );
     navigateTo(
       SessionCompletedRoute(

@@ -37,6 +37,7 @@ sealed class ChantingStateEntity with _$ChantingStateEntity {
     DateTime? startTime,
     DateTime? endTime,
     @Default(Duration.zero) Duration elapsedSessionTime,
+    @Default([]) List<String> completedChantIds,
   }) = _ChantingStateEntity;
 
   int get currentIndex => playbackState.queueIndex ?? 0;

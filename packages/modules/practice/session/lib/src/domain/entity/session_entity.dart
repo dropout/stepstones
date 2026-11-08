@@ -20,6 +20,7 @@ sealed class SessionEntity with _$SessionEntity implements SerializableEntity {
     @DateTimeConverter() required DateTime startTime,
     @DateTimeConverter() required DateTime endTime,
     @DurationConverter() required Duration duration,
+    @Default([]) List<String> completedChantIds,
   }) = _SessionEntity;
 
   factory SessionEntity.fromJson(Map<String, Object?> json) =>

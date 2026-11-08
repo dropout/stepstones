@@ -13,6 +13,7 @@ extension SessionMapper on SessionEntity {
       startTime: startTime,
       endTime: endTime,
       duration: duration,
+      completedChantIds: completedChantIds,
     );
   }
 }
@@ -28,6 +29,7 @@ extension SessionEntityMapper on Session {
       startTime: startTime,
       endTime: endTime,
       duration: duration,
+      completedChantIds: completedChantIds,
     );
   }
 }

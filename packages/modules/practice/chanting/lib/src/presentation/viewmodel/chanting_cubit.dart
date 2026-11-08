@@ -32,6 +32,7 @@ class ChantingCubit({
   StreamSubscription<PlaybackState>? _playbackStateSub;
   StreamSubscription<MediaItem?>? _mediaItemSub;
   StreamSubscription? _playlistCompletedSub;
+  StreamSubscription<String>? _chantCompletedSub;
   StreamSubscription? _audioRouteChangeSub;
   StreamSubscription<CachingProgressEntity>? _cachingSub;
   Completer<void>? _cachingDone;
@@ -59,6 +60,9 @@ class ChantingCubit({
       _mediaItemSub = audioService.mediaItemStream.listen(_onMediaItemChanged);
       _playlistCompletedSub = audioService.playlistCompletedStream.listen(
         _onPlaylistCompleted,
+      );
+      _chantCompletedSub = audioService.chantCompletedStream.listen(
+        _onChantCompleted,
       );
       _updateOutputLatency();
     } catch (e, st) {
@@ -170,6 +174,10 @@ class ChantingCubit({
     }
   }
 
+  void _onChantCompleted(String chantId) {
+    emit(state.copyWith(completedChantIds: [...state.completedChantIds, chantId]));
+  }
+
   void _onPlaylistCompleted(_) async {
     logger.t('Playlist completed');
     final result = await completeChantingUseCase.execute(state);
@@ -183,6 +191,7 @@ class ChantingCubit({
       endTime: state.endTime ?? DateTime.now(),
       duration: state.elapsedSessionTime,
       sessionType: .chanting,
+      completedChantIds: state.completedChantIds,
       // destroys current view,
       // ensures screen dispose is called and wakelock disabled
       // doesnt make sense to go back to chantingview after finish
@@ -250,6 +259,7 @@ class ChantingCubit({
     _mediaItemSub?.cancel();    
     _playbackStateSub?.cancel();
     _playlistCompletedSub?.cancel();
+    _chantCompletedSub?.cancel();
     _audioRouteChangeSub?.cancel();    
     _cachingSub?.cancel();
     

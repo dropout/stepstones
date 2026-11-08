@@ -24,12 +24,9 @@ service cloud.firestore {
       allow read, delete: if false;
     }
 
-    // Only authenticated users can access chants.
+    // Only authenticated users can read chants; playCount is server-maintained.
     match /chants/{chantId} {
       allow read: if request.auth != null;
-      allow update: if request.auth != null
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['playCount']);
     }
 
     // Only authenticated users can access presence.

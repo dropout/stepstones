@@ -77,6 +77,7 @@ export const SessionSchema = z.object({
   duration: z.number(),
   timerSettings: z.unknown().optional().nullable(),
   chantingSettings: z.unknown().optional().nullable(),
+  completedChantIds: z.array(z.string()).optional(),
 });
 export type Session = z.infer<typeof SessionSchema>;
 

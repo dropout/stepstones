@@ -14,6 +14,13 @@ enum SoLoudChantingAudioHandlerCustomAction { setup }
 
 enum SoLoudChantingAudioHandlerCustomEvent { playlistCompleted }
 
+/// Emitted when a chant plays to its natural end (not skipped).
+class SoLoudChantingTrackCompletedEvent {
+  final String mediaId;
+
+  const SoLoudChantingTrackCompletedEvent(this.mediaId);
+}
+
 /// Bridges the OS media session with audio playback using flutter_soloud.
 /// Manually manages a playlist since flutter_soloud has no built-in
 /// playlist support.
@@ -260,6 +267,11 @@ class SoLoudChantingAudioHandler extends BaseAudioHandler {
     _trackEndedSub = null;
     _soundHandle = null;
     _playbackReporter.stop();
+
+    final completedId = _playlistManager.currentMediaItem?.id;
+    if (completedId != null) {
+      customEvent.add(SoLoudChantingTrackCompletedEvent(completedId));
+    }
 
     try {
       await _playlistManager.skipToNext();

@@ -58,6 +58,11 @@ class ChantingAudioService {
         event == SoLoudChantingAudioHandlerCustomEvent.playlistCompleted,
   );
 
+  /// Emits the chant ID of each track that played to its end.
+  Stream<String> get chantCompletedStream => audioHandler.customEvent
+      .where((event) => event is SoLoudChantingTrackCompletedEvent)
+      .map((event) => (event as SoLoudChantingTrackCompletedEvent).mediaId);
+
   void _switchToChantingAudioHandler() {
     audioHandler.switchToChantingAudioHandler();
   }

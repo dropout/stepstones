@@ -8,6 +8,7 @@ abstract class SessionNavigator extends BaseNavigator {
     required DateTime endTime,
     required Duration duration,
     required SessionType sessionType,
+    List<String> completedChantIds = const [],
     NavigationType navigationType = NavigationType.push,
   });
 

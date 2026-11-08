@@ -12,9 +12,31 @@ import {logger} from "firebase-functions";
 import {Session} from "../../../models";
 
 const NUM_SHARDS = 10; // Number of shards for global stats
+// Caps writes from a single malformed or malicious session document.
+const MAX_COMPLETED_CHANTS = 100;
+
+/**
+ * Counts how many times each chant was completed in a session.
+ * @param {unknown} value Raw completedChantIds field.
+ * @return {Map<string, number>} Chant ID to completion count.
+ */
+function countCompletedChants(value: unknown): Map<string, number> {
+  const counts = new Map<string, number>();
+  if (!Array.isArray(value)) return counts;
+  for (const id of value.slice(0, MAX_COMPLETED_CHANTS)) {
+    if (typeof id !== "string" || id.length === 0 || id.length > 128 ||
+      id.includes("/")) continue;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return counts;
+}
 
 export default onDocumentCreated(
-  "profiles/{profileId}/sessions/{sessionId}",
+  {
+    document: "profiles/{profileId}/sessions/{sessionId}",
+    // Safe to retry: the transaction is idempotent per event ID.
+    retry: true,
+  },
   async (event: FirestoreEvent<QueryDocumentSnapshot | undefined,
     { profileId: string; sessionId: string }>) => {
     let session:Session;
@@ -65,6 +87,12 @@ export default onDocumentCreated(
     const globalDailyShardRef =
       db.doc(`global_stats/daily_${utcDateString}/shards/${dailyShardId}`);
 
+    const chantCounts = sessionData.type === "chanting" ?
+      countCompletedChants(sessionData.completedChantIds) :
+      new Map<string, number>();
+    const chantRefs = [...chantCounts.keys()]
+      .map((id) => db.collection("chants").doc(id));
+
     try {
       await db.runTransaction(async (transaction) => {
         // Idempotency Check: Did we already process this exact event?
@@ -73,6 +101,11 @@ export default onDocumentCreated(
           console.log(`Event ${eventId} already processed. Skipping.`);
           return;
         }
+
+        // Unknown chant IDs are skipped so they can't abort the stats update.
+        const chantDocs = chantRefs.length > 0 ?
+          await transaction.getAll(...chantRefs) :
+          [];
 
         // Extract session metrics
         const durationInSeconds = sessionData.duration || 0;
@@ -96,6 +129,12 @@ export default onDocumentCreated(
         );
         transaction.set(globalShardRef, globalUpdates, {merge: true});
         transaction.set(globalDailyShardRef, globalUpdates, {merge: true});
+        for (const chantDoc of chantDocs) {
+          if (!chantDoc.exists) continue;
+          transaction.update(chantDoc.ref, {
+            playCount: FieldValue.increment(chantCounts.get(chantDoc.id) ?? 0),
+          });
+        }
       });
 
       logger.info(
