@@ -835,10 +835,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: b6a6f41c3d1cfe341bed09f80002b853693a2135
+      resolved-ref: "262f945bb67dd0b814690dc8330938a0c749f022"
       url: "https://github.com/dropout/flutter_mindful_minutes.git"
     source: git
-    version: "0.2.0"
+    version: "0.3.0"
   flutter_native_splash:
     dependency: transitive
     description:
@@ -897,10 +897,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "99070363131e3735138afff283717b0e65c4be30"
+      resolved-ref: de8e58ee45b5467e985b67eb0a70291c7b07c51e
       url: "https://github.com/dropout/flutter_volume_listener.git"
     source: git
-    version: "0.9.1"
+    version: "0.9.2"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -1528,10 +1528,10 @@ packages:
     dependency: transitive
     description:
       name: pigeon
-      sha256: c404f0351365cb467b97a629c9e7a50b4c9c4e8bfd2e3fa329f54440a1bc3fc4
+      sha256: "4842f7cd2dc49b1eece4e4121e1feb4f052eb80d4fe2b1c967372fbcf624b499"
       url: "https://pub.dev"
     source: hosted
-    version: "28.1.0"
+    version: "29.1.1"
   platform:
     dependency: transitive
     description:
