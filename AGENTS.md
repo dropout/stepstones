@@ -35,7 +35,7 @@ For running and building commands look at the commands documentation: [`docs/com
 - `packages/modules/stats/`: Stats feature module.
 - `packages/modules/practice/timer/`: Timer feature module.
 - `packages/modules/practice/chanting/`: Chanting feature module.
-- `packages/modules/practice/session/`: Session feature module.
+- `packages/modules/session/`: Session feature module.
 - `packages/firebase_provider/`: Firebase SDK provider module for the app with emulator configuration code.
 - `packages/bar_chart/`: Bar chart widget module for the app.
 - `packages/particle_field/`: Particle field widget module for the app.

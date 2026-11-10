@@ -14,9 +14,9 @@ workspace:
   - packages/modules/donate
   - packages/modules/home
   - packages/modules/practice/timer
-  - packages/modules/practice/session
-  - packages/modules/practice/chanting
+  - packages/modules/practice/chanting    
   - packages/modules/profile
+  - packages/modules/session
   - packages/modules/social
   - packages/modules/stats
   - packages/particle_field

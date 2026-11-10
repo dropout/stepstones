@@ -1,0 +1,42 @@
+import 'package:core/core.dart';
+import '../../public/model/session.dart';
+import '../../session_routes.dart';
+
+class DefaultSessionNavigator extends SessionNavigator {
+  final IdGeneratorService idGeneratorService;
+
+  DefaultSessionNavigator(super.router, {
+  required this.idGeneratorService});
+
+  @override
+  Future<void> navigateToSessionCompletedScreen({
+    required DateTime startTime,
+    required DateTime endTime,
+    required Duration duration,
+    required SessionType sessionType,
+    List<String> completedChantIds = const [],
+    NavigationType navigationType = NavigationType.push,
+  }) async { 
+    final session = Session(
+      id: idGeneratorService.sessionId(),
+      startTime: startTime,
+      endTime: endTime,
+      duration: duration,
+      type: sessionType,
+      completedChantIds: completedChantIds,
+    );
+    navigateTo(
+      SessionCompletedRoute(
+        $extra: session,
+      ),
+      type: navigationType,
+      extra: session,
+    );
+  }
+
+  @override
+  Future<void> navigateToSessionHistory(
+    String profileId, {
+    NavigationType type = .push,
+  }) async => navigateTo(SessionHistoryRoute(profileId: profileId), type: type);
+}

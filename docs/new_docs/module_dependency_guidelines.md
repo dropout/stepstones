@@ -21,7 +21,7 @@ Keep modules independent, testable, and easy to evolve by preventing deep cross-
 - `packages/modules/donate`
 - `packages/modules/home`
 - `packages/modules/practice/chanting`
-- `packages/modules/practice/session`
+- `packages/modules/session`
 - `packages/modules/practice/timer`
 - `packages/modules/profile`
 - `packages/modules/social`
