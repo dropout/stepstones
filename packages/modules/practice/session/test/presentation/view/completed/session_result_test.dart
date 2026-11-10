@@ -34,7 +34,10 @@ void main() {
             SessionTestHelper.withLocalizationProvider(
               MultiProvider(
                 providers: [Provider<Services>.value(value: mockServices)],
-                child: SessionResult(session: session.toApi()),
+                child: SessionResult(
+                  profile: Faker().createProfile(),
+                  session: session.toApi()
+                ),
               ),
             ),
           );

@@ -40,6 +40,7 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
   AtlasRenderer? _renderer;
   ui.Image? _sprite;
   final _random = Random();
+  Timer? _animationTimer;
   Timer? _burstTimer;
 
   static const _burstCount = 3;
@@ -71,6 +72,12 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
     particleController = ParticleController(
       vsync: this,
       system: _fireworks.system,
+      autoStart: false,
+      onFrame: (system, _) {
+        if (_burstTimer == null && system.count == 0) {
+          particleController.stop();
+        }
+      },
     );
 
     animationController = AnimationController(
@@ -79,12 +86,7 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
     );
 
     if (widget.mode == MilestoneProgressViewItemMode.animate) {
-      Future.delayed(const Duration(milliseconds: 256), () {
-        if (mounted) {
-          animationController.forward();
-          _startBursts();
-        }
-      });
+      _scheduleAnimation();
     }
 
     _circleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -104,15 +106,46 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
     super.initState();
   }
 
+  @override
+  void didUpdateWidget(covariant MilestoneProgressViewItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mode == widget.mode) return;
+
+    _animationTimer?.cancel();
+    _burstTimer?.cancel();
+    _burstTimer = null;
+    particleController.stop();
+    particleController.clear();
+    animationController.reset();
+    if (widget.mode == MilestoneProgressViewItemMode.animate) {
+      _scheduleAnimation();
+    }
+  }
+
+  void _scheduleAnimation() {
+    _animationTimer = Timer(const Duration(milliseconds: 256), _playAnimation);
+  }
+
+  void _playAnimation() {
+    _animationTimer?.cancel();
+    animationController.forward(from: 0.0);
+    particleController.clear();
+    _startBursts();
+  }
+
   // Schedules a few bursts at random intervals.
   void _startBursts([int remaining = _burstCount]) {
     _burstTimer?.cancel();
-    if (remaining == 0) return;
+    if (remaining == 0) {
+      _burstTimer = null;
+      return;
+    }
     _burstTimer = Timer(Duration(milliseconds: 100 + _random.nextInt(225)), () {
       if (!mounted) return;
       final x = (_random.nextDouble() - 0.5) * 12;
       // _fireworks.launch(x, 0, apexY: -(20 + _random.nextDouble() * 30));
       _fireworks.emit(x: x, y: x, count: 48);
+      particleController.start();
       _startBursts(remaining - 1);
     });
   }
@@ -124,9 +157,7 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
         // Actual animation and particle system only built in animate mode.
         // For performance reasons.
         if (widget.mode == MilestoneProgressViewItemMode.animate) {
-          animationController.forward(from: 0.0);
-          particleController.clear();
-          _startBursts();
+          _playAnimation();
         }
       },
       child: _buildContent(),
@@ -214,6 +245,7 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
 
   @override
   void dispose() {
+    _animationTimer?.cancel();
     _burstTimer?.cancel();
     animationController.dispose();
     particleController.dispose();
