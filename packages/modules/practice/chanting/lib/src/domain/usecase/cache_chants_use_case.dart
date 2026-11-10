@@ -1,22 +1,18 @@
-import 'dart:math';
-
 import 'package:core/core.dart';
-import 'package:chanting/src/data/service/chant_asset_downloader.dart';
-import 'package:chanting/src/data/service/chant_cache_validator.dart';
-import 'package:chanting/src/data/service/chant_local_resource_resolver.dart';
+import 'package:chanting/src/domain/entity/cache_validation_result_entity.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
 import 'package:chanting/src/domain/entity/chant_entity.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
-import 'package:firebase_provider/firebase_provider.dart';
+import 'package:chanting/src/domain/service/chant_cache_services.dart';
 
 /// Ensures the requested chants are cached locally,
 /// streaming progress as assets are downloaded.
 class CacheChantsUseCase with LoggerMixin {
   final ChantCacheRepository chantCacheRepo;
-  final ChantCacheValidator chantCacheValidator;
-  final ChantAssetDownloader chantAssetDownloader;
-  final ChantLocalResourceResolver localResourceResolver;
+  final ChantCacheValidationService chantCacheValidator;
+  final ChantAssetDownloadService chantAssetDownloader;
+  final ChantLocalResourcesService localResourceResolver;
 
   CacheChantsUseCase({
     required this.chantCacheRepo,
@@ -25,10 +21,7 @@ class CacheChantsUseCase with LoggerMixin {
     required this.localResourceResolver,
   });
 
-  Stream<CachingProgressEntity> execute(
-    List<String> chantIds,
-    List<ChantEntity> availableChants,
-  ) async* {
+  Stream<CachingProgressEntity> execute(List<String> chantIds, List<ChantEntity> availableChants) async* {
     logger.t('Preparing playable assets for ${chantIds.length} chants...');
 
     await chantCacheRepo.ensureCacheDirectories();
@@ -37,29 +30,18 @@ class CacheChantsUseCase with LoggerMixin {
     final uniqueIds = chantIds.toSet().toList(growable: false);
 
     // Check if chants are already cached and valid
-    final List<ChantCacheValidationResult> validationResults = [];
+    final List<CacheValidationResultEntity> validationResults = [];
     for (final contentId in uniqueIds) {
       final chant = availableChants.firstWhere(
         (chant) => chant.id == contentId,
-        orElse: () => throw StateError(
-          'Chant with ID $contentId not found in available chants.',
-        ),
+        orElse: () => throw StateError('Chant with ID $contentId not found in available chants.'),
       );
-      final localResource = await localResourceResolver.collectLocalResource(
-        chant,
-      );
-      final validationResult = await chantCacheValidator.validateChantCache(
-        chant,
-        localResource.localResources,
-        chantCacheRepo,
-      );
+      final validationResult = await chantCacheValidator.validate(chant);
       validationResults.add(validationResult);
     }
 
     // Collect invalid chants that need to be cached
-    final invalidChants = validationResults
-        .where((validationResult) => (validationResult.isValid == false))
-        .toList();
+    final invalidChants = validationResults.where((validationResult) => (validationResult.isValid == false)).toList();
 
     // If there are no invalid chants, yield a final progress update with all
     // the prepared chant local resources
@@ -76,55 +58,18 @@ class CacheChantsUseCase with LoggerMixin {
       return;
     }
 
-    logger.t(
-      'Found ${invalidChants.length} chant(s) with invalid cache. Caching chant assets now...',
-    );
+    logger.t('Found ${invalidChants.length} chant(s) with invalid cache. Caching chant assets now...');
 
-    // Collect download tasks and validation Futures for all
-    // chant assets that need to be cached
-    final List<DownloadTask> downloadTasks = [];
-    final List<Future<void>> downloadValidationFutures = [];
-    for (final invalidResult in invalidChants) {
-      final chant = invalidResult.chant;
-      final validationResult = invalidResult;
-
-      // Get the download tasks for the invalid chant assets
-      final cachingResults = await chantAssetDownloader.cacheChantAssets(
-        validationResult,
-      );
-      downloadTasks.addAll(cachingResults.map((e) => e.downloadTask));
-
-      // Validate the downloaded assets and update the cache entries in the database
-      for (final cachingResult in cachingResults) {
-        downloadValidationFutures.add(
-          chantAssetDownloader.validateDownload(
-            cachingResult.downloadTask,
-            chant,
-            validationResult,
-            cachingResult.pendingEntry.localFilePath,
-            cachingResult.pendingEntry,
-          ),
-        );
-      }
+    CachingProgressEntity? downloadProgress;
+    await for (final progress in chantAssetDownloader.download(invalidChants)) {
+      downloadProgress = progress;
+      yield progress.copyWith(progress: progress.progress.clamp(0.0, 0.99), results: []);
     }
-
-    // Assemble a BatchDownloadTask to manage the download of all tasks
-    final batchDownloadTask = BatchDownloadTask(downloadTasks);
-
-    // Yield progress updates as the batch download progresses
-    await for (final progress in batchDownloadTask.progressStream) {
-      // Ensure that progress doesn't reach 1.0 until all downloads are validated,
-      // to avoid premature completion
-      yield CachingProgressEntity(
-        progress: min(progress, 0.99),
-        totalTasks: batchDownloadTask.totalTasks,
-        completedTasks: batchDownloadTask.completedTasks,
-        results: [],
-      );
+    if (downloadProgress == null ||
+        downloadProgress.totalTasks == 0 ||
+        downloadProgress.completedTasks != downloadProgress.totalTasks) {
+      throw StateError('Chant asset downloads did not complete.');
     }
-
-    // Wait for all download validation futures to complete before yielding the final progress update
-    await Future.wait(downloadValidationFutures);
 
     // Yield a final progress update with all the prepared chant local resources
     final results = await _buildResults(chantIds, validationResults);
@@ -138,32 +83,22 @@ class CacheChantsUseCase with LoggerMixin {
 
     yield CachingProgressEntity(
       progress: 1.0,
-      totalTasks: batchDownloadTask.totalTasks,
-      completedTasks: batchDownloadTask.completedTasks,
+      totalTasks: downloadProgress.totalTasks,
+      completedTasks: downloadProgress.completedTasks,
       results: results,
     );
-    batchDownloadTask.dispose();
     logger.t('All chant assets have been cached and validated successfully.');
   }
 
   /// Builds the local resources for every requested chant ID from already-computed validation results.
-  Future<List<({ChantEntity chant, ChantLocalResourcesEntity localResources})>>
-  _buildResults(
+  Future<List<({ChantEntity chant, ChantLocalResourcesEntity localResources})>> _buildResults(
     List<String> chantIds,
-    List<ChantCacheValidationResult> validationResults,
+    List<CacheValidationResultEntity> validationResults,
   ) async {
-    final results =
-        <({ChantEntity chant, ChantLocalResourcesEntity localResources})>[];
+    final results = <({ChantEntity chant, ChantLocalResourcesEntity localResources})>[];
     for (final chantId in chantIds) {
-      final chant = validationResults
-          .firstWhere((result) => result.chant.id == chantId)
-          .chant;
-      results.add((
-        chant: chant,
-        localResources: (await localResourceResolver.collectLocalResource(
-          chant,
-        )).localResources,
-      ));
+      final chant = validationResults.firstWhere((result) => result.chant.id == chantId).chant;
+      results.add((chant: chant, localResources: await localResourceResolver.resolve(chant)));
     }
     return results;
   }

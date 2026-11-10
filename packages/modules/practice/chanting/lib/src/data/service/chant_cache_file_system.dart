@@ -1,14 +1,25 @@
 import 'dart:io';
 
 import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chanting/src/domain/service/chant_cache_services.dart';
+import 'package:chanting/src/data/service/file_validation_extension.dart';
 
 /// Manages the on-disk layout of cached chant assets.
-class ChantCacheFileSystem {
+class ChantCacheFileSystem implements ChantCacheFileAccess {
   static const _rootFolder = 'chant_cache';
 
   final Future<Directory> Function() documentsDirectoryProvider;
 
   ChantCacheFileSystem({required this.documentsDirectoryProvider});
+
+  @override
+  Future<bool> exists(String path) => File(path).exists();
+
+  @override
+  Future<String> sha256(String path) => File(path).sha256();
+
+  @override
+  Future<int> size(String path) => File(path).size();
 
   Future<void> ensureCacheDirectories() async {
     final root = await _rootDirectory();
