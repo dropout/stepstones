@@ -1,6 +1,6 @@
 // ignore_for_file: implementation_imports
 
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chanting/chanting.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
@@ -44,9 +44,10 @@ Widget buildPlaylistSheet(BuildContext context) {
   );
   final state = ChantingStateEntity(
     chantingSettings: ChantingSettings(selectedChants: playlist),
-    playbackState: PlaybackState(
+    playbackState: ChantPlaybackStateEntity(
       playing: isPlaying,
-      processingState: AudioProcessingState.ready,
+      processingState: ChantPlaybackProcessingState.ready,
+      updateTime: DateTime.now(),
       queueIndex: currentIndex,
     ),
   );

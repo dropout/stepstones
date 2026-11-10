@@ -1,7 +1,7 @@
 // ignore_for_file: implementation_imports
 import 'dart:async';
 
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chanting/chanting.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
@@ -19,8 +19,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
-class _MockChantingCubit extends MockCubit<ChantingStateEntity>
-    implements ChantingCubit {}
+class _MockChantingCubit extends MockCubit<ChantingStateEntity> implements ChantingCubit {}
 
 const _lineDuration = Duration(seconds: 3);
 const _tick = Duration(milliseconds: 50);
@@ -37,7 +36,7 @@ const _lyricsText = [
   'gae gyong gye',
   'mu-sang shim-shim mi-myo bop',
   'baek-chon-man gop nan jo-u',
-  'a gum mun gyon duk su ji'
+  'a gum mun gyon duk su ji',
 ];
 
 /// Splits each text into evenly timed words, one line after another.
@@ -70,24 +69,12 @@ LyricsDocumentEntity _buildLyrics() {
 final _lyrics = _buildLyrics();
 final _totalDuration = _lineDuration * _lyricsText.length;
 
-@widgetbook.UseCase(
-  name: 'Simulated playback',
-  type: LyricsView,
-  path: '[Chanting]/internal/view/player/',
-)
+@widgetbook.UseCase(name: 'Simulated playback', type: LyricsView, path: '[Chanting]/internal/view/player/')
 Widget buildLyricsView(BuildContext context) {
   final playing = context.knobs.boolean(label: 'Playing', initialValue: false);
-  final topOffset = context.knobs.double.slider(
-    label: 'Top offset',
-    initialValue: 200,
-    min: 0,
-    max: 500,
-  );
+  final topOffset = context.knobs.double.slider(label: 'Top offset', initialValue: 200, min: 0, max: 500);
 
-  final loaded = context.knobs.boolean(
-    label: 'Lyrics loaded',
-    initialValue: true,
-  );
+  final loaded = context.knobs.boolean(label: 'Lyrics loaded', initialValue: true);
 
   return ColoredBox(
     // color: AppColors.backgroundPaper,
@@ -130,8 +117,7 @@ class _LyricsSimulationState extends State<_LyricsSimulation> {
   void initState() {
     super.initState();
     _cubit = _MockChantingCubit();
-    whenListen(_cubit, const Stream<ChantingStateEntity>.empty(),
-        initialState: _state);
+    whenListen(_cubit, const Stream<ChantingStateEntity>.empty(), initialState: _state);
     when(() => _cubit.pause()).thenAnswer((_) async {
       if (mounted) setState(() => _playing = false);
     });
@@ -168,13 +154,8 @@ class _LyricsSimulationState extends State<_LyricsSimulation> {
     }
     return ChantingStateEntity(
       chantingSettings: const ChantingSettings(),
-      playbackState: PlaybackState(
-        playing: _playing,
-        updatePosition: _position,
-      ),
-      lyricsLoadingState: widget.loaded
-          ? ProcessingState.completed
-          : ProcessingState.processing,
+      playbackState: ChantPlaybackStateEntity(playing: _playing, updatePosition: _position, updateTime: DateTime.now()),
+      lyricsLoadingState: widget.loaded ? ProcessingState.completed : ProcessingState.processing,
       lyricsDocument: widget.loaded ? _lyrics : null,
       activeLineIndex: activeIndex,
     );

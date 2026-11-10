@@ -1,4 +1,4 @@
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/chanting_module.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:clock/clock.dart';
@@ -12,7 +12,7 @@ void main() {
     ProcessingState loadingState = ProcessingState.processing,
   }) => ChantingStateEntity(
     chantingSettings: const ChantingSettings(),
-    playbackState: PlaybackState(),
+    playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026)),
     elapsedSessionTime: elapsed,
     startTime: startTime,
     loadingState: loadingState,

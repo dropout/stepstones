@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_document_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_line_entity.dart';
@@ -76,7 +76,10 @@ void main() {
       ['extraordinarilylongunbrokenword'],
       <String>[],
     ];
-    final state = ChantingStateEntity(chantingSettings: const ChantingSettings(), playbackState: PlaybackState());
+    final state = ChantingStateEntity(
+      chantingSettings: const ChantingSettings(),
+      playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026)),
+    );
 
     for (final width in [200.0, 390.0, 480.0]) {
       for (final media in [
@@ -155,7 +158,7 @@ void main() {
     );
     final state = ChantingStateEntity(
       chantingSettings: const ChantingSettings(),
-      playbackState: PlaybackState(),
+      playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026)),
       lyricsLoadingState: ProcessingState.completed,
       lyricsDocument: LyricsDocumentEntity(lines: [line, nextLine]),
     );
