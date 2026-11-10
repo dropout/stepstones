@@ -1,4 +1,4 @@
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:core/core.dart';
 import 'package:material_ui/material_ui.dart';
@@ -44,9 +44,7 @@ class const PlayerControls({
 
   @override
   Widget build(BuildContext context) {
-    final Duration safeDuration = duration < Duration.zero
-        ? Duration.zero
-        : duration;
+    final Duration safeDuration = duration < Duration.zero ? Duration.zero : duration;
     final Duration safePosition = position < Duration.zero
         ? Duration.zero
         : position > safeDuration
@@ -56,12 +54,11 @@ class const PlayerControls({
     final double maxMs = safeDuration.inMilliseconds.toDouble();
     final double currentMs = safePosition.inMilliseconds.toDouble();
 
-    final TextStyle? timeTextStyle = context.theme.textTheme.titleMedium
-        ?.copyWith(
-          fontFamily: DesignSpec.condensedFontFamilyName,
-          color: AppColors.appWhite,
-          fontWeight: FontWeight.bold,
-        );
+    final TextStyle? timeTextStyle = context.theme.textTheme.titleMedium?.copyWith(
+      fontFamily: DesignSpec.condensedFontFamilyName,
+      color: AppColors.appWhite,
+      fontWeight: FontWeight.bold,
+    );
 
     final title = chantingState.mediaItem?.title ?? '';
     final currentIndex = chantingState.currentIndex;
@@ -76,9 +73,7 @@ class const PlayerControls({
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: DesignSpec.paddingLg,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: DesignSpec.paddingLg),
           child: Row(
             // mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: .end,
@@ -94,11 +89,7 @@ class const PlayerControls({
               ),
               if (playlistLength > 0) ...<Widget>[
                 Gap.small(),
-                Text(
-                  '${currentIndex + 1} / $playlistLength',
-                  textAlign: TextAlign.center,
-                  style: titleStyle,
-                ),
+                Text('${currentIndex + 1} / $playlistLength', textAlign: TextAlign.center, style: titleStyle),
               ],
             ],
           ),
@@ -120,22 +111,12 @@ class const PlayerControls({
           ),
         if (showTime)
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: DesignSpec.paddingLg,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: DesignSpec.paddingLg),
             child: Row(
               children: <Widget>[
-                Text(
-                  safePosition.formatMss(),
-                  textAlign: TextAlign.start,
-                  style: timeTextStyle,
-                ),
+                Text(safePosition.formatMss(), textAlign: TextAlign.start, style: timeTextStyle),
                 const Spacer(),
-                Text(
-                  safeDuration.formatMss(),
-                  textAlign: TextAlign.end,
-                  style: timeTextStyle,
-                ),
+                Text(safeDuration.formatMss(), textAlign: TextAlign.end, style: timeTextStyle),
               ],
             ),
           ),
@@ -196,8 +177,8 @@ class const PlayerControls({
       return true;
     }
     return switch (chantingState.playbackState.processingState) {
-      AudioProcessingState.loading => true,
-      AudioProcessingState.buffering => true,
+      ChantPlaybackProcessingState.loading => true,
+      ChantPlaybackProcessingState.buffering => true,
       _ => false,
     };
   }
@@ -216,7 +197,7 @@ class PlayPauseButton extends StatelessWidget {
     this.disableWhileLoading = true,
   });
 
-  final PlaybackState playbackState;
+  final ChantPlaybackStateEntity playbackState;
   final VoidCallback onPressed;
   final Color backgroundColor;
   final Color iconColor;
@@ -226,9 +207,7 @@ class PlayPauseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final VoidCallback? resolvedOnPressed = disableWhileLoading && isLoading
-        ? null
-        : onPressed;
+    final VoidCallback? resolvedOnPressed = disableWhileLoading && isLoading ? null : onPressed;
 
     return IconButton.filled(
       iconSize: size,
@@ -256,9 +235,7 @@ class PlayPauseButton extends StatelessWidget {
               )
             : Icon(
                 key: ValueKey<bool?>(playbackState.playing),
-                playbackState.playing == true
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
+                playbackState.playing == true ? Icons.pause_rounded : Icons.play_arrow_rounded,
                 color: iconColor,
               ),
       ),

@@ -23,6 +23,8 @@ import 'package:chanting/src/data/service/chant_asset_downloader.dart';
 import 'package:chanting/src/data/service/chant_cache_file_system.dart';
 import 'package:chanting/src/data/service/chant_local_resource_resolver.dart';
 import 'package:chanting/src/data/service/default_chanting_public_api.dart';
+import 'package:chanting/src/data/service/default_chanting_audio_service.dart';
+import 'package:chanting/src/data/service/default_lyrics_service.dart';
 import 'package:chanting/src/service/chanting_cache_clear_capability.dart';
 import 'package:chanting/src/domain/service/chant_cache_validator.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
@@ -62,7 +64,7 @@ extension ChantingModuleDependencyInjection on GetIt {
     );
 
     // Services
-    registerFactory<ChantingAudioService>(() => ChantingAudioService(GetIt.I.get<AppAudioHandler>()));
+    registerFactory<ChantingAudioService>(() => DefaultChantingAudioService(GetIt.I.get<AppAudioHandler>()));
     registerFactory<ChantingAppPort>(
       () => DefaultChantingAppPort(
         authPublicApi: GetIt.I.get<AuthPublicApi>(),
@@ -70,7 +72,7 @@ extension ChantingModuleDependencyInjection on GetIt {
         socialPublicApi: GetIt.I.get<SocialPublicApi>(),
       ),
     );
-    registerLazySingleton<LyricsService>(() => LyricsService());
+    registerLazySingleton<LyricsService>(() => DefaultLyricsService());
     registerLazySingleton<ChantCacheFileSystem>(
       () => ChantCacheFileSystem(documentsDirectoryProvider: getApplicationDocumentsDirectory),
     );

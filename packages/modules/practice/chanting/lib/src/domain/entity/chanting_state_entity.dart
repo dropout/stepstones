@@ -1,11 +1,12 @@
 import 'package:clock/clock.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:core/core.dart';
 import 'package:chanting/src/chanting_module.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
+import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_document_entity.dart';
 
 part 'chanting_state_entity.freezed.dart';
@@ -23,10 +24,10 @@ sealed class ChantingStateEntity with _$ChantingStateEntity {
 
     // playback
     @Default([]) List<ChantLocalResourcesEntity> chantResources,
-    required PlaybackState playbackState,
+    required ChantPlaybackStateEntity playbackState,
     @Default(Duration.zero) Duration elapsedTime,
     @Default(ProcessingState.processing) ProcessingState loadingState,
-    MediaItem? mediaItem,
+    ChantTrackEntity? mediaItem,
     @Default(Duration.zero) Duration outputLatency,
 
     // lyrics
@@ -77,8 +78,6 @@ sealed class ChantingStateEntity with _$ChantingStateEntity {
   }
 
   Duration get currentTrackDuration => mediaItem?.duration ?? Duration.zero;
-  Duration get sessionDuration => chantingSettings.selectedChants.fold(
-    Duration.zero,
-    (total, chant) => total + chant.duration,
-  );
+  Duration get sessionDuration =>
+      chantingSettings.selectedChants.fold(Duration.zero, (total, chant) => total + chant.duration);
 }

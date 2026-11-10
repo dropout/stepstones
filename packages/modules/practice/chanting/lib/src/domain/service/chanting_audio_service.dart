@@ -1,69 +1,21 @@
-import 'dart:convert';
-
-import 'package:audio_service/audio_service.dart';
-import 'package:chanting/src/audio/so_chanting_audio_handler.dart';
-import 'package:core/core.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
+import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 
-class ChantingAudioService {
-  final AppAudioHandler audioHandler;
+abstract interface class ChantingAudioService {
+  Future<Duration> setup(List<ChantLocalResourcesEntity> resources);
+  Future<void> play();
+  Future<void> pause();
+  Future<void> seek(Duration position);
+  Future<void> stop();
+  Future<void> prev();
+  Future<void> next();
 
-  ChantingAudioService(this.audioHandler) {
-    _switchToChantingAudioHandler();
-  }
-
-  Future<Duration> setup(List<ChantLocalResourcesEntity> resources) async {
-    final result = await audioHandler.customAction(
-      SoLoudChantingAudioHandlerCustomAction.setup.name,
-      {'resources': jsonEncode(resources)},
-    );
-    return result;
-  }
-
-  Future<void> play() => audioHandler.play();
-  Future<void> pause() => audioHandler.pause();
-  Future<void> seek(Duration position) => audioHandler.seek(position);
-  Future<void> stop() => audioHandler.stop();
-  Future<void> prev() => audioHandler.skipToPrevious();
-  Future<void> next() => audioHandler.skipToNext();
-
-  bool get playing => audioHandler.playbackState.value.playing;
-
-  // Duration
-  Duration get duration => mediaItem?.duration ?? Duration.zero;
-  Stream<Duration?> get durationStream =>
-      audioHandler.mediaItem.where((m) => m != null).map((m) => m!.duration);
-
-  // MediaItem
-  Stream<MediaItem?> get mediaItemStream => audioHandler.mediaItem;
-  MediaItem? get mediaItem => audioHandler.mediaItem.value;
-
-  // PlaybackState
-  Stream<PlaybackState> get playbackStateStream => audioHandler.playbackState;
-  PlaybackState get playbackState => audioHandler.playbackState.value;
-
-  // Position
-  Stream<Duration> get positionStream =>
-      audioHandler.playbackState.map((pb) => pb.position);
-  Duration get position => audioHandler.playbackState.value.position;
-  Future<Duration> get outputLatency => audioHandler.outputLatency;
-
-  // Audio route changes
-  Stream<void> get audioRouteChangeStream =>
-      audioHandler.audioRouteChangeStream;
-
-  Stream<void> get playlistCompletedStream => audioHandler.customEvent.where(
-    (event) =>
-        event is SoLoudChantingAudioHandlerCustomEvent &&
-        event == SoLoudChantingAudioHandlerCustomEvent.playlistCompleted,
-  );
-
-  /// Emits the chant ID of each track that played to its end.
-  Stream<String> get chantCompletedStream => audioHandler.customEvent
-      .where((event) => event is SoLoudChantingTrackCompletedEvent)
-      .map((event) => (event as SoLoudChantingTrackCompletedEvent).mediaId);
-
-  void _switchToChantingAudioHandler() {
-    audioHandler.switchToChantingAudioHandler();
-  }
+  ChantPlaybackStateEntity get playbackState;
+  Stream<ChantPlaybackStateEntity> get playbackStateStream;
+  Stream<ChantTrackEntity?> get mediaItemStream;
+  Future<Duration> get outputLatency;
+  Stream<void> get audioRouteChangeStream;
+  Stream<void> get playlistCompletedStream;
+  Stream<String> get chantCompletedStream;
 }

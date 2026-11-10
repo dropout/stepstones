@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/chanting_module.dart';
 import 'package:chanting/src/domain/service/chanting_audio_service.dart';
 import 'package:chanting/src/domain/usecase/complete_chanting_use_case.dart';
@@ -44,7 +44,7 @@ void main() {
     chantCompleted = StreamController<String>.broadcast();
     playlistCompleted = StreamController<void>.broadcast();
 
-    when(() => audioService.playbackState).thenReturn(PlaybackState());
+    when(() => audioService.playbackState).thenReturn(ChantPlaybackStateEntity(updateTime: DateTime(2026)));
     when(() => audioService.playbackStateStream).thenAnswer((_) => const Stream.empty());
     when(() => audioService.mediaItemStream).thenAnswer((_) => const Stream.empty());
     when(() => audioService.audioRouteChangeStream).thenAnswer((_) => const Stream.empty());
@@ -181,7 +181,9 @@ void main() {
   group('exit prompt', () {
     test('pauses and resumes when it was playing', () async {
       final cubit = buildCubit();
-      cubit.emit(cubit.state.copyWith(playbackState: PlaybackState(playing: true)));
+      cubit.emit(
+        cubit.state.copyWith(playbackState: ChantPlaybackStateEntity(playing: true, updateTime: DateTime(2026))),
+      );
 
       await cubit.pauseForExitPrompt();
       await cubit.resumeAfterExitPrompt();

@@ -1,6 +1,7 @@
 // ignore_for_file: implementation_imports
 
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
+import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 import 'package:chanting/chanting.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/presentation/view/player/player_controls.dart';
@@ -27,13 +28,14 @@ Widget buildPlayerControls(BuildContext context) {
 
   final state = ChantingStateEntity(
     chantingSettings: const ChantingSettings(),
-    playbackState: PlaybackState(
+    playbackState: ChantPlaybackStateEntity(
       playing: isPlaying,
-      processingState: isLoading ? AudioProcessingState.loading : AudioProcessingState.ready,
+      processingState: isLoading ? ChantPlaybackProcessingState.loading : ChantPlaybackProcessingState.ready,
       updatePosition: Duration(seconds: positionSeconds),
+      updateTime: DateTime.now(),
     ),
     loadingState: isLoading ? .processing : .completed,
-    mediaItem: MediaItem(
+    mediaItem: ChantTrackEntity(
       id: 'widgetbook-player-controls',
       title: 'Player controls preview',
       duration: Duration(seconds: durationSeconds),

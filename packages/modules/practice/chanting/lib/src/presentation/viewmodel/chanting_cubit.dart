@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:audio_service/audio_service.dart';
+import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
+import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 
 import 'package:core/core.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
@@ -30,8 +31,8 @@ class ChantingCubit({
   required final CompleteChantingUseCase completeChantingUseCase,
 }) extends Cubit<ChantingStateEntity> with LoggerMixin {
   // Stream subscriptions for audio service events
-  StreamSubscription<PlaybackState>? _playbackStateSub;
-  StreamSubscription<MediaItem?>? _mediaItemSub;
+  StreamSubscription<ChantPlaybackStateEntity>? _playbackStateSub;
+  StreamSubscription<ChantTrackEntity?>? _mediaItemSub;
   StreamSubscription? _playlistCompletedSub;
   StreamSubscription<String>? _chantCompletedSub;
   StreamSubscription? _audioRouteChangeSub;
@@ -42,13 +43,7 @@ class ChantingCubit({
   bool _sessionEnded = false;
   bool _resumeAfterExitPrompt = false;
 
-  this
-    : super(
-        ChantingStateEntity(
-          chantingSettings: chantingSettings,
-          playbackState: audioService.playbackState,
-        ),
-      ) {
+  this : super(ChantingStateEntity(chantingSettings: chantingSettings, playbackState: audioService.playbackState)) {
     _init();
   }
 
@@ -59,24 +54,14 @@ class ChantingCubit({
         _updateOutputLatency();
       });
 
-      _playbackStateSub = audioService.playbackStateStream.listen(
-        _onPlaybackStateChanged,
-      );
+      _playbackStateSub = audioService.playbackStateStream.listen(_onPlaybackStateChanged);
       _mediaItemSub = audioService.mediaItemStream.listen(_onMediaItemChanged);
-      _playlistCompletedSub = audioService.playlistCompletedStream.listen(
-        _onPlaylistCompleted,
-      );
-      _chantCompletedSub = audioService.chantCompletedStream.listen(
-        _onChantCompleted,
-      );
+      _playlistCompletedSub = audioService.playlistCompletedStream.listen(_onPlaylistCompleted);
+      _chantCompletedSub = audioService.chantCompletedStream.listen(_onChantCompleted);
       _updateOutputLatency();
     } catch (e, st) {
       // emit(state.copyWith(playbackState: AudioPlaybackState.error));
-      crashlyticsService.recordError(
-        exception: e,
-        stackTrace: st,
-        reason: 'Error initializing ChantingCubit',
-      );
+      crashlyticsService.recordError(exception: e, stackTrace: st, reason: 'Error initializing ChantingCubit');
     }
   }
 
@@ -86,9 +71,7 @@ class ChantingCubit({
     try {
       emit(state.copyWith(loadingState: .processing));
       final prepared = startChantingUseCase.execute(
-        chantingSettings.selectedChants
-            .map((e) => e.chantId)
-            .toList(growable: false),
+        chantingSettings.selectedChants.map((e) => e.chantId).toList(growable: false),
       );
 
       // Update the state with caching progress as it occurs
@@ -99,9 +82,7 @@ class ChantingCubit({
           emit(
             state.copyWith(
               cachingProgress: progress,
-              chantResources: progress.results
-                  .map((r) => r.localResources)
-                  .toList(),
+              chantResources: progress.results.map((r) => r.localResources).toList(),
             ),
           );
         },
@@ -116,20 +97,14 @@ class ChantingCubit({
       await done.future;
 
       if (!isClosed) {
-        emit(
-          state.copyWith(loadingState: .completed, startTime: DateTime.now()),
-        );
+        emit(state.copyWith(loadingState: .completed, startTime: DateTime.now()));
       }
 
       // logger.t('Chanting setup complete with ${resources.length} chants');
     } catch (e, st) {
       if (!isClosed) emit(state.copyWith(loadingState: .error));
       audioService.stop();
-      crashlyticsService.recordError(
-        exception: e,
-        stackTrace: st,
-        reason: 'Error setting up chants: ${e.toString()}',
-      );
+      crashlyticsService.recordError(exception: e, stackTrace: st, reason: 'Error setting up chants: ${e.toString()}');
     }
   }
 
@@ -142,26 +117,16 @@ class ChantingCubit({
       // User quickly pressed back button
       if (isClosed) return;
 
-      emit(
-        state.copyWith(
-          lyricsLoadingState: ProcessingState.completed,
-          lyricsDocument: lyricsDocument,
-        ),
-      );
+      emit(state.copyWith(lyricsLoadingState: ProcessingState.completed, lyricsDocument: lyricsDocument));
     } catch (e, st) {
       emit(state.copyWith(lyricsLoadingState: ProcessingState.error));
-      crashlyticsService.recordError(
-        exception: e,
-        stackTrace: st,
-        reason: 'Error loading lyrics for chant $chantId',
-      );
+      crashlyticsService.recordError(exception: e, stackTrace: st, reason: 'Error loading lyrics for chant $chantId');
     }
   }
 
   /// Calculates the active lyrics line index based on the current position.
   void _playbackPositionUpdate(Duration position) {
-    final activeLineIndex =
-        state.lyricsDocument?.getExactLineIndex(position) ?? 0;
+    final activeLineIndex = state.lyricsDocument?.getExactLineIndex(position) ?? 0;
 
     // If position falls between two lines,
     // keep the line index unchanged until the next line is active
@@ -170,7 +135,7 @@ class ChantingCubit({
     }
   }
 
-  void _onPlaybackStateChanged(PlaybackState pbState) async {
+  void _onPlaybackStateChanged(ChantPlaybackStateEntity pbState) async {
     emit(await playbackStateChangeUseCase.execute(state, pbState));
 
     // Only update while playing
@@ -193,8 +158,7 @@ class ChantingCubit({
     // Navigate to the session completed screen with the completed session data
     logger.t('Navigating to session completed screen');
     sessionNavigator.navigateToSessionCompletedScreen(
-      startTime:
-          state.startTime ?? DateTime.now().subtract(state.elapsedSessionTime),
+      startTime: state.startTime ?? DateTime.now().subtract(state.elapsedSessionTime),
       endTime: state.endTime ?? DateTime.now(),
       duration: state.elapsedSessionTime,
       sessionType: .chanting,
@@ -224,11 +188,7 @@ class ChantingCubit({
       );
     } catch (e, st) {
       _sessionEnded = false;
-      crashlyticsService.recordError(
-        exception: e,
-        stackTrace: st,
-        reason: 'Error finishing chanting session early',
-      );
+      crashlyticsService.recordError(exception: e, stackTrace: st, reason: 'Error finishing chanting session early');
     }
   }
 
@@ -245,7 +205,7 @@ class ChantingCubit({
     if (shouldResume && !_sessionEnded && !isClosed) await play();
   }
 
-  void _onMediaItemChanged(MediaItem? mediaItem) {
+  void _onMediaItemChanged(ChantTrackEntity? mediaItem) {
     // Nothing to act on if the media item is null
     if (mediaItem == null) return;
 
@@ -302,13 +262,13 @@ class ChantingCubit({
   Future<void> close() {
     // Cancel all subscriptions
     // Order is important!
-    _mediaItemSub?.cancel();    
+    _mediaItemSub?.cancel();
     _playbackStateSub?.cancel();
     _playlistCompletedSub?.cancel();
     _chantCompletedSub?.cancel();
-    _audioRouteChangeSub?.cancel();    
+    _audioRouteChangeSub?.cancel();
     _cachingSub?.cancel();
-    
+
     // Unblocks start(), which would otherwise wait on a cancelled stream.
     if (_cachingDone?.isCompleted == false) _cachingDone!.complete();
 
