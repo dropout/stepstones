@@ -1,5 +1,4 @@
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
-import 'package:chanting/src/chanting_module.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:clock/clock.dart';
 import 'package:core/core.dart';
@@ -11,7 +10,6 @@ void main() {
     DateTime? startTime,
     ProcessingState loadingState = ProcessingState.processing,
   }) => ChantingStateEntity(
-    chantingSettings: const ChantingSettings(),
     playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026)),
     elapsedSessionTime: elapsed,
     startTime: startTime,

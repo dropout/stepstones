@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chanting/src/data/mapper/chant_playlist_item_mapper.dart';
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 
@@ -44,7 +45,13 @@ class ChantingCubit({
   bool _resumeAfterExitPrompt = false;
   int _lyricsRequestId = 0;
 
-  this : super(ChantingStateEntity(chantingSettings: chantingSettings, playbackState: audioService.playbackState)) {
+  this
+    : super(
+        ChantingStateEntity(
+          playlist: chantingSettings.selectedChants.map((item) => item.toDomain()).toList(growable: false),
+          playbackState: audioService.playbackState,
+        ),
+      ) {
     _init();
   }
 
@@ -71,9 +78,7 @@ class ChantingCubit({
   Future<void> start() async {
     try {
       emit(state.copyWith(loadingState: .processing));
-      final prepared = startChantingUseCase.execute(
-        chantingSettings.selectedChants.map((e) => e.chantId).toList(growable: false),
-      );
+      final prepared = startChantingUseCase.execute(state.playlist.map((e) => e.chantId).toList(growable: false));
 
       // Update the state with caching progress as it occurs
       final done = _cachingDone = Completer<void>();

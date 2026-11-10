@@ -5,11 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const config = LyricsEffectsConfig();
 
-  LyricFocusValues values(
-    int d, {
-    LyricsEffectsConfig c = config,
-    bool u = false,
-  }) => lyricFocusValues(distance: d, config: c, isUserScrolling: u);
+  LyricFocusValues values(int d, {LyricsEffectsConfig c = config, bool u = false}) =>
+      lyricFocusValues(distance: d, config: c, isUserScrolling: u);
 
   test('active line is fully visible, sharp and unscaled', () {
     final v = values(0);
@@ -21,8 +18,11 @@ void main() {
   test('effects grow with distance and are capped', () {
     expect(values(2).opacity, lessThan(values(1).opacity));
     expect(values(100).opacity, config.minOpacity);
-    expect(values(100).blurSigma, config.maxBlurSigma);
+    for (final distance in [3, 63, 64, 100, 1025]) {
+      expect(values(distance).blurSigma, config.maxBlurSigma);
+    }
     expect(values(1).scale, config.inactiveScale);
+    expect(values(2).scale, closeTo(config.inactiveScale * config.inactiveScale, 1e-12));
   });
 
   test('disabled config applies nothing', () {
@@ -35,18 +35,16 @@ void main() {
     final v = values(3, c: config.copyWith(blur: false, fade: false));
     expect(v.blurSigma, 0);
     expect(v.opacity, 1);
-    expect(v.scale, config.inactiveScale);
+    expect(v.scale, closeTo(config.inactiveScale * config.inactiveScale * config.inactiveScale, 1e-12));
+  });
+
+  test('zero blur remains zero at large distances', () {
+    final v = values(1025, c: config.copyWith(blurSigmaPerLine: 0));
+    expect(v.blurSigma, 0);
   });
 
   test('blur is skipped while user scrolls unless allowed', () {
     expect(values(3, u: true).blurSigma, 0);
-    expect(
-      values(
-        3,
-        u: true,
-        c: config.copyWith(blurWhileUserScrolling: true),
-      ).blurSigma,
-      greaterThan(0),
-    );
+    expect(values(3, u: true, c: config.copyWith(blurWhileUserScrolling: true)).blurSigma, greaterThan(0));
   });
 }

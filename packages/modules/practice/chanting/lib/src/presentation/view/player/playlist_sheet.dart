@@ -1,4 +1,5 @@
 import 'package:chanting/l10n/chanting_localizations.dart';
+import 'package:chanting/src/data/mapper/chant_playlist_item_mapper.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/presentation/viewmodel/chanting_cubit.dart';
 import 'package:chanting/src/public/view/chanting_settings/chant_card.dart';
@@ -45,10 +46,10 @@ class PlaylistSheet extends StatelessWidget {
                   left: DesignSpec.paddingLg,
                   right: DesignSpec.paddingLg,
                 ),
-                itemCount: state.chantingSettings.selectedChants.length,
+                itemCount: state.playlist.length,
                 itemBuilder: (context, index) {
                   final chantViewModel =
-                      state.chantingSettings.selectedChants[index];
+                      state.playlist[index].toApi();
                   return Padding(
                     padding: const EdgeInsets.only(
                       bottom: DesignSpec.paddingSm,

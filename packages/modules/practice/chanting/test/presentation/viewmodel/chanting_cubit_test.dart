@@ -41,12 +41,7 @@ void main() {
     registerFallbackValue(NavigationType.go);
     registerFallbackValue(Duration.zero);
     registerFallbackValue(DateTime(2026));
-    registerFallbackValue(
-      ChantingStateEntity(
-        chantingSettings: const ChantingSettings(),
-        playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026)),
-      ),
-    );
+    registerFallbackValue(ChantingStateEntity(playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026))));
   });
 
   setUp(() {
@@ -89,9 +84,9 @@ void main() {
     await playbackStates.close();
   });
 
-  ChantingCubit buildCubit() => ChantingCubit(
+  ChantingCubit buildCubit({ChantingSettings settings = const ChantingSettings()}) => ChantingCubit(
     sessionNavigator: sessionNavigator,
-    chantingSettings: const ChantingSettings(),
+    chantingSettings: settings,
     audioService: audioService,
     crashlyticsService: crashlyticsService,
     startChantingUseCase: startChantingUseCase,
@@ -110,6 +105,39 @@ void main() {
       navigationType: any(named: 'navigationType'),
     ),
   ).called(times);
+
+  test('preserves ordered playlist entries and duplicate chant ids on startup', () async {
+    const settings = ChantingSettings(
+      selectedChants: [
+        ChantPlaylistItem(
+          id: 'one',
+          chantId: 'chant',
+          name: 'First',
+          blurHash: 'a',
+          order: 2,
+          duration: Duration(seconds: 10),
+        ),
+        ChantPlaylistItem(
+          id: 'two',
+          chantId: 'chant',
+          name: 'Second',
+          blurHash: 'b',
+          order: 3,
+          duration: Duration(seconds: 20),
+        ),
+      ],
+    );
+    when(() => startChantingUseCase.execute(['chant', 'chant'])).thenAnswer((_) => const Stream.empty());
+    final cubit = buildCubit(settings: settings);
+    expect(cubit.state.playlist.map((item) => item.id), ['one', 'two']);
+    expect(cubit.state.playlist.map((item) => item.name), ['First', 'Second']);
+    expect(cubit.state.sessionDuration, const Duration(seconds: 30));
+
+    await cubit.start();
+    verify(() => startChantingUseCase.execute(['chant', 'chant'])).called(1);
+    expect(cubit.state.loadingState, ProcessingState.completed);
+    await cubit.close();
+  });
 
   test('reports startup errors and does not play', () async {
     final error = StateError('setup failed');

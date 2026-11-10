@@ -31,9 +31,9 @@ LyricFocusValues lyricFocusValues({
       : 1.0;
   final blurAllowed =
       config.isBlurOn && (config.blurWhileUserScrolling || !isUserScrolling);
-  final sigma = blurAllowed && distance > 0
+  final sigma = blurAllowed && distance > 0 && config.blurSigmaPerLine != 0
       ? math.min(
-          config.blurSigmaPerLine * math.pow(2, distance - 1).toDouble(),
+          config.blurSigmaPerLine * math.pow(2.0, distance - 1).toDouble(),
           config.maxBlurSigma,
         )
       : 0.0;
