@@ -12,5 +12,13 @@
   "chantingPlaylistBadgePaused": "Szünet",
   "chantingPlaylistEmptyTitle": "A lejátszási lista üres.",
   "chantingPlaylistEmptyDescription": "Koppints a + gombra, és adj énekeket a lejátszási listához.",
-  "chantingPlayerLoading": "A munkamenet előkészítése..."
+  "chantingPlayerLoading": "Gyakorlás előkészítése...",
+  "chantingExitFinishOrDiscardTitle": "Befejezed a gyakorlást?",
+  "chantingExitFinishOrDiscardMessage": "Befejezheted most, és rögzítjük az eddig elkészült énekeket, vagy elvetheted ezt a gyakorlást.",
+  "chantingExitFinish": "Befejezés",
+  "chantingExitDiscard": "Elvetés",
+  "chantingExitEndSessionTitle": "Befejezed a gyakorlást?",
+  "chantingExitEndSessionMessage": "Még egy éneket sem sem fejeztél be, ezért a gyakorlat nem kerül rögzítésre.",
+  "chantingExitEndSession": "Igen, befejezem",
+  "chantingExitCancel": "Mégse"
 }

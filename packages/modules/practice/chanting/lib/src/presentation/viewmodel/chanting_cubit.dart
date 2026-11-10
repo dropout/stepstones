@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:audio_service/audio_service.dart';
 
@@ -36,6 +37,10 @@ class ChantingCubit({
   StreamSubscription? _audioRouteChangeSub;
   StreamSubscription<CachingProgressEntity>? _cachingSub;
   Completer<void>? _cachingDone;
+
+  // Guards against navigating to the completed screen twice.
+  bool _sessionEnded = false;
+  bool _resumeAfterExitPrompt = false;
 
   this
     : super(
@@ -175,10 +180,12 @@ class ChantingCubit({
   }
 
   void _onChantCompleted(String chantId) {
-    emit(state.copyWith(completedChantIds: [...state.completedChantIds, chantId]));
+    emit(state.withChantCompleted(chantId, clock.now()));
   }
 
   void _onPlaylistCompleted(_) async {
+    if (_sessionEnded) return;
+    _sessionEnded = true;
     logger.t('Playlist completed');
     final result = await completeChantingUseCase.execute(state);
     emit(result.state);
@@ -197,6 +204,45 @@ class ChantingCubit({
       // doesnt make sense to go back to chantingview after finish
       navigationType: .go,
     );
+  }
+
+  /// Ends the session early, logging only the finished chants.
+  Future<void> finishEarly() async {
+    if (_sessionEnded || !state.hasCompletedChants) return;
+    _sessionEnded = true;
+    try {
+      await audioService.pause();
+      final session = state.finishedChantsSession;
+      logger.t('Finishing session early with ${session.completedChantIds.length} chants');
+      await sessionNavigator.navigateToSessionCompletedScreen(
+        startTime: session.startTime,
+        endTime: session.endTime,
+        duration: session.duration,
+        sessionType: .chanting,
+        completedChantIds: session.completedChantIds,
+        navigationType: .go,
+      );
+    } catch (e, st) {
+      _sessionEnded = false;
+      crashlyticsService.recordError(
+        exception: e,
+        stackTrace: st,
+        reason: 'Error finishing chanting session early',
+      );
+    }
+  }
+
+  /// Pauses playback while the exit prompt is shown.
+  Future<void> pauseForExitPrompt() async {
+    _resumeAfterExitPrompt = state.playbackState.playing;
+    if (_resumeAfterExitPrompt) await pause();
+  }
+
+  /// Resumes playback if it was playing before the exit prompt.
+  Future<void> resumeAfterExitPrompt() async {
+    final shouldResume = _resumeAfterExitPrompt;
+    _resumeAfterExitPrompt = false;
+    if (shouldResume && !_sessionEnded && !isClosed) await play();
   }
 
   void _onMediaItemChanged(MediaItem? mediaItem) {

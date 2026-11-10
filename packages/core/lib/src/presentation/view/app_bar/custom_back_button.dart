@@ -8,11 +8,24 @@ class CustomBackButton extends StatefulWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
 
+  /// Overrides the default back navigation, e.g. to confirm before leaving.
+  final VoidCallback? onPressed;
+
   const CustomBackButton({
     this.backgroundColor,
     this.foregroundColor,
+    this.onPressed,
     super.key,
   });
+
+  /// Default back navigation: pops when possible, otherwise goes home.
+  static void navigateBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.services.homeNavigator.navigateToHome();
+    }
+  }
 
   factory CustomBackButton.light() =>
     const CustomBackButton(
@@ -72,10 +85,11 @@ class _CustomBackButtonState extends State<CustomBackButton>
   }
 
   void _onTap(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
+    final onPressed = widget.onPressed;
+    if (onPressed != null) {
+      onPressed();
     } else {
-      context.services.homeNavigator.navigateToHome();
+      CustomBackButton.navigateBack(context);
     }
     context.hapticsTap();
   }

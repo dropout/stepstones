@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -38,7 +39,35 @@ sealed class ChantingStateEntity with _$ChantingStateEntity {
     DateTime? endTime,
     @Default(Duration.zero) Duration elapsedSessionTime,
     @Default([]) List<String> completedChantIds,
+
+    // Snapshot at the last finished chant, used when the session ends early.
+    @Default(Duration.zero) Duration completedChantsElapsedTime,
+    DateTime? lastChantCompletedAt,
   }) = _ChantingStateEntity;
+
+  /// Records a finished chant together with the session time spent so far.
+  ChantingStateEntity withChantCompleted(String chantId, DateTime at) => copyWith(
+    completedChantIds: [...completedChantIds, chantId],
+    completedChantsElapsedTime: elapsedSessionTime,
+    lastChantCompletedAt: at,
+  );
+
+  /// Playback has started, so leaving should be confirmed.
+  bool get isSessionStarted => loadingState == ProcessingState.completed;
+
+  bool get hasCompletedChants => completedChantIds.isNotEmpty;
+
+  /// Session data covering only the finished chants.
+  ({DateTime startTime, DateTime endTime, Duration duration, List<String> completedChantIds})
+  get finishedChantsSession {
+    final endTime = lastChantCompletedAt ?? clock.now();
+    return (
+      startTime: startTime ?? endTime.subtract(completedChantsElapsedTime),
+      endTime: endTime,
+      duration: completedChantsElapsedTime,
+      completedChantIds: completedChantIds,
+    );
+  }
 
   int get currentIndex => playbackState.queueIndex ?? 0;
   Duration get position => playbackState.position + Duration(milliseconds: 250);

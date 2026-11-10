@@ -178,6 +178,54 @@ abstract class ChantingLocalizations {
   /// In en, this message translates to:
   /// **'Preparing your session...'**
   String get chantingPlayerLoading;
+
+  /// No description provided for @chantingExitFinishOrDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End session?'**
+  String get chantingExitFinishOrDiscardTitle;
+
+  /// No description provided for @chantingExitFinishOrDiscardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can finish now and log the chants you\'ve completed, or discard this session.'**
+  String get chantingExitFinishOrDiscardMessage;
+
+  /// No description provided for @chantingExitFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get chantingExitFinish;
+
+  /// No description provided for @chantingExitDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get chantingExitDiscard;
+
+  /// No description provided for @chantingExitEndSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End session?'**
+  String get chantingExitEndSessionTitle;
+
+  /// No description provided for @chantingExitEndSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No chants have been completed yet, the session won\'t be recorded.'**
+  String get chantingExitEndSessionMessage;
+
+  /// No description provided for @chantingExitEndSession.
+  ///
+  /// In en, this message translates to:
+  /// **'End Session'**
+  String get chantingExitEndSession;
+
+  /// No description provided for @chantingExitCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chantingExitCancel;
 }
 
 class _ChantingLocalizationsDelegate

@@ -12,5 +12,13 @@
   "chantingPlaylistBadgePaused": "Paused",
   "chantingPlaylistEmptyTitle": "The playlist is empty.",
   "chantingPlaylistEmptyDescription": "Tap the + button to add chants to the playlist.",
-  "chantingPlayerLoading": "Preparing your session..."
+  "chantingPlayerLoading": "Preparing your session...",
+  "chantingExitFinishOrDiscardTitle": "End session?",
+  "chantingExitFinishOrDiscardMessage": "You can finish now and log the chants you've completed, or discard this session.",
+  "chantingExitFinish": "Finish",
+  "chantingExitDiscard": "Discard",
+  "chantingExitEndSessionTitle": "End session?",
+  "chantingExitEndSessionMessage": "No chants have been completed yet, the session won't be recorded.",
+  "chantingExitEndSession": "End Session",
+  "chantingExitCancel": "Cancel"
 }

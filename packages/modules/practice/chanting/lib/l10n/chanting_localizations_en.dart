@@ -60,4 +60,30 @@ class ChantingLocalizationsEn extends ChantingLocalizations {
 
   @override
   String get chantingPlayerLoading => 'Preparing your session...';
+
+  @override
+  String get chantingExitFinishOrDiscardTitle => 'End session?';
+
+  @override
+  String get chantingExitFinishOrDiscardMessage =>
+      'You can finish now and log the chants you\'ve completed, or discard this session.';
+
+  @override
+  String get chantingExitFinish => 'Finish';
+
+  @override
+  String get chantingExitDiscard => 'Discard';
+
+  @override
+  String get chantingExitEndSessionTitle => 'End session?';
+
+  @override
+  String get chantingExitEndSessionMessage =>
+      'No chants have been completed yet, the session won\'t be recorded.';
+
+  @override
+  String get chantingExitEndSession => 'End Session';
+
+  @override
+  String get chantingExitCancel => 'Cancel';
 }

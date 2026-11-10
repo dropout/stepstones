@@ -59,5 +59,31 @@ class ChantingLocalizationsHu extends ChantingLocalizations {
       'Koppints a + gombra, és adj énekeket a lejátszási listához.';
 
   @override
-  String get chantingPlayerLoading => 'A munkamenet előkészítése...';
+  String get chantingPlayerLoading => 'Gyakorlás előkészítése...';
+
+  @override
+  String get chantingExitFinishOrDiscardTitle => 'Befejezed a gyakorlást?';
+
+  @override
+  String get chantingExitFinishOrDiscardMessage =>
+      'Befejezheted most, és rögzítjük az eddig elkészült énekeket, vagy elvetheted ezt a gyakorlást.';
+
+  @override
+  String get chantingExitFinish => 'Befejezés';
+
+  @override
+  String get chantingExitDiscard => 'Elvetés';
+
+  @override
+  String get chantingExitEndSessionTitle => 'Befejezed a gyakorlást?';
+
+  @override
+  String get chantingExitEndSessionMessage =>
+      'Még egy éneket sem sem fejeztél be, ezért a gyakorlat nem kerül rögzítésre.';
+
+  @override
+  String get chantingExitEndSession => 'Igen, befejezem';
+
+  @override
+  String get chantingExitCancel => 'Mégse';
 }

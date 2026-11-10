@@ -2,8 +2,9 @@ import 'package:material_ui/material_ui.dart';
 
 /// A helper function to show a dialog with custom transition and styling,
 /// specific to the app's design guidelines.
-void showAppDialog(BuildContext context, Widget dialog) {
-  showGeneralDialog(
+/// Completes with the value the dialog is popped with, or null when dismissed.
+Future<T?> showAppDialog<T>(BuildContext context, Widget dialog) {
+  return showGeneralDialog<T>(
     context: context,
     pageBuilder: (context, anim1, anim2) {
       return dialog;
