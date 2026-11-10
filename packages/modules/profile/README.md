@@ -1,39 +1,76 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Profile module
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Profile module manages user profiles and settings, displays profile
+statistics, and provides profile-related screens and reusable widgets.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Load and observe profile data, including profile images and settings.
+- Create and edit profiles and delete profiles with their associated account
+  data.
+- Track session statistics, milestones, and consecutive practice days.
+- Display profile summaries and detailed statistics.
+- Provide profile settings, image, and navigation widgets.
+- Support English and Hungarian UI localization.
 
-## Getting started
+## Integration
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This is a workspace package for the Stepstones Flutter app. Add
+`$profileRoutes` to the app's router configuration:
+
+```dart
+final router = GoRouter(
+  routes: [
+    ...$profileRoutes,
+    ...otherRoutes,
+  ],
+);
+```
+
+Register the app's `GoRouter` and `FirebaseProvider` with GetIt, then register
+core dependencies and the Auth module before the Profile module. Profile
+registration also requires the core storage and image-safety services:
+
+```dart
+GetIt.I.registerSingleton<GoRouter>(router);
+GetIt.I.registerSingleton<FirebaseProvider>(firebaseProvider);
+
+await GetIt.I.registerCoreDependencies();
+GetIt.I.registerAuthModuleDependencies();
+GetIt.I.registerProfileModuleDependencies();
+```
+
+The app should provide a shared `ProfileCubit` where profile widgets or screens
+need it. See the [mobile app bootstrap](../../../apps/mobile_app/lib/bootstrap/initializer.dart)
+and [dependency registration](../../../apps/mobile_app/lib/bootstrap/app_di.dart)
+for the current setup.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Use the shared `ProfileNavigator` through app services to open profile screens;
+avoid navigating to profile routes directly:
 
 ```dart
-const like = 'sample';
+await context.services.profileNavigator.navigateToProfile(profileId);
+await context.services.profileNavigator.navigateToProfileEdit(profileId);
+await context.services.profileNavigator.navigateToProfileSettings(profileId);
 ```
 
-## Additional information
+The navigator also provides `navigateToProfileWizard` and
+`navigateToProfileDelete`. Each method accepts an optional `NavigationType`
+(`push`, `replace`, or `go`).
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+To access profile data from another module, use the public API:
+
+```dart
+import 'package:get_it/get_it.dart';
+import 'package:profile/profile.dart';
+
+final profile = await GetIt.I<ProfilePublicApi>().getProfile(profileId);
+print(profile.displayName);
+```
+
+`ProfilePublicApi` also exposes `getProfileStream` and
+`updateProfileStatsWithSession`. The module exports public profile models,
+statistics widgets, and reusable widgets such as `ProfileButton` and
+`ProfileAvatar`.

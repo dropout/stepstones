@@ -1,39 +1,76 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Home module
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Home module provides Stepstones' main screen for choosing and starting a
+meditation session. It brings together the sitting timer and chanting settings
+views, and provides the app bar and session-mode controls.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Home screen at `/` with a date header and profile button.
+- Switch between sitting and chanting settings when signed in.
+- Persist the selected session mode using `HydratedBloc`.
+- Use sitting mode while signed out.
+- Provide a `HomeNavigator` implementation for returning to the home route.
 
-## Getting started
+## Integration
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This is a workspace package for the Stepstones Flutter app. Register core
+dependencies and make the app's `GoRouter` available from GetIt before
+registering the Home module:
+
+```dart
+GetIt.I.registerSingleton<GoRouter>(router);
+await GetIt.I.registerCoreDependencies();
+GetIt.I.registerHomeModuleDependencies();
+```
+
+Include `$homeRoutes` in the app router's routes list. The Home module defines
+the `/` route:
+
+```dart
+final router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    ...$homeRoutes,
+    ...otherRoutes,
+  ],
+);
+```
+
+In the app, register the router and module dependencies alongside the other
+workspace modules. `HomeScreen` expects the app's shared
+`AuthStateCubit` and `ProfileCubit` in the widget tree, as well as the
+dependencies for the timer and chanting settings views. See the [mobile app
+bootstrap](../../../apps/mobile_app/lib/bootstrap/initializer.dart) and
+[dependency registration](../../../apps/mobile_app/lib/bootstrap/app_di.dart)
+for the current setup.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Navigate to the home screen through the shared `HomeNavigator`, rather than
+using the route directly:
 
 ```dart
-const like = 'sample';
+context.services.homeNavigator.navigateToHome(type: .go);
 ```
 
-## Additional information
+`navigateToHome` accepts an optional `refresh` value to recreate the home
+screen after settings changes, and a `NavigationType` (`push`, `replace`, or
+`go`) to choose how navigation is performed. The Home module registers the
+`HomeNavigator` implementation as a GetIt singleton; the app exposes it through
+`Services`.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+The `HomeScreen` widget is also exported for cases where the screen must be
+embedded directly and its required dependencies and shared cubits are available:
+
+```dart
+import 'package:home/home.dart';
+
+const HomeScreen();
+```
+
+`HomeScreenCubit` stores a `HomeScreenState` with a `sessionType`. The available
+values are `HomeScreenViewState.sitting` and `HomeScreenViewState.chanting`;
+call `setSessionType` to change the selection. The Home screen itself selects
+the sitting view when the user is signed out.
+

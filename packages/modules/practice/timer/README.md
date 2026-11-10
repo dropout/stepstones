@@ -1,39 +1,76 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Timer module
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Timer module provides configurable sitting meditation sessions, including
+the timer settings screen, running timer, audio cues, and settings history.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Configure warmup and sitting durations, interval count, and start, interval,
+  and end sounds.
+- Run a timer with audio playback controls and keep-awake support.
+- Persist settings locally and save signed-in users' settings history.
+- Support English and Hungarian UI localization.
 
-## Getting started
+## Integration
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This is a workspace package for the Stepstones Flutter app. Add `$timerRoutes`
+to the app's router configuration:
+
+```dart
+final router = GoRouter(
+  routes: [
+    ...$timerRoutes,
+    ...otherRoutes,
+  ],
+);
+```
+
+Register the app's `GoRouter`, `FirebaseProvider`, and `AppAudioHandler` with
+GetIt, then register core dependencies and the Timer module. The Timer module
+depends on the Auth, Profile, Social, and Session modules, which should be
+registered before Timer:
+
+```dart
+GetIt.I.registerSingleton<GoRouter>(router);
+GetIt.I.registerSingleton<FirebaseProvider>(firebaseProvider);
+GetIt.I.registerSingleton<AppAudioHandler>(audioHandler);
+
+await GetIt.I.registerCoreDependencies();
+GetIt.I.registerAuthModuleDependencies();
+GetIt.I.registerProfileModuleDependencies();
+GetIt.I.registerSocialModuleDependencies();
+GetIt.I.registerSessionModuleDependencies();
+GetIt.I.registerTimerModuleDependencies();
+```
+
+The app must also provide the `Services` and shared state required by the
+settings and timer views. See the [mobile app bootstrap](../../../../apps/mobile_app/lib/bootstrap/initializer.dart)
+and [dependency registration](../../../../apps/mobile_app/lib/bootstrap/app_di.dart)
+for the current setup.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Use the shared `TimerNavigator` through app services to open the timer or a
+user's settings history; do not navigate to the module routes directly:
 
 ```dart
-const like = 'sample';
+await context.services.timerNavigator.navigateToTimer();
+await context.services.timerNavigator.navigateToTimerSettingsHistory(
+  profileId,
+);
 ```
 
-## Additional information
+The timer settings UI is available as a widget and can be embedded where the
+required app services are provided:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+import 'package:timer/timer.dart';
+
+TimerSettingsView.withCubit();
+```
+
+`TimerSettings` contains `warmup`, `duration`, `intervalCount`,
+`intervalSound`, `startingSound`, and `endingSound` settings. Its defaults are
+a one-minute warmup, ten-minute sitting duration, no interval cues, and the
+module's default sounds.
+

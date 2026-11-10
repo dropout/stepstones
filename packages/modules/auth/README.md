@@ -1,39 +1,84 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Auth module
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Auth module provides the Stepstones app's sign-in screens and authentication
+services. It uses Firebase Authentication behind a public API, keeping provider
+and data-layer details inside the module.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Sign in with Google or Apple, or with email and password.
+- Sign up with email and password.
+- Observe authentication state and retrieve the current user ID.
+- Sign out and delete the current account.
+- Login screens, routes, and shared authentication state for the app.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This is a workspace package intended for use by the Stepstones Flutter app.
+Bootstrap the repository as described in [docs/commands.md](../../../docs/commands.md).
+Configure Firebase for each app flavor, including the required platform files
+described in [AGENTS.md](../../../AGENTS.md#critical-setup-pitfalls), and enable
+the desired authentication providers in Firebase.
+
+During app initialization, register the `FirebaseProvider` and `GoRouter`, then
+register core dependencies before the Auth module:
+
+```dart
+GetIt.I.registerAuthModuleDependencies();
+```
+
+Add the module routes to the app router:
+
+```dart
+routes: [
+  ...$authRoutes,
+  ...appRoutes,
+],
+```
+
+The routes are `/login` and `/login/email`. The login screens expect the app to
+provide the core `AuthStateCubit`; the app resolves its `AuthCubit`
+implementation through GetIt. See the [mobile app bootstrap](../../../apps/mobile_app/lib/bootstrap/initializer.dart)
+and [dependency registration](../../../apps/mobile_app/lib/bootstrap/app_di.dart)
+for the current integration.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+After dependency registration, use the public API to observe sessions and
+initiate authentication:
 
 ```dart
-const like = 'sample';
+import 'package:auth/auth.dart';
+import 'package:get_it/get_it.dart';
+
+final auth = GetIt.I<AuthPublicApi>();
+final session = await auth.authSessionStream.first;
+
+if (!session.isAuthenticated) {
+  final result = await auth.signInWithGoogle();
+  print('Signed in ${result.userId}; first sign-in: ${result.isFirstSignin}');
+}
+
+await auth.signOut();
 ```
 
-## Additional information
+`AuthSession` contains `isAuthenticated` and a nullable `userId`.
+`AuthSigninResult` contains the `userId` and whether this was the user's first
+sign-in. Email-based sign-in and sign-up are also available through
+`signInWithEmailAndPassword` and `signUpWithEmailAndPassword`.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Sign-in and email account-creation methods expose mapped failures as
+`AuthPublicFailure` exceptions. The package exports the failure types and
+`toPublicFailure()` mapper for callers that need to inspect them.
+
+## Localization and tests
+
+The module's login UI is localized in English and Hungarian. Source strings are
+in `lib/l10n/`; generated localization files should be regenerated rather than
+edited directly.
+
+Run the module tests from this directory with:
+
+```sh
+flutter test
+```

@@ -1,39 +1,87 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Session module
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Session module records completed sitting and chanting sessions. It provides
+the completion screen, signed-in session history, persistence, and integrations
+with profile statistics.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Show a completion screen after a sitting or chanting session.
+- Save signed-in users' sessions to Firestore and update their profile and
+  statistics.
+- Optionally record mindful minutes when platform authorization is available.
+- Browse a profile's session history.
+- Support English and Hungarian UI localization.
 
-## Getting started
+## Integration
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This is a workspace package for the Stepstones Flutter app. Add `$sessionRoutes`
+to the app's router configuration, alongside the other module routes:
+
+```dart
+final router = GoRouter(
+  routes: [
+    ...$sessionRoutes,
+    ...otherRoutes,
+  ],
+);
+```
+
+Register the `GoRouter` and `FirebaseProvider` with GetIt, then register core
+dependencies and the Session module:
+
+```dart
+GetIt.I.registerSingleton<GoRouter>(router);
+GetIt.I.registerSingleton<FirebaseProvider>(firebaseProvider);
+await GetIt.I.registerCoreDependencies();
+GetIt.I.registerSessionModuleDependencies();
+```
+
+The Session module also relies on the profile and stats public APIs, plus
+`MindfulMinutesService`; ensure those dependencies are registered before they
+are first resolved. See the [mobile app bootstrap](../../../../apps/mobile_app/lib/bootstrap/initializer.dart)
+and [dependency registration](../../../../apps/mobile_app/lib/bootstrap/app_di.dart)
+for the current setup.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Use the shared `SessionNavigator` through app services to open the completion
+screen. It creates the session ID and passes the session details to the screen:
 
 ```dart
-const like = 'sample';
+import 'package:core/core.dart';
+
+await context.services.sessionNavigator
+    .navigateToSessionCompletedScreen(
+      startTime: startTime,
+      endTime: endTime,
+      duration: duration,
+      sessionType: SessionType.timer,
+    );
 ```
 
-## Additional information
+For chanting sessions, pass `SessionType.chanting` and set `completedChantIds`
+to the IDs of chants completed during that session. The list is stored with the
+session record and defaults to empty, so omit it when there are no completed
+chants:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+await context.services.sessionNavigator
+    .navigateToSessionCompletedScreen(
+      startTime: startTime,
+      endTime: endTime,
+      duration: duration,
+      sessionType: SessionType.chanting,
+      completedChantIds: completedChantIds,
+    );
+```
+
+To open a user's history, use the same navigator:
+
+```dart
+await context.services.sessionNavigator.navigateToSessionHistory(profileId);
+```
+
+`SessionPublicApi.saveSession(profileId, session)` is also available for saving
+a session record directly. This persists the record only; it does not run the
+completion flow that updates the profile and statistics.

@@ -1,39 +1,83 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Social module
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+The Social module lets users see other people who are currently practicing.
+It records and queries practice presence and provides the presence screen and
+reusable widgets to display nearby or recently active profiles.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Record a profile's practice presence with its start time and optional location.
+- Query recent presence with paging and optional location-based ordering.
+- Display presence in a screen, list, table, or area.
+- Support English and Hungarian UI localization.
 
-## Getting started
+## Integration
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This is a workspace package for the Stepstones Flutter app. Add
+`$socialRoutes` to the app's router configuration:
+
+```dart
+final router = GoRouter(
+  routes: [
+    ...$socialRoutes,
+    ...otherRoutes,
+  ],
+);
+```
+
+Register the app's `GoRouter` and `FirebaseProvider` with GetIt, then register
+core dependencies and the Social module:
+
+```dart
+GetIt.I.registerSingleton<GoRouter>(router);
+GetIt.I.registerSingleton<FirebaseProvider>(firebaseProvider);
+
+await GetIt.I.registerCoreDependencies();
+GetIt.I.registerSocialModuleDependencies();
+```
+
+The module uses Firestore to persist and query presence. See the [mobile app
+bootstrap](../../../apps/mobile_app/lib/bootstrap/initializer.dart) and
+[dependency registration](../../../apps/mobile_app/lib/bootstrap/app_di.dart)
+for the current setup.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Use the shared `SocialNavigator` through app services to open the presence
+screen instead of navigating to the route directly:
 
 ```dart
-const like = 'sample';
+await context.services.socialNavigator.navigateToPresence();
 ```
 
-## Additional information
+Other modules can use `SocialPublicApi` to publish a presence record and
+retrieve recent records:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+import 'package:get_it/get_it.dart';
+import 'package:social/social.dart';
+
+final social = GetIt.I<SocialPublicApi>();
+
+await social.showPresence(
+  profileId: profile.id,
+  firstName: profile.firstName,
+  lastName: profile.lastName,
+  photoBlurhash: profile.photoBlurhash,
+  location: profile.location,
+  startedAt: DateTime.now(),
+);
+
+final presence = await social.queryPresence(
+  windowSize: const Duration(hours: 1),
+  limit: 20,
+  ownProfileId: profile.id,
+  location: profile.location,
+);
+```
+
+Queries default to a three-hour time window and a limit of 20. When a location
+is provided, results within the configured `rangeInKm` are ordered by distance;
+if there are no location matches, the query falls back to recent presence.
+Use `lastDocumentId` to request the next page. Pass `ownProfileId` to exclude
+the current user's record.
