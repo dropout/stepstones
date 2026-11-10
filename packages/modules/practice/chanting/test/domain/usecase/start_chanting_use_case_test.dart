@@ -75,7 +75,8 @@ void main() {
     when(() => cache.execute(['chant'], [chant])).thenAnswer(
       (_) => Stream.value(CachingProgressEntity(progress: 1, results: [(chant: chant, localResources: resources)])),
     );
-    when(() => audio.setup([resources])).thenThrow(StateError('setup failed'));
+    final error = StateError('setup failed');
+    when(() => audio.setup([resources])).thenThrow(error);
     final useCase = StartChantingUseCase(
       chantRepo: repository,
       cacheChantsUseCase: cache,
@@ -85,7 +86,7 @@ void main() {
 
     await expectLater(
       useCase.execute(['chant']),
-      emitsInOrder([isA<CachingProgressEntity>(), emitsError(isA<StateError>())]),
+      emitsInOrder([isA<CachingProgressEntity>(), emitsError(same(error))]),
     );
     verifyNever(() => audio.play());
     verifyNever(() => app.getAuthSession());

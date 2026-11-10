@@ -34,6 +34,7 @@ void main() {
   late StreamController<ChantTrackEntity?> mediaItems;
   late StreamController<ChantPlaybackStateEntity> playbackStates;
   late MockLoadLyricsUseCase loadLyricsUseCase;
+  late MockStartChantingUseCase startChantingUseCase;
 
   setUpAll(() {
     registerFallbackValue(SessionType.chanting);
@@ -57,6 +58,7 @@ void main() {
     mediaItems = StreamController<ChantTrackEntity?>.broadcast(sync: true);
     playbackStates = StreamController<ChantPlaybackStateEntity>.broadcast(sync: true);
     loadLyricsUseCase = MockLoadLyricsUseCase();
+    startChantingUseCase = MockStartChantingUseCase();
 
     when(() => audioService.playbackState).thenReturn(ChantPlaybackStateEntity(updateTime: DateTime(2026)));
     when(() => audioService.playbackStateStream).thenAnswer((_) => playbackStates.stream);
@@ -92,7 +94,7 @@ void main() {
     chantingSettings: const ChantingSettings(),
     audioService: audioService,
     crashlyticsService: crashlyticsService,
-    startChantingUseCase: MockStartChantingUseCase(),
+    startChantingUseCase: startChantingUseCase,
     loadLyricsUseCase: loadLyricsUseCase,
     playbackStateChangeUseCase: PlaybackStateChangeUseCase(),
     completeChantingUseCase: CompleteChantingUseCase(),
@@ -108,6 +110,28 @@ void main() {
       navigationType: any(named: 'navigationType'),
     ),
   ).called(times);
+
+  test('reports startup errors and does not play', () async {
+    final error = StateError('setup failed');
+    final stackTrace = StackTrace.fromString('setup failure stack');
+    when(() => startChantingUseCase.execute([])).thenAnswer((_) => Stream.error(error, stackTrace));
+    final cubit = buildCubit();
+
+    await cubit.start();
+
+    expect(cubit.state.loadingState, ProcessingState.error);
+    expect(cubit.state.startTime, isNull);
+    verifyNever(() => audioService.play());
+    verify(() => audioService.stop()).called(1);
+    verify(
+      () => crashlyticsService.recordError(
+        exception: error,
+        stackTrace: stackTrace,
+        reason: 'Error setting up chants: $error',
+      ),
+    ).called(1);
+    await cubit.close();
+  });
 
   group('lyrics loading', () {
     const trackA = ChantTrackEntity(id: 'a', title: 'A');
