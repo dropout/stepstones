@@ -1,15 +1,19 @@
 import 'package:chanting/src/data/service/chant_cache_file_system.dart';
 import 'package:chanting/src/domain/entity/chant_entity.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
+import 'package:chanting/src/domain/service/chant_cache_services.dart';
 
 /// Maps chants to their expected local cache file paths.
-class ChantLocalResourceResolver {
+class ChantLocalResourceResolver implements ChantLocalResourcesService {
   final ChantCacheFileSystem chantCacheFileSystem;
 
   ChantLocalResourceResolver({required this.chantCacheFileSystem});
 
-  Future<({String chantId, ChantLocalResourcesEntity localResources})>
-  collectLocalResource(ChantEntity chant) async {
+  @override
+  Future<ChantLocalResourcesEntity> resolve(ChantEntity chant) async =>
+      (await collectLocalResource(chant)).localResources;
+
+  Future<({String chantId, ChantLocalResourcesEntity localResources})> collectLocalResource(ChantEntity chant) async {
     final metadata = chant.metaData;
     final audioPath = await chantCacheFileSystem.buildCacheFilePath(
       contentId: chant.id,
@@ -33,10 +37,10 @@ class ChantLocalResourceResolver {
     );
   }
 
-  Future<List<({String chantId, ChantLocalResourcesEntity localResources})>>
-  collectLocalResources(List<ChantEntity> chants) async {
-    final localResources =
-        <({String chantId, ChantLocalResourcesEntity localResources})>[];
+  Future<List<({String chantId, ChantLocalResourcesEntity localResources})>> collectLocalResources(
+    List<ChantEntity> chants,
+  ) async {
+    final localResources = <({String chantId, ChantLocalResourcesEntity localResources})>[];
     for (final chant in chants) {
       localResources.add(await collectLocalResource(chant));
     }

@@ -21,13 +21,14 @@ import 'package:chanting/src/data/repository/default_chant_cache_data_repository
 import 'package:chanting/src/data/repository/firebase_chant_repository.dart';
 import 'package:chanting/src/data/service/chant_asset_downloader.dart';
 import 'package:chanting/src/data/service/chant_cache_file_system.dart';
-import 'package:chanting/src/data/service/chant_cache_validator.dart';
 import 'package:chanting/src/data/service/chant_local_resource_resolver.dart';
 import 'package:chanting/src/data/service/default_chanting_public_api.dart';
 import 'package:chanting/src/service/chanting_cache_clear_capability.dart';
+import 'package:chanting/src/domain/service/chant_cache_validator.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
 import 'package:chanting/src/domain/repository/chant_repository.dart';
 import 'package:chanting/src/domain/service/chanting_audio_service.dart';
+import 'package:chanting/src/domain/service/chant_cache_services.dart';
 import 'package:chanting/src/domain/service/lyrics_service.dart';
 import 'package:chanting/src/domain/usecase/cache_chants_use_case.dart';
 import 'package:chanting/src/domain/usecase/complete_chanting_use_case.dart';
@@ -40,38 +41,28 @@ import 'package:chanting/src/public/viewmodel/chanting_settings_cubit.dart';
 extension ChantingModuleDependencyInjection on GetIt {
   void registerChantingModuleDependencies() {
     // Audio handler
-    registerFactory<SoLoudChantingAudioHandler>(
-      () => SoLoudChantingAudioHandler(soloud: SoLoud.instance),
-    );
+    registerFactory<SoLoudChantingAudioHandler>(() => SoLoudChantingAudioHandler(soloud: SoLoud.instance));
 
     // Data Providers
-    registerLazySingleton<ChantCacheDataProvider>(
-      () => DriftChantCacheDataProvider(ChantCacheDatabase()),
-    );
+    registerLazySingleton<ChantCacheDataProvider>(() => DriftChantCacheDataProvider(ChantCacheDatabase()));
     registerLazySingleton<ChantDataProvider>(
-      () =>
-          FirebaseChantsDataProvider(GetIt.I.get<FirebaseProvider>().firestore),
+      () => FirebaseChantsDataProvider(GetIt.I.get<FirebaseProvider>().firestore),
     );
 
     // Repositories
     registerLazySingleton<ChantRepository>(
-      () => FirebaseChantRepository(
-        chantDataProvider: GetIt.I.get<ChantDataProvider>(),
-      ),
+      () => FirebaseChantRepository(chantDataProvider: GetIt.I.get<ChantDataProvider>()),
     );
 
     registerLazySingleton<ChantCacheRepository>(
       () => DefaultChantCacheDataRepository(
         chantCacheDataProvider: GetIt.I.get<ChantCacheDataProvider>(),
-        storageDataProvider: GetIt.I.get<StorageDataProvider>(),
         chantCacheFileSystem: GetIt.I.get<ChantCacheFileSystem>(),
       ),
     );
 
     // Services
-    registerFactory<ChantingAudioService>(
-      () => ChantingAudioService(GetIt.I.get<AppAudioHandler>()),
-    );
+    registerFactory<ChantingAudioService>(() => ChantingAudioService(GetIt.I.get<AppAudioHandler>()));
     registerFactory<ChantingAppPort>(
       () => DefaultChantingAppPort(
         authPublicApi: GetIt.I.get<AuthPublicApi>(),
@@ -81,31 +72,32 @@ extension ChantingModuleDependencyInjection on GetIt {
     );
     registerLazySingleton<LyricsService>(() => LyricsService());
     registerLazySingleton<ChantCacheFileSystem>(
-      () => ChantCacheFileSystem(
-        documentsDirectoryProvider: getApplicationDocumentsDirectory,
-      ),
+      () => ChantCacheFileSystem(documentsDirectoryProvider: getApplicationDocumentsDirectory),
     );
-    registerLazySingleton<ChantLocalResourceResolver>(
-      () => ChantLocalResourceResolver(
-        chantCacheFileSystem: GetIt.I.get<ChantCacheFileSystem>(),
-      ),
+    registerLazySingleton<ChantLocalResourcesService>(
+      () => ChantLocalResourceResolver(chantCacheFileSystem: GetIt.I.get<ChantCacheFileSystem>()),
     );
-    registerLazySingleton<ChantAssetDownloader>(
+    registerLazySingleton<ChantAssetDownloadService>(
       () => ChantAssetDownloader(
         chantCacheRepo: GetIt.I.get<ChantCacheRepository>(),
         chantCacheFileSystem: GetIt.I.get<ChantCacheFileSystem>(),
         storageDataProvider: GetIt.I.get<StorageDataProvider>(),
       ),
     );
-    registerLazySingleton<ChantCacheValidator>(() => ChantCacheValidator());
+    registerLazySingleton<ChantCacheValidationService>(
+      () => ChantCacheValidator(
+        chantCacheRepo: GetIt.I.get<ChantCacheRepository>(),
+        fileAccess: GetIt.I.get<ChantCacheFileSystem>(),
+      ),
+    );
 
     // Use Cases
     registerFactory<CacheChantsUseCase>(
       () => CacheChantsUseCase(
         chantCacheRepo: GetIt.I.get<ChantCacheRepository>(),
-        chantCacheValidator: GetIt.I.get<ChantCacheValidator>(),
-        chantAssetDownloader: GetIt.I.get<ChantAssetDownloader>(),
-        localResourceResolver: GetIt.I.get<ChantLocalResourceResolver>(),
+        chantCacheValidator: GetIt.I.get<ChantCacheValidationService>(),
+        chantAssetDownloader: GetIt.I.get<ChantAssetDownloadService>(),
+        localResourceResolver: GetIt.I.get<ChantLocalResourcesService>(),
       ),
     );
     registerFactory<StartChantingUseCase>(
@@ -116,12 +108,8 @@ extension ChantingModuleDependencyInjection on GetIt {
         chantingAppPort: GetIt.I.get<ChantingAppPort>(),
       ),
     );
-    registerFactory<LoadLyricsUseCase>(
-      () => LoadLyricsUseCase(lyricsService: GetIt.I.get<LyricsService>()),
-    );
-    registerFactory<PlaybackStateChangeUseCase>(
-      () => PlaybackStateChangeUseCase(),
-    );
+    registerFactory<LoadLyricsUseCase>(() => LoadLyricsUseCase(lyricsService: GetIt.I.get<LyricsService>()));
+    registerFactory<PlaybackStateChangeUseCase>(() => PlaybackStateChangeUseCase());
     registerFactory<CompleteChantingUseCase>(() => CompleteChantingUseCase());
 
     // ViewModels
@@ -153,9 +141,7 @@ extension ChantingModuleDependencyInjection on GetIt {
       ),
     );
     registerLazySingleton<ClearCacheCapability>(
-      () => ChantingCacheClearCapability(
-        chantCacheRepository: GetIt.I.get<ChantCacheRepository>(),
-      ),
+      () => ChantingCacheClearCapability(chantCacheRepository: GetIt.I.get<ChantCacheRepository>()),
     );
   }
 }

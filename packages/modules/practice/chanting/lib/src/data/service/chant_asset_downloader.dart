@@ -1,19 +1,24 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:chanting/src/data/service/chant_cache_file_system.dart';
+import 'package:chanting/src/data/service/file_validation_extension.dart';
+import 'package:chanting/src/domain/entity/cache_validation_result_entity.dart';
+import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
+import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
+import 'package:chanting/src/domain/entity/chant_entity.dart';
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
 import 'package:chanting/src/domain/enum/cached_asset_type.dart';
-import 'package:core/core.dart';
-import 'package:chanting/src/drift/chant_cache_database.dart';
-import 'package:chanting/src/data/service/chant_cache_file_system.dart';
-import 'package:chanting/src/data/service/chant_cache_validator.dart';
-import 'package:chanting/src/data/service/file_validation_extension.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
-import 'package:drift/drift.dart';
+import 'package:chanting/src/domain/service/chant_cache_services.dart';
+import 'package:clock/clock.dart';
+import 'package:core/core.dart';
 import 'package:firebase_provider/firebase_provider.dart';
 
-/// Downloads a single chant asset and keeps its cache entry in sync with the download state.
-class ChantAssetDownloader with LoggerMixin {
+typedef _PendingDownload = ({DownloadTask task, ChantCacheEntity entry});
+
+class ChantAssetDownloader with LoggerMixin implements ChantAssetDownloadService {
   final ChantCacheRepository chantCacheRepo;
   final ChantCacheFileSystem chantCacheFileSystem;
   final StorageDataProvider storageDataProvider;
@@ -24,221 +29,181 @@ class ChantAssetDownloader with LoggerMixin {
     required this.storageDataProvider,
   });
 
-  /// Takes a chant and breaks it down into its audio and lyrics assets,
-  /// caching them if necessary.
-  Future<List<({DownloadTask downloadTask, ChantCacheEntryRow pendingEntry})>>
-  cacheChantAssets(ChantCacheValidationResult validationResult) async {
-    if (validationResult.isValid) {
-      logger.t(
-        'Chant ${validationResult.chant.id} is already cached and valid. No caching needed.',
+  @override
+  Stream<CachingProgressEntity> download(List<CacheValidationResultEntity> chants) async* {
+    final pending = <_PendingDownload>[];
+    final validations = <Future<void>>[];
+    final subscriptions = <StreamSubscription<TaskSnapshot>>[];
+    final progressController = StreamController<CachingProgressEntity>();
+    var finished = false;
+    var closing = false;
+    var validationFailed = false;
+
+    try {
+      void trackDownload(_PendingDownload item) {
+        pending.add(item);
+        validations.add(
+          _validateDownload(item).then(
+            (_) {},
+            onError: (Object error, StackTrace stack) {
+              validationFailed = true;
+              if (!closing && !progressController.isClosed) {
+                progressController.addError(error, stack);
+              }
+            },
+          ),
+        );
+      }
+
+      for (final result in chants) {
+        if (!result.isAudioCacheValid) {
+          trackDownload(await _startDownload(result.chant, CachedAssetType.audio, result.audioCacheEntry));
+        }
+        if (!result.isLyricsCacheValid) {
+          trackDownload(await _startDownload(result.chant, CachedAssetType.lyrics, result.lyricsCacheEntry));
+        }
+      }
+
+      if (pending.isEmpty) {
+        throw StateError('No invalid chant assets to download.');
+      }
+
+      void reportProgress() {
+        if (closing || progressController.isClosed) return;
+        final totalBytes = pending.fold<int>(0, (sum, item) => sum + item.task.snapshot.totalBytes);
+        final transferred = pending.fold<int>(0, (sum, item) => sum + item.task.snapshot.bytesTransferred);
+        progressController.add(
+          CachingProgressEntity(
+            progress: totalBytes == 0 ? 0 : min(transferred / totalBytes, 0.99),
+            totalTasks: pending.length,
+            completedTasks: pending.where((item) => item.task.snapshot.state == TaskState.success).length,
+          ),
+        );
+      }
+
+      for (final item in pending) {
+        subscriptions.add(
+          item.task.snapshotEvents.listen(
+            (_) => reportProgress(),
+            onError: (Object error, StackTrace stack) {
+              if (!closing && !progressController.isClosed) progressController.addError(error, stack);
+            },
+          ),
+        );
+      }
+
+      unawaited(
+        Future.wait(validations).then((_) {
+          finished = true;
+          if (!closing && !progressController.isClosed) {
+            if (!validationFailed) reportProgress();
+            unawaited(progressController.close());
+          }
+        }),
       );
-      return [];
+
+      yield* progressController.stream;
+    } finally {
+      closing = true;
+      for (final subscription in subscriptions) {
+        await subscription.cancel();
+      }
+      if (!finished) {
+        for (final item in pending) {
+          if (item.task.snapshot.state == TaskState.running || item.task.snapshot.state == TaskState.paused) {
+            await item.task.cancel();
+          }
+        }
+      }
+      await Future.wait(validations);
+      if (!progressController.isClosed) unawaited(progressController.close());
     }
-    final chant = validationResult.chant;
-    final List<({DownloadTask downloadTask, ChantCacheEntryRow pendingEntry})>
-    tasks = [];
-    if (!validationResult.isAudioCacheValid) {
-      tasks.add(
-        await cacheChantAsset(chant, .audio, validationResult.audioCacheEntry),
-      );
-    }
-    if (!validationResult.isLyricsCacheValid) {
-      tasks.add(
-        await cacheChantAsset(
-          chant,
-          .lyrics,
-          validationResult.lyricsCacheEntry,
-        ),
-      );
-    }
-    return tasks;
   }
 
-  /// Actual caching of a chant asset, including downloading the file
-  /// and creating/updating the cache entry in the database
-  Future<({DownloadTask downloadTask, ChantCacheEntryRow pendingEntry})>
-  cacheChantAsset(
+  Future<_PendingDownload> _startDownload(
     ChantEntity chant,
     CachedAssetType assetType,
-    ChantCacheEntryRow? existing,
+    ChantCacheEntity? existing,
   ) async {
-    // Collect data required for the caching operation
-    final storagePath = chant.metaData.getStoragePath(assetType);
-    final version = chant.metaData.getVersion(assetType);
-    final hash = chant.metaData.getHash(assetType);
-    final bytes = chant.metaData.getBytes(assetType);
-    final remoteUpdatedAt = chant.metaData.updatedAt.millisecondsSinceEpoch;
+    final metadata = chant.metaData;
     final destinationPath = await chantCacheFileSystem.buildCacheFilePath(
       contentId: chant.id,
       assetType: assetType,
-      version: version,
+      version: metadata.getVersion(assetType),
     );
 
     try {
-      // If an entry already exists, delete the existing file to avoid conflicts
-      if (existing != null) {
-        await File(existing.localFilePath).deleteIfExists();
-      }
+      if (existing != null) await File(existing.localFilePath).deleteIfExists();
 
-      // Create a new cache entry in the database to track the download state
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final pendingEntry = ChantCacheEntryRow(
+      final now = clock.now().millisecondsSinceEpoch;
+      final entry = ChantCacheEntity(
         id: '${chant.id}:${assetType.name}',
         contentId: chant.id,
-        assetType: assetType.name,
-        storagePath: storagePath,
+        assetType: assetType,
+        storagePath: metadata.getStoragePath(assetType),
         localFilePath: destinationPath,
-        cachedVersion: version,
-        remoteUpdatedAtEpochMs: remoteUpdatedAt,
-        remoteHash: hash,
-        remoteBytes: bytes,
-        isValid: false,
-        downloadState: CacheDownloadState.downloading.name,
+        cachedVersion: metadata.getVersion(assetType),
+        remoteUpdatedAtEpochMs: metadata.updatedAt.millisecondsSinceEpoch,
+        remoteHash: metadata.getHash(assetType),
+        remoteBytes: metadata.getBytes(assetType),
+        downloadState: CacheDownloadState.downloading,
         failureCount: existing?.failureCount ?? 0,
-        lastError: null,
-        lastValidatedAtEpochMs: null,
         createdAtEpochMs: existing?.createdAtEpochMs ?? now,
         updatedAtEpochMs: now,
       );
-      await chantCacheRepo.upsertEntry(pendingEntry);
-
-      // Start the download task for the asset
-      final downloadTask = await storageDataProvider.downloadFile(
-        storagePath: storagePath,
+      await chantCacheRepo.upsertEntry(entry);
+      final task = await storageDataProvider.downloadFile(
+        storagePath: entry.storagePath,
         destinationPath: destinationPath,
       );
-
-      logger.t(
-        'Starting downloading chant asset $storagePath to $destinationPath',
-      );
-
-      // Listen to the download task's snapshot events to log progress and handle errors
-      downloadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        switch (snapshot.state) {
-          case TaskState.running:
-            break;
-          case TaskState.success:
-            logger.t(
-              'Download completed for chant ${chant.id} - ${assetType.name}',
-            );
-            break;
-          case _:
-            logger.e(
-              'Download error for chant ${chant.id} - ${assetType.name}',
-            );
-            // If the download fails and there was no existing entry,
-            // delete the partially downloaded file to avoid leaving corrupted files
-            if (existing == null) {
-              File(destinationPath).deleteIfExists();
-            }
-
-            // Mark the entry as failed in the database and log the error
-            _handleDownloadError(
-              contentId: chant.id,
-              type: assetType,
-              destinationPath: destinationPath,
-              error: 'Download error occurred - ${snapshot.state.name}',
-            );
-
-            break;
-        }
-      });
-
-      return (downloadTask: downloadTask, pendingEntry: pendingEntry);
-    } catch (e) {
-      // Mark the entry as failed in the database
-      _handleDownloadError(
-        contentId: chant.id,
-        type: assetType,
-        destinationPath: destinationPath,
-        error: e,
-      );
+      return (task: task, entry: entry);
+    } catch (error) {
+      await _markFailed(chant.id, assetType, destinationPath, error);
       rethrow;
     }
-
-    // TODO: If there is an old entry available cached, and new version is failed to download, we can use the old entry as a fallback.
-    // } on SocketException {
-    //   // Network error occurred, check if the existing entry is usable
-    //   // If it is, return its local file path; otherwise, rethrow the exception
-    //   if (existing != null &&
-    //       await cacheManager.fileExists(existing.localFilePath)) {
-    //     return existing.localFilePath;
-    //   }
-    //   rethrow;
-    // } catch (e) {
-    //   await cacheDataProvider.markState(
-    //     contentId: contentId,
-    //     assetType: type,
-    //     state: CacheDownloadState.failed,
-    //     lastError: e.toString(),
-    //   );
-    //   await cacheManager.deleteIfExists(destinationPath);
-    //   rethrow;
-    // }
-
-    // return cacheManager.downloadToFile(
-    //   storagePath: storagePath,
-    //   localDestinationPath: localDestinationPath,
-    // );
   }
 
-  /// When a download task completes, validate the downloaded
-  /// file and update the cache entry in the database
-  Future<void> validateDownload(
-    DownloadTask task,
-    ChantEntity chant,
-    ChantCacheValidationResult validationResult,
-    String destinationPath,
-    ChantCacheEntryRow pendingEntry,
-  ) async {
-    await task.whenComplete(
-      () => logger.t(
-        'Validating download for chant ${chant.id} - ${pendingEntry.assetType} at $destinationPath',
-      ),
-    );
+  Future<void> _validateDownload(_PendingDownload pending) async {
+    final entry = pending.entry;
+    try {
+      await pending.task;
+      final file = File(entry.localFilePath);
+      final hash = await file.sha256();
+      final bytes = await file.size();
+      if (hash.isNotEmpty && entry.remoteHash != hash) {
+        throw const FileSystemException('Downloaded file hash mismatch.');
+      }
+      if (entry.remoteBytes != bytes) {
+        throw const FileSystemException('Downloaded file size mismatch.');
+      }
 
-    final remoteHash = validationResult.chant.metaData.getHash(
-      CachedAssetType.values.byName(pendingEntry.assetType),
-    );
-    final remoteBytes = validationResult.chant.metaData.getBytes(
-      CachedAssetType.values.byName(pendingEntry.assetType),
-    );
-
-    final downloadedHash = await File(destinationPath).sha256();
-    final downloadedBytes = await File(destinationPath).size();
-
-    if (downloadedHash.isNotEmpty && remoteHash != downloadedHash) {
-      throw const FileSystemException('Downloaded file hash mismatch.');
+      final now = clock.now().millisecondsSinceEpoch;
+      await chantCacheRepo.upsertEntry(
+        entry.copyWith(
+          isValid: true,
+          downloadState: CacheDownloadState.complete,
+          remoteHash: hash,
+          remoteBytes: bytes,
+          lastValidatedAtEpochMs: now,
+          updatedAtEpochMs: now,
+        ),
+      );
+    } catch (error) {
+      await _markFailed(entry.contentId, entry.assetType, entry.localFilePath, error);
+      rethrow;
     }
-    if (remoteBytes != downloadedBytes) {
-      throw const FileSystemException('Downloaded file size mismatch.');
-    }
-
-    final completedAt = DateTime.now().millisecondsSinceEpoch;
-    await chantCacheRepo.upsertEntry(
-      pendingEntry.copyWith(
-        isValid: true,
-        downloadState: CacheDownloadState.complete.name,
-        remoteHash: Value(downloadedHash),
-        remoteBytes: Value(downloadedBytes),
-        lastValidatedAtEpochMs: Value(completedAt),
-        updatedAtEpochMs: completedAt,
-      ),
-    );
   }
 
-  /// Marks the entry as failed
-  void _handleDownloadError({
-    required String contentId,
-    required CachedAssetType type,
-    required String destinationPath,
-    required Object? error,
-  }) async {
-    await chantCacheRepo.markState(
-      contentId: contentId,
-      assetType: type,
-      state: CacheDownloadState.failed,
-      lastError: error?.toString(),
-    );
+  Future<void> _markFailed(String contentId, CachedAssetType assetType, String path, Object error) async {
+    try {
+      await chantCacheRepo.markState(
+        contentId: contentId,
+        assetType: assetType,
+        state: CacheDownloadState.failed,
+        lastError: error.toString(),
+      );
+    } finally {
+      await File(path).deleteIfExists();
+    }
   }
 }
