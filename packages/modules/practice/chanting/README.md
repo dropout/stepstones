@@ -1,39 +1,87 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Chanting
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+The chanting module prepares a playlist of chants, plays their audio, and
+displays synchronized lyrics. It also reports completed chanting sessions and
+can publish presence when the user's settings allow it.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## Integration
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Import `package:chanting/chanting.dart` for the module's public API, models,
+settings UI, routes, and dependency registration. Other modules should use
+this barrel rather than importing chanting implementation files.
 
-## Features
+`ChantingPublicApi` provides:
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- `loadChants(preferCache: ...)` and `chantsStream` for the chant catalogue.
+- `clearCachedChants()` to remove locally cached chant files.
 
-## Getting started
+The settings view builds a `ChantingSettings` playlist and opens
+`ChantingRoute` with those settings as `$extra`. The app adds
+`$chantingRoutes` to its router and calls
+`GetIt.I.registerChantingModuleDependencies()` during bootstrap.
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+The mobile app initializes SoLoud and its `AppAudioHandler` before resolving
+chanting services. It also registers the Firebase, auth, profile, social,
+session, and core dependencies used by the module. See
+[`initializer.dart`](../../../../apps/mobile_app/lib/bootstrap/initializer.dart)
+and [`app_di.dart`](../../../../apps/mobile_app/lib/bootstrap/app_di.dart) for
+the application wiring.
 
-## Usage
+## Playback and caching
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+At session start, the module fetches the chant catalogue, validates cached
+audio and lyrics against the current metadata, and downloads invalid assets.
+Validation checks the cache entry's validity and version, file existence, and
+the expected hash and size when provided. Downloaded assets are validated
+before they are marked complete.
 
-```dart
-const like = 'sample';
+Cache work is deduplicated by chant ID, but the prepared resources preserve
+playlist order and repeated entries. Progress is streamed to the player; a
+failed preparation or audio setup produces the existing player error state
+and is recorded for diagnostics. Cache files live under `chant_cache` in the
+app's documents directory. Clearing the cache removes those files; Drift
+metadata entries remain and are checked against the filesystem on reuse.
+
+Once prepared, the audio handler starts the playlist and the player loads the
+current chant's lyrics. A newer track selection supersedes pending lyrics
+requests so an older result cannot replace the current track's lyrics.
+
+## Architecture
+
+- `src/domain/` contains domain models, cache and audio contracts, and use
+  cases for preparing, playing, and completing a session.
+- `src/data/` implements those contracts, including Firebase catalogue and
+  storage access, Drift cache metadata, filesystem operations, audio
+  adaptation, and lyrics parsing.
+- `src/presentation/` owns the private player state and views.
+- `src/public/` and `chanting.dart` define the module-facing surface. Public
+  playlist items are mapped to domain items for player state.
+- `src/audio/` contains the SoLoud handler used by the app's audio service.
+
+The central flow is view → cubit → use case or service → data layer. The
+Widgetbook app has a documented exception for previews of internal widgets;
+those previews are not a supported public API.
+
+## Development
+
+Use the workspace setup in [`AGENTS.md`](../../../../AGENTS.md) and the run
+and build instructions in [`docs/commands.md`](../../../../docs/commands.md).
+Running the mobile app also requires the Firebase configuration files for the
+chosen flavor, as described in the workspace setup guide.
+
+From this package directory:
+
+```sh
+dart run build_runner build
+flutter analyze
+flutter test
 ```
 
-## Additional information
+Run code generation after changing generated models, routes, or other
+builder inputs. For a focused test, pass its path to `flutter test`, for
+example `flutter test test/presentation/viewmodel/chanting_cubit_test.dart`.
+From the repository root, check module boundaries with:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```sh
+bash support/maintenance_scripts/check_module_boundaries.sh packages/modules/practice/chanting
+```
