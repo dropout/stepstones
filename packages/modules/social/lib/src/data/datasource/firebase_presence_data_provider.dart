@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_provider/firebase_provider.dart';
 import 'package:core/core.dart';
 import 'package:social/src/data/datasource/presence_data_provider.dart';
 import 'package:social/src/domain/entity/presence_entity.dart';
