@@ -42,61 +42,51 @@ class SoLoudChantingAudioHandler extends BaseAudioHandler {
     SoChantingAudioResourceManager? audioResourceManager,
     SoChantingPlaylistManager? playlistManager,
     SoChantingPlaybackReporter? playbackReporter,
-  }) : assert(
-         soloud.isInitialized,
-         'SoLoud instance must be initialized before creating the audio handler',
-       ) {
-    _audioResourceManager =
-        audioResourceManager ??
-        SoLoudSoChantingAudioResourceManager(soloud: soloud);
+  }) : assert(soloud.isInitialized, 'SoLoud instance must be initialized before creating the audio handler') {
+    _audioResourceManager = audioResourceManager ?? SoLoudSoChantingAudioResourceManager(soloud: soloud);
     _playlistManager =
-        playlistManager ??
-        SoChantingPlaylistManager(
-          onCurrentIndexChanged: _audioResourceManager.invalidate,
-        );
+        playlistManager ?? SoChantingPlaylistManager(onCurrentIndexChanged: _audioResourceManager.invalidate);
     _playbackReporter =
         playbackReporter ??
         SoLoudSoChantingPlaybackReporter(
           playbackStateSink: playbackState.add,
-          positionProvider: () =>
-              _soundHandle != null &&
-                  soloud.getIsValidVoiceHandle(_soundHandle!)
+          positionProvider: () => _soundHandle != null && soloud.getIsValidVoiceHandle(_soundHandle!)
               ? soloud.getPosition(_soundHandle!)
               : Duration.zero,
           playingProvider: () => _isPlaying,
-          queueIndexProvider: () => _playlistManager.currentIndex >= 0
-              ? _playlistManager.currentIndex
-              : null,
+          queueIndexProvider: () => _playlistManager.currentIndex >= 0 ? _playlistManager.currentIndex : null,
         );
   }
 
   @override
-  Future<dynamic> customAction(
-    String name, [
-    Map<String, dynamic>? extras,
-  ]) async {
+  Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
     final action = SoLoudChantingAudioHandlerCustomAction.values.firstWhere(
       (e) => e.name == name,
       orElse: () => throw UnimplementedError('Unknown custom action: $name'),
     );
     switch (action) {
       case .setup:
-        try {
-          // Expecting extras to contain a JSON-encoded list of ChantLocalResources
-          final resourcesJson = extras!['resources'] as String?;
-          final List<ChantLocalResources> resources = resourcesJson != null
-              ? (jsonDecode(resourcesJson) as List)
-                    .map(
-                      (item) => ChantLocalResources.fromJson(
-                        item as Map<String, Object?>,
-                      ),
-                    )
-                    .toList()
-              : [];
-          return await setup(resources);
-        } catch (e) {
-          throw ArgumentError('Invalid extras for `$action` action: $extras');
-        }
+        final resources = _parseSetupResources(extras);
+        return setup(resources);
+    }
+  }
+
+  List<ChantLocalResources> _parseSetupResources(Map<String, dynamic>? extras) {
+    if (extras == null) {
+      throw ArgumentError('Invalid extras for setup action');
+    }
+    try {
+      final resourcesJson = extras['resources'] as String?;
+      if (resourcesJson == null) return [];
+      return (jsonDecode(resourcesJson) as List)
+          .map((item) => ChantLocalResources.fromJson(item as Map<String, Object?>))
+          .toList();
+    } on FormatException {
+      throw ArgumentError('Invalid extras for setup action');
+    } on TypeError {
+      throw ArgumentError('Invalid extras for setup action');
+    } on ArgumentError {
+      throw ArgumentError('Invalid extras for setup action');
     }
   }
 
@@ -122,11 +112,7 @@ class SoLoudChantingAudioHandler extends BaseAudioHandler {
       entries.add(
         SoChantingPlaylistEntry(
           source: r,
-          mediaItem: MediaItem(
-            id: chant.id,
-            title: chant.name,
-            duration: chant.length,
-          ),
+          mediaItem: MediaItem(id: chant.id, title: chant.name, duration: chant.length),
         ),
       );
     }
@@ -245,9 +231,7 @@ class SoLoudChantingAudioHandler extends BaseAudioHandler {
     final currentEntry = _playlistManager.currentEntry;
     if (currentEntry == null) return;
 
-    final source = await _audioResourceManager.load(
-      currentEntry.source.audioLocalPath,
-    );
+    final source = await _audioResourceManager.load(currentEntry.source.audioLocalPath);
 
     if (source != null) {
       _soundHandle = soloud.play(source);
@@ -316,9 +300,7 @@ class SoLoudChantingAudioHandler extends BaseAudioHandler {
   void close() {
     _trackEndedSub?.cancel();
     _trackEndedSub = null;
-    if (_soundHandle != null &&
-        soloud.isInitialized &&
-        soloud.getIsValidVoiceHandle(_soundHandle!)) {
+    if (_soundHandle != null && soloud.isInitialized && soloud.getIsValidVoiceHandle(_soundHandle!)) {
       soloud.stop(_soundHandle!);
     }
     _soundHandle = null;

@@ -2,10 +2,10 @@ import 'package:clock/clock.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:core/core.dart';
-import 'package:chanting/src/chanting_module.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
+import 'package:chanting/src/domain/entity/chant_playlist_item_entity.dart';
 import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_document_entity.dart';
 
@@ -16,8 +16,7 @@ sealed class ChantingStateEntity with _$ChantingStateEntity {
   const ChantingStateEntity._();
 
   const factory ChantingStateEntity({
-    // settings
-    required ChantingSettings chantingSettings,
+    @Default([]) List<ChantPlaylistItemEntity> playlist,
 
     // loading
     @Default(CachingProgressEntity()) CachingProgressEntity cachingProgress,
@@ -78,6 +77,5 @@ sealed class ChantingStateEntity with _$ChantingStateEntity {
   }
 
   Duration get currentTrackDuration => mediaItem?.duration ?? Duration.zero;
-  Duration get sessionDuration =>
-      chantingSettings.selectedChants.fold(Duration.zero, (total, chant) => total + chant.duration);
+  Duration get sessionDuration => playlist.fold(Duration.zero, (total, chant) => total + chant.duration);
 }

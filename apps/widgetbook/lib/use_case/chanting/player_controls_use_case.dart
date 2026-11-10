@@ -2,7 +2,6 @@
 
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/domain/entity/chant_track_entity.dart';
-import 'package:chanting/chanting.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/presentation/view/player/player_controls.dart';
 import 'package:core/core.dart';
@@ -27,7 +26,6 @@ Widget buildPlayerControls(BuildContext context) {
   final isNextEnabled = context.knobs.boolean(label: 'Next enabled', initialValue: true);
 
   final state = ChantingStateEntity(
-    chantingSettings: const ChantingSettings(),
     playbackState: ChantPlaybackStateEntity(
       playing: isPlaying,
       processingState: isLoading ? ChantPlaybackProcessingState.loading : ChantPlaybackProcessingState.ready,

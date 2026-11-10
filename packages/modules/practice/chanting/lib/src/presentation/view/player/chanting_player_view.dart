@@ -196,7 +196,7 @@ class _ChantingPlayerViewState extends State<ChantingPlayerView>
         chantingState: chantingState,
         onNextPressed:
           !isLoading && chantingState.currentIndex <
-            chantingState.chantingSettings.selectedChants.length - 1
+            chantingState.playlist.length - 1
           ? () => _onNextPressed(context)
           : null,
         onPlayPausePressed: () => _onPlayPausePressed(context),

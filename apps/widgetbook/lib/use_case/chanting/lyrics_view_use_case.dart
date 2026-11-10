@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chanting/chanting.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_document_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_line_entity.dart';
@@ -153,7 +152,6 @@ class _LyricsSimulationState extends State<_LyricsSimulation> {
       if (_lyrics.lines[i].start <= _position) activeIndex = i;
     }
     return ChantingStateEntity(
-      chantingSettings: const ChantingSettings(),
       playbackState: ChantPlaybackStateEntity(playing: _playing, updatePosition: _position, updateTime: DateTime.now()),
       lyricsLoadingState: widget.loaded ? ProcessingState.completed : ProcessingState.processing,
       lyricsDocument: widget.loaded ? _lyrics : null,

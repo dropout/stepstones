@@ -1,6 +1,7 @@
 // ignore_for_file: implementation_imports
 
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
+import 'package:chanting/src/data/mapper/chant_playlist_item_mapper.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chanting/chanting.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
@@ -43,7 +44,7 @@ Widget buildPlaylistSheet(BuildContext context) {
     ),
   );
   final state = ChantingStateEntity(
-    chantingSettings: ChantingSettings(selectedChants: playlist),
+    playlist: playlist.map((item) => item.toDomain()).toList(growable: false),
     playbackState: ChantPlaybackStateEntity(
       playing: isPlaying,
       processingState: ChantPlaybackProcessingState.ready,

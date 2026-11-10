@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chanting/src/data/mapper/chant_playlist_item_mapper.dart';
 import 'package:chanting/src/domain/entity/chant_playback_state_entity.dart';
 import 'package:chanting/src/domain/entity/chant_track_entity.dart';
 
@@ -42,8 +43,15 @@ class ChantingCubit({
   // Guards against navigating to the completed screen twice.
   bool _sessionEnded = false;
   bool _resumeAfterExitPrompt = false;
+  int _lyricsRequestId = 0;
 
-  this : super(ChantingStateEntity(chantingSettings: chantingSettings, playbackState: audioService.playbackState)) {
+  this
+    : super(
+        ChantingStateEntity(
+          playlist: chantingSettings.selectedChants.map((item) => item.toDomain()).toList(growable: false),
+          playbackState: audioService.playbackState,
+        ),
+      ) {
     _init();
   }
 
@@ -70,9 +78,7 @@ class ChantingCubit({
   Future<void> start() async {
     try {
       emit(state.copyWith(loadingState: .processing));
-      final prepared = startChantingUseCase.execute(
-        chantingSettings.selectedChants.map((e) => e.chantId).toList(growable: false),
-      );
+      final prepared = startChantingUseCase.execute(state.playlist.map((e) => e.chantId).toList(growable: false));
 
       // Update the state with caching progress as it occurs
       final done = _cachingDone = Completer<void>();
@@ -108,19 +114,24 @@ class ChantingCubit({
     }
   }
 
-  Future<void> _loadLyricsForChant(String chantId) async {
+  Future<void> _loadLyricsForChant(String chantId, int requestId) async {
     try {
-      // logger.t('Loading lyrics for chant ID: $chantId');
-      emit(state.copyWith(lyricsLoadingState: ProcessingState.processing));
       final lyricsDocument = await loadLyricsUseCase.execute(chantId, state);
+      if (isClosed || requestId != _lyricsRequestId) return;
 
-      // User quickly pressed back button
-      if (isClosed) return;
-
-      emit(state.copyWith(lyricsLoadingState: ProcessingState.completed, lyricsDocument: lyricsDocument));
+      final activeLineIndex = lyricsDocument.getExactLineIndex(state.latencyCompensatedPosition);
+      emit(
+        state.copyWith(
+          lyricsLoadingState: ProcessingState.completed,
+          lyricsDocument: lyricsDocument,
+          activeLineIndex: activeLineIndex < 0 ? 0 : activeLineIndex,
+        ),
+      );
     } catch (e, st) {
-      emit(state.copyWith(lyricsLoadingState: ProcessingState.error));
       crashlyticsService.recordError(exception: e, stackTrace: st, reason: 'Error loading lyrics for chant $chantId');
+      if (!isClosed && requestId == _lyricsRequestId) {
+        emit(state.copyWith(lyricsLoadingState: ProcessingState.error));
+      }
     }
   }
 
@@ -135,8 +146,8 @@ class ChantingCubit({
     }
   }
 
-  void _onPlaybackStateChanged(ChantPlaybackStateEntity pbState) async {
-    emit(await playbackStateChangeUseCase.execute(state, pbState));
+  void _onPlaybackStateChanged(ChantPlaybackStateEntity pbState) {
+    emit(playbackStateChangeUseCase.execute(state, pbState));
 
     // Only update while playing
     if (pbState.playing) {
@@ -206,13 +217,18 @@ class ChantingCubit({
   }
 
   void _onMediaItemChanged(ChantTrackEntity? mediaItem) {
-    // Nothing to act on if the media item is null
+    final requestId = ++_lyricsRequestId;
+    emit(
+      state.copyWith(
+        mediaItem: mediaItem,
+        activeLineIndex: 0,
+        lyricsDocument: null,
+        lyricsLoadingState: ProcessingState.processing,
+      ),
+    );
     if (mediaItem == null) return;
-
     logger.t('Media item changed: ${mediaItem.title}');
-
-    emit(state.copyWith(mediaItem: mediaItem, activeLineIndex: 0));
-    _loadLyricsForChant(mediaItem.id);
+    unawaited(_loadLyricsForChant(mediaItem.id, requestId));
   }
 
   /// When using a Bluetooth headset, we need to account for the output latency
