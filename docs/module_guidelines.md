@@ -1,169 +1,162 @@
 # Module Guidelines
 
-This document complements the compressed clean architecture guidance in [architecture_guidelines.md](architecture_guidelines.md). It defines the default structure and conventions for creating new modules in Stepstones.
+This guide describes how to structure, integrate, and verify feature packages in the Stepstones workspace. Feature packages live under `packages/modules/`; the app shell is `apps/mobile_app/`. For import-boundary details, see [module dependency guidelines](./new_docs/module_dependency_guidelines.md).
 
-## 1. Core Principles
+## 1. Architecture at a glance
 
-Each module should be treated as a small, self-contained feature boundary.
-
-- Keep modules feature-first and cohesive.
-- Use the compressed clean architecture model:
-  - Domain and application logic are combined.
-  - Presentation handles UI and state.
-  - Data handles repositories, data sources, and mapping.
-- Prefer simple implementations over over-engineering.
-- Skip use cases for trivial CRUD-like flows when a controller or cubit can call a repository directly.
-- Keep dependencies flowing downward: presentation -> domain -> data.
-- Expose module functionality through a clear public API instead of letting other modules reach into internal implementation details.
-
-## 2. Module Shape
-
-New modules should live under the feature-oriented structure in [lib/modules](../../lib/modules) and follow a consistent layout:
+Organize each feature around its responsibilities, not around a mandatory set of classes:
 
 ```text
-lib/modules/<module_name>/
-  data/
-    datasources/
-    repositories/
-  domain/
-    entities/
-    repositories/
-    services/
-  presentation/
-    controllers/
-    pages/
-    widgets/
-    state/
-  public/
-  <module_name>_di.dart
-  <module_name>_module.dart
-  <module_name>_routes.dart
+Presentation -> Domain contracts
+Data implementations -> Domain contracts
 ```
 
-Not every module needs every folder. Use the minimal structure that fits the feature.
+- **Presentation** owns feature screens, widgets, and UI state. Cubits/Blocs coordinate user actions and expose immutable state.
+- **Domain** owns feature concepts, repository/service contracts, and business rules. Add use cases when they orchestrate work or express meaningful behavior.
+- **Data** implements domain contracts using Firebase, local persistence, files, or platform services. Keep provider details and mapping here.
+- **Public API** is the supported surface for other packages. It may contain public API contracts, public models, reusable views, and selected view models.
 
-## 3. Responsibilities by Layer
+Keep the design pragmatic. A simple read/display flow may call a repository contract directly from a Cubit; do not add a one-line use case solely to satisfy a diagram. Keep UI widgets declarative and avoid putting business logic or persistence calls in them.
 
-### Domain
+## 2. Package structure
 
-The domain layer contains the module’s core business concepts and contracts.
+New feature modules are Dart workspace packages. Use the existing package nearest in purpose as the starting point, commonly `packages/modules/profile`. Add only folders and files the feature needs.
 
-- Define entities and immutable domain models.
-- Define repository interfaces and service contracts.
-- Keep business rules here when they are meaningful and reusable.
-- Prefer simple, focused abstractions over large generic interfaces.
+```text
+packages/modules/<feature>/
+  pubspec.yaml
+  analysis_options.yaml
+  l10n.yaml                         # when the package has localized UI
+  lib/
+    <feature>.dart                  # public barrel
+    l10n/
+      <feature>_en.arb
+      <feature>_hu.arb
+      <feature>_localizations.dart  # generated
+    src/
+      <feature>_di.dart
+      <feature>_routes.dart         # only when the package has routes
+      domain/
+        entity/
+        repository/
+        port/
+        service/
+        usecase/
+      data/
+        datasource/
+        repository/
+        mapper/
+        service/
+      presentation/
+        view/
+        viewmodel/
+      public/
+        api/
+        model/
+        view/
+        viewmodel/
+  test/
+```
 
-### Data
+The layout is a guide, not a requirement to create every directory. Keep generated files generated; do not hand-edit `*.g.dart`, `*.freezed.dart`, generated route files, or generated localization files.
 
-The data layer implements the contracts defined by the domain layer.
+## 3. Dependency and module boundaries
 
-- Implement repositories and data sources.
-- Handle Firebase, Drift, local persistence, and remote API access.
-- Map data models to domain entities.
-- Keep storage and network concerns isolated behind the repository boundary.
+- `core` is foundational and must not depend on feature modules.
+- Feature dependencies flow in one direction in the module hierarchy. Do not introduce dependency cycles.
+- Depend on another feature only when needed, and only through its package barrel (for example, `import 'package:profile/profile.dart';`).
+- Never import or export another package's `src/` files. Do not reach into another package's data or presentation implementation.
+- Keep repository interfaces in domain and implementations in data. Data sources are owned by the module that uses them; shared infrastructure belongs in `core`.
+- If domain behavior needs another module, define a narrow port in the consuming module's domain and implement it in that module's data layer. Any types in that port must come from stable public package contracts, not another package's internals.
+- Do not pass another module's Cubit, screen, or internal widget into a feature. Reusable cross-module UI must be deliberately exported as public API.
+- Keep cross-module models at the boundary. Prefer a local view model when a screen needs only a small subset of a foreign public model.
 
-### Presentation
+The automated boundary check is the source of truth for enforced import rules. Existing legacy violations may remain; do not add new ones.
 
-The presentation layer contains UI and state management.
+## 4. Public package API
 
-- Use Cubit or Bloc for stateful flows when the feature needs more than trivial UI state.
-- Keep widgets declarative and free of business logic.
-- Let controllers or cubits orchestrate user actions and repository calls.
-- Emit explicit, immutable states such as initial, loading, success, and failure.
+The package barrel, `lib/<feature>.dart`, defines the supported import surface.
 
-### Public API
+- Export only contracts, models, widgets/view models, localization delegates, routes, and module registration functions that consumers need.
+- Do not export the `domain/`, `data/`, or `presentation/` implementation layers wholesale.
+- Keep persistence models and domain entities internal. Map to dedicated public models when data must cross a package boundary.
+- Keep APIs small and intentional; changing an exported contract can require updating dependent packages and the app.
 
-Each module should expose a small public surface for other modules.
+Consumers should import the barrel, never a path under `package:<feature>/src/`.
 
-- Export the module entry point and any reusable UI components.
-- Avoid forcing other modules to depend on implementation details.
-- Keep the public API stable and minimal.
+## 5. Dependency injection and routing
 
-## 4. Implementation Rules
+- Keep a module's registrations in `lib/src/<feature>_di.dart`, exposed from its barrel.
+- Register providers, repositories, services/use cases, and Cubits with lifetimes appropriate to their use. Prefer constructor injection so dependencies are explicit and testable.
+- The mobile app is the composition root. Add the package dependency and call its registration function in `apps/mobile_app/lib/bootstrap/app_di.dart` after the modules it depends on.
+- Define GoRouter routes close to the feature in `lib/src/<feature>_routes.dart` only when the package owns screens. Export the route list and add it to the router in `apps/mobile_app/lib/bootstrap/initializer.dart`.
+- Add a localization delegate to `apps/mobile_app/lib/app.dart` only when the feature has generated localizations.
+- Avoid resolving dependencies from GetIt inside feature widgets or domain logic. Use the composition layer to construct objects.
 
-### Keep the module cohesive
+## 6. State, errors, and UI
 
-A module should own its own data, state, routes, and UI. Avoid scattering feature-specific logic across the app.
+- Use Cubit for straightforward state flows and Bloc when event-driven coordination provides a clear benefit.
+- Keep state focused, immutable, and explicit about meaningful loading, success, and failure cases.
+- Keep orchestration in Cubits/use cases/services as appropriate; widgets render state and dispatch user intent.
+- Handle errors at a boundary that can report or present them. Use the project's logging and Crashlytics services where appropriate; do not silently turn failures into success-shaped defaults.
+- Keep user-facing text localized; do not hardcode it in widgets.
 
-### Prefer direct use of repositories for simple flows
+## 7. Localization
 
-If a feature is just fetching data and displaying it, a cubit or controller can call the repository directly. Do not create a use case class unless the workflow has meaningful orchestration or business logic.
+For packages with user-facing UI:
 
-### Use immutable models
+- Keep ARB resources in `lib/l10n/<feature>_en.arb` and `lib/l10n/<feature>_hu.arb`.
+- Configure package-root `l10n.yaml` with the package ARB directory, generated output file, and a feature-specific `<Feature>Localizations` class.
+- Add each key to both locales and provide an actual Hungarian translation.
+- Check the package and `core` localizations before adding a duplicate. Use ICU plural/select syntax for variable messages.
+- Access strings through the generated localization class (or an established `core` localization extension where appropriate).
+- Regenerate after ARB edits with `flutter gen-l10n` in the package, or run `melos run codegen:l10n` from the workspace root.
 
-Prefer freezed-based models or other immutable value objects for entities and state.
+## 8. Testing and verification
 
-### Keep the dependency direction clean
+Test behavior at the boundary where it matters; do not add empty tests just to fill a directory.
 
-The rule of thumb is:
+- **Domain:** test meaningful use cases and services with repository/port fakes or mocks.
+- **Data:** test mapping and repository behavior; isolate Firebase or other SDK dependencies behind providers.
+- **Presentation:** test Cubit transitions and important widget behavior.
+- **Public API:** test exported contracts or behavior where the API adds meaningful translation or orchestration.
+- Add integration tests for flows whose important behavior spans packages or platform services.
 
-- Presentation may depend on domain contracts.
-- Domain should not depend on presentation.
-- Data implements domain contracts.
-- Modules should communicate through public exports or shared contracts, not by reaching into each other’s internals.
+From the package directory, run:
 
-## 5. State Management Guidance
+```bash
+dart format --line-length 120 lib test
+flutter analyze
+flutter test
+```
 
-Use the simplest state approach that fits the feature.
+From the workspace root, check module boundaries:
 
-- Use Cubit for simple or medium complexity flows.
-- Use Bloc when the flow needs more structured event-driven behavior.
-- Keep state classes focused and immutable.
-- Avoid putting network calls or business logic directly inside widgets.
+```bash
+bash support/maintenance_scripts/check_module_boundaries.sh packages/modules/<feature>
+```
 
-## 6. Routing and Dependency Injection
+If generated sources are stale, regenerate them rather than editing them:
 
-Every module should integrate cleanly with the application’s navigation and dependency setup.
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
 
-- Define module routes in a dedicated route file.
-- Register dependencies in the module entry point or DI setup.
-- Keep route definitions close to the feature they serve.
-- Avoid hard-coding navigation logic inside widgets when the flow is reusable.
+When a public API, package barrel, or core contract changes, also analyze affected dependent packages and `apps/mobile_app`. See [verify-package](../ai/skills/verify-package/SKILL.md) for the full verification workflow.
 
-## 7. Testing Expectations
+## 9. Adding a module to the workspace
 
-Every module should be testable at the same level as the rest of the app.
+Before creating a package, confirm that it represents a cohesive feature boundary and decide where it belongs in the dependency hierarchy. Then wire all applicable integration points:
 
-- Add unit tests for repositories, mapping logic, and domain rules.
-- Add widget tests for UI behavior and state rendering.
-- Add integration tests for multi-step flows when the behavior crosses layers.
+- [ ] Create the package under `packages/modules/` (or `packages/modules/practice/` for a practice submodule).
+- [ ] Add it to the root `pubspec.yaml` workspace and configure its package manifest.
+- [ ] Create a public barrel; export only the intended API.
+- [ ] Add the package to `apps/mobile_app/pubspec.yaml`.
+- [ ] Register its dependencies in `apps/mobile_app/lib/bootstrap/app_di.dart` in dependency order.
+- [ ] Add routes to the app router if the module owns routes.
+- [ ] Add its localization delegate to the app if the module has localizations.
+- [ ] Add it to Widgetbook if it exposes UI that should be documented there.
+- [ ] Update the module inventory in `AGENTS.md`.
+- [ ] Generate code as needed, then format, analyze, test, and run the boundary check.
 
-## 8. New Module Checklist
-
-Use this checklist when creating a new module:
-
-- [ ] Create the module folder under the appropriate feature area.
-- [ ] Add a module entry point and route definitions.
-- [ ] Define the public API surface.
-- [ ] Create the domain entities and repository/service contracts.
-- [ ] Implement the data layer and any required mapping.
-- [ ] Build the presentation layer with state management and screens.
-- [ ] Register dependencies and routes.
-- [ ] Add tests for the core behavior.
-
-## 9. Localization
-
-Each module owns its own localization instead of sharing a single app-wide ARB file.
-
-- Place ARB files at `lib/l10n/<module>_en.arb` and `lib/l10n/<module>_hu.arb`.
-- Configure `l10n.yaml` at the package root with `output-class: <ModuleName>Localizations` (e.g. `TimerLocalizations`, `AuthLocalizations`).
-- Prefix ARB keys with the feature/screen name in `camelCase` (e.g. `timerTitle`, `loginHeadline1`). Short, generic strings shared within a module may skip the prefix (`okay`, `close`).
-- Access strings via `<ModuleName>Localizations.of(context).someKey`. Core widgets may use the `context.coreL10n` shortcut extension instead.
-- Before adding a new key, check whether an equivalent string already exists in the module's own ARB file or in `core`'s, and reuse it rather than duplicating.
-- Use ICU plural syntax for countable strings (see `minutesPlural` in core) instead of manual branching or concatenation.
-- Add a Hungarian translation to the sibling `*_hu.arb` for every new key — do not leave it copied from English.
-- After editing any ARB file, regenerate code with `melos run codegen:l10n` before relying on the new getters.
-- Widgets should never contain hardcoded user-facing string literals; route all such text through the generated localization class.
-
-## 10. Practical Default
-
-For most features in this project, the default approach should be:
-
-1. Start with a minimal module structure.
-2. Define the entity and repository contract.
-3. Implement the repository and data source.
-4. Add a cubit or controller for state.
-5. Build the screen and widgets.
-6. Expose only what other modules need.
-
-This keeps the codebase consistent, readable, and easy to evolve without introducing unnecessary layers.
+Not every module needs routes, localization, Widgetbook coverage, or all three layers. Make omissions intentional and keep the package as small as its responsibilities allow.

@@ -4,6 +4,7 @@ This is a list of useful commands for the project.
 ## Available flavors for commands `<flavor>`
 When running commands that require a flavor, ask for clarification.
 - `development`
+- `qa`
 - `staging`
 - `production`
 
