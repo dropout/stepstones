@@ -6,7 +6,7 @@ import 'package:chanting/src/public/model/chanting_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('accumulates time only across consecutive playing updates', () async {
+  test('accumulates time only across consecutive playing updates', () {
     final time = DateTime.utc(2025);
     final initial = ChantingStateEntity(
       chantingSettings: const ChantingSettings(),
@@ -14,19 +14,16 @@ void main() {
       elapsedSessionTime: const Duration(seconds: 10),
     );
     final useCase = PlaybackStateChangeUseCase();
-    final playing = await useCase.execute(
+    final playing = useCase.execute(
       initial,
       ChantPlaybackStateEntity(playing: true, updateTime: time.add(const Duration(seconds: 3))),
     );
-    final paused = await useCase.execute(
-      playing,
-      ChantPlaybackStateEntity(updateTime: time.add(const Duration(seconds: 5))),
-    );
+    final paused = useCase.execute(playing, ChantPlaybackStateEntity(updateTime: time.add(const Duration(seconds: 5))));
     expect(playing.elapsedSessionTime, const Duration(seconds: 13));
     expect(paused.elapsedSessionTime, playing.elapsedSessionTime);
   });
 
-  test('marks completion only at the last playlist item', () async {
+  test('marks completion only at the last playlist item', () {
     final settings = ChantingSettings(
       selectedChants: [
         const ChantPlaylistItem(id: 'a', chantId: 'a', name: 'a', blurHash: '', order: 0, duration: Duration.zero),
@@ -39,7 +36,7 @@ void main() {
       playbackState: ChantPlaybackStateEntity(updateTime: time),
     );
     final useCase = PlaybackStateChangeUseCase();
-    final first = await useCase.execute(
+    final first = useCase.execute(
       initial,
       ChantPlaybackStateEntity(
         processingState: ChantPlaybackProcessingState.completed,
@@ -47,7 +44,7 @@ void main() {
         updateTime: time,
       ),
     );
-    final last = await useCase.execute(
+    final last = useCase.execute(
       first,
       ChantPlaybackStateEntity(
         processingState: ChantPlaybackProcessingState.completed,

@@ -3,10 +3,7 @@ import 'package:core/core.dart';
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 
 class PlaybackStateChangeUseCase with LoggerMixin {
-  Future<ChantingStateEntity> execute(
-    ChantingStateEntity currentState,
-    ChantPlaybackStateEntity newPlaybackState,
-  ) async {
+  ChantingStateEntity execute(ChantingStateEntity currentState, ChantPlaybackStateEntity newPlaybackState) {
     // Update the elapsed session time based on the PlaybackState.updateTime
     // by comparing previous and current PlaybackState.updateTime
     // only when the audio is playing.
