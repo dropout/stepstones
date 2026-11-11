@@ -44,12 +44,18 @@ void main() {
           AuthTestHelper.withLocalizationProvider(
             BlocProvider<AuthStateCubit>(
               create: (context) => mockAuthCubit,
-              child: const LoginScreen()
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: const LoginScreen()
+              )
             )
           )
         );
 
-        await tester.pumpAndSettle();
+        // Pump the widget multiple times to allow animations and async operations to complete
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
 
         expect(find.text('Bejelentkezés Google-lal'), findsOneWidget);
         expect(find.text('Bejelentkezés Apple-lel'), findsOneWidget);
@@ -67,7 +73,10 @@ void main() {
           AuthTestHelper.withLocalizationProvider(
             BlocProvider<AuthStateCubit>(
               create: (context) => mockAuthCubit,
-              child: const LoginScreen()
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: const LoginScreen()
+              )
             )
           )
         );
@@ -85,7 +94,10 @@ void main() {
           AuthTestHelper.withLocalizationProvider(
             BlocProvider<AuthStateCubit>(
               create: (context) => mockAuthCubit,
-              child: const LoginScreen()
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: const LoginScreen()
+              )
             )
           )
         );
@@ -115,13 +127,19 @@ void main() {
             child: AuthTestHelper.withLocalizationProvider(
               BlocProvider<AuthStateCubit>(
                 create: (context) => mockAuthCubit,
-                child: LoginScreen()
+                child: ShaderRenderingScope(
+                  enabled: false, 
+                  child: LoginScreen()
+                ),
               )
             )
           )
         );
 
-        await tester.pumpAndSettle();
+        // Pump the widget multiple times to allow animations and async operations to complete
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
 
         final googleButton = find.widgetWithText(
           AppButton,
@@ -154,13 +172,20 @@ void main() {
             child: AuthTestHelper.withLocalizationProvider(
               BlocProvider<AuthStateCubit>(
                 create: (context) => mockAuthCubit,
-                child: LoginScreen()
+                child: ShaderRenderingScope(
+                  enabled: false,
+                  child: LoginScreen()
+                )
               )
             )
           )
         );
 
-        await tester.pumpAndSettle();
+        // Pump the widget multiple times to allow animations and async operations to complete
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+
         final appleButton = find.widgetWithText(
           AppButton,
           'Bejelentkezés Apple-lel',
@@ -186,13 +211,19 @@ void main() {
             child: AuthTestHelper.withLocalizationProvider(
               BlocProvider<AuthStateCubit>(
                 create: (context) => mockAuthCubit,
-                child: LoginScreen()
+                child: ShaderRenderingScope(
+                  enabled: false,
+                  child: LoginScreen()
+                )
               )
             )
           )
         );
 
-        await tester.pumpAndSettle();
+        // Pump the widget multiple times to allow animations and async operations to complete
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
 
         final termsButton = find.textContaining('ÁSZF-et', findRichText: true);
         expect(termsButton, findsOneWidget);
