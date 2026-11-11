@@ -26,7 +26,7 @@ void main() {
 		test('emits original profile and does not persist when stats are unchanged', () async {
 			final profile = fakeModelFactory.createProfileEntity();
 
-			when(() => profileRepository.readStream(any()))
+			when(() => profileRepository.readStream(any(), filterCached: false))
 					.thenAnswer((_) => Stream.value(profile));
 			when(() => profileStatsUpdater.validateStatsReport(profile.statsReport))
 					.thenReturn(profile.statsReport);
@@ -34,7 +34,7 @@ void main() {
 			final emitted = await useCase.execute(profile.id).first;
 
 			expect(emitted, equals(profile));
-			verify(() => profileRepository.readStream(profile.id)).called(1);
+			verify(() => profileRepository.readStream(profile.id, filterCached: false)).called(1);
 			verify(() => profileStatsUpdater.validateStatsReport(profile.statsReport)).called(1);
 			verifyNoMoreInteractions(profileRepository);
 		});
@@ -46,7 +46,7 @@ void main() {
 			);
 			final expectedUpdatedProfile = profile.copyWith(statsReport: updatedStatsReport);
 
-			when(() => profileRepository.readStream(any()))
+			when(() => profileRepository.readStream(any(), filterCached: false))
 					.thenAnswer((_) => Stream.value(profile));
 			when(() => profileStatsUpdater.validateStatsReport(profile.statsReport))
 					.thenReturn(updatedStatsReport);
@@ -56,7 +56,7 @@ void main() {
 			final emitted = await useCase.execute(profile.id).first;
 
 			expect(emitted, equals(expectedUpdatedProfile));
-			verify(() => profileRepository.readStream(profile.id)).called(1);
+			verify(() => profileRepository.readStream(profile.id, filterCached: false)).called(1);
 			verify(() => profileStatsUpdater.validateStatsReport(profile.statsReport)).called(1);
 			verify(() => profileRepository.update(expectedUpdatedProfile)).called(1);
 		});

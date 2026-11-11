@@ -56,7 +56,10 @@ void main() {
         ProfileTestHelper.withLocalizationProvider(  
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: const ProfileEditScreen(profileId: 'profileId'),
+            child: ShaderRenderingScope(
+              enabled: false,
+              child: const ProfileEditScreen(profileId: 'profileId')
+            ),
           ),
         ),
       );
@@ -73,7 +76,10 @@ void main() {
         ProfileTestHelper.withLocalizationProvider(  
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: const ProfileEditScreen(profileId: 'profileId'),
+            child: ShaderRenderingScope(
+              enabled: false,
+              child: const ProfileEditScreen(profileId: 'profileId')
+            ),
           ),
         ),
       );
@@ -102,7 +108,10 @@ void main() {
                   create: (context) => mockProfileEditCubit,                  
                 ),
               ],
-              child: const ProfileEditScreen(profileId: 'profileId'),
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: const ProfileEditScreen(profileId: 'profileId'),
+              ),
             ),
           ),
         );
@@ -136,7 +145,10 @@ void main() {
                   create: (context) => mockProfileEditCubit,                  
                 ),                
               ],
-              child: const ProfileEditScreen(profileId: 'profileId'),
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: const ProfileEditScreen(profileId: 'profileId'),
+              ),
             ),
           ),
         );

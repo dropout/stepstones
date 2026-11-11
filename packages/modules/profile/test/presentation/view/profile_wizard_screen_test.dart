@@ -58,7 +58,10 @@ void main() {
         ProfileTestHelper.withLocalizationProvider(
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: ProfileWizardScreen(profileId: 'test_profile_id'),
+            child: ShaderRenderingScope(
+              enabled: false,
+              child: ProfileWizardScreen(profileId: 'test_profile_id')
+            ),
           ),
         ),
       );
@@ -79,7 +82,10 @@ void main() {
         ProfileTestHelper.withLocalizationProvider(
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: ProfileWizardScreen(profileId: 'test_profile_id'),
+            child: ShaderRenderingScope(
+              enabled: false,
+              child: ProfileWizardScreen(profileId: 'test_profile_id'),
+            ),
           ),
         ),
       );
@@ -98,7 +104,10 @@ void main() {
         ProfileTestHelper.withLocalizationProvider(
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: ProfileWizardScreen(profileId: 'test_profile_id'),
+            child: ShaderRenderingScope(
+              enabled: false,
+              child: ProfileWizardScreen(profileId: 'test_profile_id'),
+            ),
           ),
         ),
       );
@@ -126,7 +135,10 @@ void main() {
                   create: (context) => mockProfileEditCubit,
                 ),
               ],
-              child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              ),
             ),
           ),
         );
@@ -160,7 +172,10 @@ void main() {
                   create: (context) => mockProfileEditCubit,
                 ),
               ],
-              child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              ),
             ),
           ),
         );

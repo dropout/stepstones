@@ -50,10 +50,10 @@ void main() {
     });
 
     test('can read profile stream by id', () {
-      when(() => mockProfileDataProvider.readStream('test_id'))
+      when(() => mockProfileDataProvider.readStream('test_id', filterCached: false))
         .thenAnswer((_) => profileStreamController.stream);
       profileRepository.readStream('test_id');
-      verify(() => mockProfileDataProvider.readStream('test_id')).called(1);
+      verify(() => mockProfileDataProvider.readStream('test_id', filterCached: false)).called(1);
     });
 
     test('can update profile', () {

@@ -17,7 +17,7 @@ class _FakeRepository implements StatsAuditRepository {
 
   @override
   Future<void> saveAll(String profileId, List<StatsAuditEntryEntity> entries) async {
-    if (fail) throw Exception('boom');
+    if (fail) throw Exception('expected boom');
     saved.addAll(entries);
   }
 }

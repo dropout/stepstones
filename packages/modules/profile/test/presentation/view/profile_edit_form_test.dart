@@ -39,47 +39,35 @@ void main() {
       mockSafeImageDetectorFactory = MockSafeImageDetectorFactory();
       safeImageDetector = MockSafeImageDetector();
 
-      when(() => mockServices.crashlyticsService)
-          .thenReturn(mockCrashlyticsService);
-      when(() => mockServices.safeImageDetectorFactory)
-          .thenReturn(mockSafeImageDetectorFactory);
-      when(() => mockSafeImageDetectorFactory.create())
-          .thenAnswer((_) async => safeImageDetector);
-      when(() => mockServices.resourceResolver)
-          .thenReturn(mockResourceResolver);
-      when(() => mockResourceResolver.resolveStoragePath(any()))
-          .thenAnswer((_) async => faker.profilePhotoUrl());
+      when(() => mockServices.crashlyticsService).thenReturn(mockCrashlyticsService);
+      when(() => mockServices.safeImageDetectorFactory).thenReturn(mockSafeImageDetectorFactory);
+      when(() => mockSafeImageDetectorFactory.create()).thenAnswer((_) async => safeImageDetector);
+      when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
+      when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) async => faker.profilePhotoUrl());
 
       nock.cleanAll();
     });
 
-    testWidgets('renders all form fields with default values', (
-      WidgetTester tester,
-    ) async {
-      final profileWithoutPhoto = profile.copyWith(
-        photoBlurhash: null,
-      );
+    testWidgets('renders all form fields with default values', (WidgetTester tester) async {
+      final profileWithoutPhoto = profile.copyWith(photoBlurhash: null);
 
       await tester.pumpWidget(
-          MultiProvider(
-            providers: [Provider<Services>(create: (context) => mockServices)],
-            child: MaterialApp(
-              localizationsDelegates: ProfileTestHelper.getProfileLocalizationDelegates(),
-              home: Material(
-                child: ProfileEditForm(
-                  profile: profileWithoutPhoto,
-                ),
-              ),
+        MultiProvider(
+          providers: [Provider<Services>(create: (context) => mockServices)],
+          child: MaterialApp(
+            localizationsDelegates: ProfileTestHelper.getProfileLocalizationDelegates(),
+            home: Material(
+              child: SingleChildScrollView(child: ProfileEditForm(profile: profileWithoutPhoto)),
             ),
           ),
+        ),
       );
 
       await tester.pumpAndSettle();
 
-      final formBuilderImagePicker = tester
-          .widget<FormBuilderProfileImagePicker>(
-            find.byKey(const Key('profile_edit_form_image_picker')),
-          );
+      final formBuilderImagePicker = tester.widget<FormBuilderProfileImagePicker>(
+        find.byKey(const Key('profile_edit_form_image_picker')),
+      );
 
       expect(formBuilderImagePicker.profile, profileWithoutPhoto);
 
@@ -88,18 +76,12 @@ void main() {
       expect(find.byType(FormBuilderTextField), findsNWidgets(2));
     });
 
-    testWidgets('can react to firstName and lastName input changes', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('can react to firstName and lastName input changes', (WidgetTester tester) async {
       // Configure global http client mock
       // to return a 1x1 pixel image for the default profile image URL
-      nock(
-          'https://firebasestorage.googleapis.com',
-        ).get('/v0/b/dhyana-timer.appspot.com/o/profiles%2Fdefault%2Fphoto.jpg')
-        ..query({
-          'alt': 'media',
-          'token': '0d5bb454-7ce3-4f27-9ccf-7822fd559bb4',
-        })
+      nock('https://firebasestorage.googleapis.com')
+          .get('/v0/b/dhyana-timer.appspot.com/o/profiles%2Fdefault%2Fphoto.jpg')
+        ..query({'alt': 'media', 'token': '0d5bb454-7ce3-4f27-9ccf-7822fd559bb4'})
         ..reply(
           200,
           base64Decode(
@@ -114,13 +96,12 @@ void main() {
       await tester
           .runAsync(() async {
             await tester.pumpWidget(
-                MultiProvider(
-                  providers: [
-                    Provider<Services>(create: (context) => mockServices),
-                  ],
-                  child: MaterialApp(
-                    localizationsDelegates: ProfileTestHelper.getProfileLocalizationDelegates(),
-                    home: Material(
+              MultiProvider(
+                providers: [Provider<Services>(create: (context) => mockServices)],
+                child: MaterialApp(
+                  localizationsDelegates: ProfileTestHelper.getProfileLocalizationDelegates(),
+                  home: Material(
+                    child: SingleChildScrollView(
                       child: ProfileEditForm(
                         profile: profile,
                         formStateKey: formKey,
@@ -131,14 +112,14 @@ void main() {
                     ),
                   ),
                 ),
+              ),
             );
             await tester.pumpAndSettle();
           })
           .then((_) async {
-            final formBuilderImagePicker = tester
-                .widget<FormBuilderProfileImagePicker>(
-                  find.byKey(const Key('profile_edit_form_image_picker')),
-                );
+            final formBuilderImagePicker = tester.widget<FormBuilderProfileImagePicker>(
+              find.byKey(const Key('profile_edit_form_image_picker')),
+            );
             expect(formBuilderImagePicker.profile, profile);
 
             final firstNameFieldFinder = find.descendant(
@@ -146,6 +127,8 @@ void main() {
               matching: find.byType(TextField),
             );
             expect(firstNameFieldFinder, findsOneWidget);
+            await tester.ensureVisible(firstNameFieldFinder);
+            await tester.pumpAndSettle();
             await tester.enterText(firstNameFieldFinder, 'TestFirstName');
             await tester.pumpAndSettle();
 
@@ -154,6 +137,8 @@ void main() {
               matching: find.byType(TextField),
             );
             expect(lastNameFinder, findsOneWidget);
+            await tester.ensureVisible(lastNameFinder);
+            await tester.pumpAndSettle();
             await tester.enterText(lastNameFinder, 'TestLastName');
 
             FormBuilderState formBuildState = formKey.currentState!;

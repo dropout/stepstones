@@ -46,6 +46,7 @@ class const ProfileButton({
             child: Center(
               child: Text(
                 '?',
+                key: const Key('profile_button_signed_out_icon'),
                 style: TextStyle(
                   fontSize: 36.0,
                   color: AppColors.backgroundPaperLight,

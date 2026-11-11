@@ -41,8 +41,11 @@ void main() {
 				),
 			);
 
-			when(() => profileRepository.read(profileId, preferCache: true))
-					.thenAnswer((_) async => originalProfile);
+			when(() => profileRepository.read(profileId, preferCache: false))
+        .thenAnswer((_) async => originalProfile);
+      when(() => profileRepository.update(updatedProfile))
+        .thenAnswer((_) async {});
+
 			when(
 				() => profileStatsReportUpdaterService.updateProfileStatsWithSession(
 					originalProfile,
@@ -54,7 +57,7 @@ void main() {
 
 			expect(result.originalProfile, equals(originalProfile));
 			expect(result.updatedProfile, equals(updatedProfile));
-			verify(() => profileRepository.read(profileId, preferCache: true)).called(1);
+			verify(() => profileRepository.read(profileId, preferCache: false)).called(1);
 			verify(
 				() => profileStatsReportUpdaterService.updateProfileStatsWithSession(
 					originalProfile,
@@ -76,7 +79,7 @@ void main() {
 			);
 			final error = Exception('read failed');
 
-			when(() => profileRepository.read(profileId, preferCache: true))
+			when(() => profileRepository.read(profileId, preferCache: false))
 					.thenThrow(error);
 
 			expect(
