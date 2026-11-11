@@ -16,7 +16,6 @@ import 'package:timer/src/public/view/timer_settings/timer_settings_view.dart';
 import '../../../timer_mock_definitions.dart';
 import '../../../timer_test_helper.dart';
 
-
 void main() {
   group('TimerSettingsView', () {
     late MockServices mockServices;
@@ -43,15 +42,18 @@ void main() {
             BlocProvider<TimerSettingsCubit>(
               create: (context) => MockTimerSettingsCubit(),
               child: ShaderRenderingScope(
-                enabled: false, 
-                child: TimerSettingsView(timerSettings: timerSettings)
+                enabled: false,
+                child: TimerSettingsView(timerSettings: timerSettings),
               ),
             ),
           ),
         ),
       );
 
-      await tester.pump();
+      // pump enough to reveal elements of the screen
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(Duration(milliseconds: 100));
+      }
 
       expect(find.byType(WarmupInput), findsOneWidget);
       expect(find.byType(SoundInput), findsExactly(2));

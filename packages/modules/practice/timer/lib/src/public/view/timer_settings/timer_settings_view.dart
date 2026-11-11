@@ -74,111 +74,98 @@ class TimerSettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Column(
-        mainAxisSize: .max,
-        mainAxisAlignment: .center,
-        children: [buildInputs(context)],
+      minimum: const EdgeInsets.symmetric(
+        vertical: DesignSpec.paddingLg,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                TimerLocalizations.of(context).timerTitle,
+                style: context.theme.textTheme.headlineLarge!.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: switch (DesignSpec.breakpointForWidth(constraints.maxWidth)) {
+                    .xs => 32,
+                    .sm => 36,
+                    .md => 40,
+                    .lg => 44,
+                    .xl => 48,
+                  }
+                ),
+              ).reveal(0),
+              Gap.large(),
+              buildLabel(
+                context,
+                TimerLocalizations.of(context).inputWarmupLabel,
+              ).reveal(1),
+              WarmupInput(
+                label: TimerLocalizations.of(context).inputWarmupLabel,
+                value: timerSettings.warmup,
+                overlayService: context.services.overlayService,
+                onChange: (Duration duration) => _onWarmupChange(context, duration),
+              ).reveal(1),
+              buildInputGap(context),
+              buildLabel(
+                context,
+                TimerLocalizations.of(context).inputStartingSoundLabel,
+              ).reveal(2),
+              SoundInput(
+                label: TimerLocalizations.of(context).inputStartingSoundLabel,
+                overlayService: context.services.overlayService,
+                value: timerSettings.startingSound,
+                onChange: (Sound startingSound) =>
+                    _onStartingSoundChange(context, startingSound),
+              ).reveal(2),
+              buildInputGap(context),
+              buildLabel(
+                context,
+                TimerLocalizations.of(context).inputDurationLabel,
+              ).reveal(3),
+              DurationInput(
+                label: TimerLocalizations.of(context).inputDurationLabel,
+                value: timerSettings.duration,
+                preparationTime: timerSettings.warmup,
+                overlayService: context.services.overlayService,
+                onChange: (Duration duration) =>
+                    _onDurationChange(context, duration),
+              ).reveal(3),
+              buildInputGap(context),
+              buildLabel(
+                context,
+                TimerLocalizations.of(context).inputIntervalCountLabel,
+              ).reveal(4),
+              IntervalInput(
+                label: TimerLocalizations.of(context).inputIntervalCountLabel,
+                value: timerSettings.intervalCount,
+                overlayService: context.services.overlayService,
+                onChange: (int intervalCount) =>
+                    _onIntervalCountChange(context, intervalCount),
+              ).reveal(4),
+              buildInputGap(context),
+              buildLabel(
+                context,
+                TimerLocalizations.of(context).inputEndingSoundLabel,
+              ).reveal(5),
+              SoundInput(
+                label: TimerLocalizations.of(context).inputEndingSoundLabel,
+                overlayService: context.services.overlayService,
+                value: timerSettings.endingSound,
+                onChange: (Sound endingSound) =>
+                    _onEndingSoundChange(context, endingSound),
+              ).reveal(5),
+              Gap.xxl(),
+              _StartButtonRow(
+                onStartButtonTap: () => _onStartButtonTap(context),
+              ),
+            ],
+          );
+        }
       ),
     );
-  }
-
-  Widget buildInputs(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              TimerLocalizations.of(context).timerTitle,
-              style: context.theme.textTheme.headlineLarge!.copyWith(
-                fontWeight: FontWeight.w800,
-                fontSize: switch (DesignSpec.breakpointForWidth(constraints.maxWidth)) {
-                  .xs => 32,
-                  .sm => 36,
-                  .md => 40,
-                  .lg => 44,
-                  .xl => 48,
-                }
-              ),
-            ).reveal(0),
-            Gap.large(),
-            buildLabel(
-              context,
-              TimerLocalizations.of(context).inputWarmupLabel,
-            ).reveal(1),
-            WarmupInput(
-              label: TimerLocalizations.of(context).inputWarmupLabel,
-              value: timerSettings.warmup,
-              overlayService: context.services.overlayService,
-              onChange: (Duration duration) => _onWarmupChange(context, duration),
-            ).reveal(1),
-            buildInputGap(context),
-            buildLabel(
-              context,
-              TimerLocalizations.of(context).inputStartingSoundLabel,
-            ).reveal(2),
-            SoundInput(
-              label: TimerLocalizations.of(context).inputStartingSoundLabel,
-              overlayService: context.services.overlayService,
-              value: timerSettings.startingSound,
-              onChange: (Sound startingSound) =>
-                  _onStartingSoundChange(context, startingSound),
-            ).reveal(2),
-            buildInputGap(context),
-            buildLabel(
-              context,
-              TimerLocalizations.of(context).inputDurationLabel,
-            ).reveal(3),
-            DurationInput(
-              label: TimerLocalizations.of(context).inputDurationLabel,
-              value: timerSettings.duration,
-              preparationTime: timerSettings.warmup,
-              overlayService: context.services.overlayService,
-              onChange: (Duration duration) =>
-                  _onDurationChange(context, duration),
-            ).reveal(3),
-            buildInputGap(context),
-            buildLabel(
-              context,
-              TimerLocalizations.of(context).inputIntervalCountLabel,
-            ).reveal(4),
-            IntervalInput(
-              label: TimerLocalizations.of(context).inputIntervalCountLabel,
-              value: timerSettings.intervalCount,
-              overlayService: context.services.overlayService,
-              onChange: (int intervalCount) =>
-                  _onIntervalCountChange(context, intervalCount),
-            ).reveal(4),
-            buildInputGap(context),
-            buildLabel(
-              context,
-              TimerLocalizations.of(context).inputEndingSoundLabel,
-            ).reveal(5),
-            SoundInput(
-              label: TimerLocalizations.of(context).inputEndingSoundLabel,
-              overlayService: context.services.overlayService,
-              value: timerSettings.endingSound,
-              onChange: (Sound endingSound) =>
-                  _onEndingSoundChange(context, endingSound),
-            ).reveal(5),
-            Gap.xxl(),          
-            _StartButtonRow(
-              onStartButtonTap: () => _onStartButtonTap(context),
-            ),
-          ],
-        );
-      }
-    );
-  }
-
-  Widget buildStartButton(BuildContext context) {
-    return SessionStartButton(
-      onTap: () => _onStartButtonTap(context),
-      colorA: AppColors.crimsonRed,
-      colorB: Color(0xFFD93838), // Crimson Red Tint 3
-    ).reveal(6);
-  }
+  }  
 
   Widget buildInputGap(BuildContext context) =>
       Gap.flexible(size: DesignSpec.spacingLg);
@@ -232,7 +219,7 @@ class const _StartButtonRow({
               ),
             );
           },
-          no: Spacer(),        
+          no: Spacer(),
         ),
       ],
     );

@@ -9,14 +9,16 @@ import 'package:provider/provider.dart';
 
 import 'package:core/core.dart';
 
+import '../../../timer_test_helper.dart';
 
 void main() {
   group('DurationInputView', () {
     testWidgets('renders with initial value', (WidgetTester tester) async {
+
       await tester.pumpWidget(
-        withAllContextProviders(
+        TimerTestHelper.withLocalizationProvider(
           DurationInputView(minMinutes: 1, maxMinutes: 15, initialValue: 5),
-        ),
+        )
       );
 
       await tester.pumpAndSettle();
@@ -43,7 +45,7 @@ void main() {
       when(() => mockServices.hapticsService).thenReturn(hapticsService);
 
       await tester.pumpWidget(
-        withAllContextProviders(
+        TimerTestHelper.withLocalizationProvider(
           Provider<Services>.value(
             value: mockServices,
             child: DurationInputView(
@@ -58,11 +60,6 @@ void main() {
           ),
         ),
       );
-
-      // await tester.drag(
-      //   find.byType(ListWheelScrollView),
-      //   const Offset(0, -50), // Scroll one item up
-      // );
 
       await dragAroundDial(
         tester,
