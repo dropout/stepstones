@@ -2,6 +2,14 @@ import 'package:profile/profile.dart';
 import '../entity/session_entity.dart';
 
 
+/// Outcome of saving a session into the profile; lives here because
+/// it carries profile-module types the domain entities must not import.
+typedef ProfileUpdateResult = ({
+  Profile oldProfile,
+  Profile updatedProfile,
+  SessionEntity session,
+});
+
 /// An interface that defines the contract for session-related operations
 abstract interface class SessionAppPort {
 

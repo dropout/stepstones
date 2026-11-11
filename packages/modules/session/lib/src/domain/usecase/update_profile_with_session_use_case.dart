@@ -1,5 +1,4 @@
 import '../entity/session_entity.dart';
-import '../entity/update_profile_stats_result_entity.dart';
 import '../repository/session_repository.dart';
 import '../service/session_app_port.dart';
 
@@ -13,7 +12,7 @@ class UpdateProfileWithSessionUseCase({
   required final SessionRepository sessionRepository,
 }) {
 
-  Future<UpdateProfileStatsResultEntity> execute(
+  Future<ProfileUpdateResult> execute(
     String profileId,
     SessionEntity session,
   ) async {
@@ -26,7 +25,7 @@ class UpdateProfileWithSessionUseCase({
       session,
     );
 
-    return UpdateProfileStatsResultEntity(
+    return (
       oldProfile: result.originalProfile,
       updatedProfile: result.updatedProfile,
       session: session,

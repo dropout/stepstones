@@ -12,7 +12,7 @@ import 'package:session/src/data/datasource/faker_session_extension.dart';
 import 'package:session/src/data/mapper/session_mapper.dart';
 import 'package:session/src/data/mapper/update_profile_stats_result_mapper.dart';
 import 'package:session/src/domain/entity/session_entity.dart';
-import 'package:session/src/domain/entity/update_profile_stats_result_entity.dart';
+import 'package:session/src/domain/service/session_app_port.dart';
 import 'package:session/src/presentation/view/session_completed_screen.dart';
 import 'package:session/src/presentation/viewmodel/session_completed/session_completed_cubit.dart';
 import 'package:session/src/public/view/session_result.dart';
@@ -123,7 +123,7 @@ void main() {
         ),
       );
       final session = Faker().createSessionEntity();
-      final result = UpdateProfileStatsResultEntity(
+      final result = (
         oldProfile: profile,
         updatedProfile: profile,
         session: session,
@@ -176,7 +176,7 @@ void main() {
           .thenReturn(ProfileState.loaded(profile: profile));
       when(() => sessionCompletedCubit.state).thenAnswer(
         (_) => SessionCompletedState.saved(
-          updateResult: UpdateProfileStatsResultEntity(
+          updateResult: (
             oldProfile: profile,
             updatedProfile: profile,
             session: currentSession,
@@ -335,14 +335,14 @@ void main() {
       await tester.pump();
     }
 
-    UpdateProfileStatsResultEntity prepareSignedInState(SessionEntity session) {
+    ProfileUpdateResult prepareSignedInState(SessionEntity session) {
       final profile = Faker().createProfile().copyWith(
         settings: const ProfileSettings(
           showStats: false,
           usePresenceFeature: false,
         ),
       );
-      final result = UpdateProfileStatsResultEntity(
+      final result = (
         oldProfile: profile,
         updatedProfile: profile,
         session: session,

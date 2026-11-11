@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core.dart';
 import 'package:social/src/data/mapper/presence_mapper.dart';
+import 'package:social/src/data/mapper/presence_query_options_mapper.dart';
 import 'package:social/src/public/model/presence.dart';
-import 'package:social/src/domain/entity/presence_query_options_entity.dart';
 import 'package:social/src/domain/usecase/query_presence_use_case.dart';
 
 
@@ -46,7 +46,7 @@ class PresenceCubit extends Cubit<PresenceState> with LoggerMixin {
       }
 
       final loadedPresenceList =
-        (await queryPresenceDataUseCase.execute(PresenceQueryOptionsEntity(
+        (await queryPresenceDataUseCase.execute(toPresenceQueryOptions(
           windowSize: windowSize,
           limit: limit,
           ownProfileId: ownProfileId,

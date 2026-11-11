@@ -3,7 +3,6 @@ import 'package:uuid/uuid.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:core/core.dart';
-import 'package:profile/profile.dart';
 
 
 part 'social_profile_entity.freezed.dart';
@@ -21,18 +20,6 @@ sealed class SocialProfileEntity with _$SocialProfileEntity {
     required String? photoBlurhash,
     Location? location,
   }) = _SocialProfileEntity;
-
-  factory SocialProfileEntity.fromProfile({
-    required Profile profile,
-  }) {
-    return SocialProfileEntity(
-      id: profile.id,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      photoBlurhash: profile.photoBlurhash,
-      location: profile.location,
-    );
-  }
 
   factory SocialProfileEntity.anonymous() {
     return SocialProfileEntity(

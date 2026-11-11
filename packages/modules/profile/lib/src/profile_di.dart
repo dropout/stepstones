@@ -4,7 +4,9 @@ import 'package:get_it/get_it.dart';
 import 'package:firebase_provider/firebase_provider.dart';
 import 'package:core/core.dart';
 import 'package:go_router/go_router.dart';
+import 'package:profile/src/data/service/default_profile_auth_port.dart';
 import 'package:profile/src/data/service/default_profile_navigator.dart';
+import 'package:profile/src/domain/service/profile_auth_port.dart';
 import 'package:profile/src/domain/usecase/load_profile_use_case.dart';
 import 'package:profile/src/domain/usecase/update_profile_settings_use_case.dart';
 import 'package:profile/src/domain/usecase/update_profile_use_case.dart';
@@ -52,6 +54,9 @@ extension ProfileModuleDependencyInjection on GetIt {
     );
 
     // Services
+    registerLazySingleton<ProfileAuthPort>(
+      () => DefaultProfileAuthPort(authApi: GetIt.I.get<AuthPublicApi>()),
+    );
     registerLazySingleton<SafeImageDetectorFactory>(
       () => DefaultSafeImageDetectorFactory(),
     );
@@ -89,7 +94,7 @@ extension ProfileModuleDependencyInjection on GetIt {
 
     registerLazySingleton(
       () => DeleteProfileUseCase(
-        authApi: GetIt.I.get<AuthPublicApi>(),
+        authPort: GetIt.I.get<ProfileAuthPort>(),
         profileRepository: GetIt.I.get<ProfileRepository>(),
         storageRepository: GetIt.I.get<StorageRepository>(),
       ),

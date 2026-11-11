@@ -1,4 +1,6 @@
 import 'package:stats/src/data/mapper/stats_bucket_mapper.dart';
+import 'package:stats/src/data/service/default_stats_profile_port.dart';
+import 'package:stats/src/data/mapper/stats_granularity_mapper.dart';
 import 'package:stats/src/data/mapper/stats_session_mapper.dart';
 import 'package:stats/src/domain/usecase/log_session_stats_use_case.dart';
 import 'package:stats/src/domain/usecase/query_session_stats_use_case.dart';
@@ -25,7 +27,9 @@ class DefaultStatsPublicApi implements StatsPublicApi {
     StatsSession session,
   ) async => LogSessionStatsUseCase(
       statsRepository: statisticsRepository,
-      profilePublicApi: profilePublicApi,
+      profilePort: DefaultStatsProfilePort(
+        profilePublicApi: profilePublicApi,
+      ),
     ).execute(profileId, session.toDomain());  
 
   @override 
@@ -40,7 +44,7 @@ class DefaultStatsPublicApi implements StatsPublicApi {
       profileId: profileId,
       from: from,
       to: to,
-      granularity: granularity,
+      granularity: granularity.toEntity(),
     ).then((buckets) => buckets.map((bucket) => bucket.toApi()).toList());
 
 }

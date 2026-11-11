@@ -6,6 +6,7 @@ import 'package:stats/src/data/datasource/day_details_data_provider.dart';
 import 'package:stats/src/data/datasource/firebase_stats_data_provider_factory.dart';
 import 'package:stats/src/data/datasource/stats_bucket_data_provider.dart';
 import 'package:stats/src/domain/repository/stats_repository.dart';
+import 'package:stats/src/domain/service/stats_profile_port.dart';
 import 'package:stats/src/public/api/stats_public_api.dart';
 
 
@@ -32,6 +33,10 @@ class MockStatsPublicApi
 class MockProfilePublicApi 
   extends Mock
   implements ProfilePublicApi {}
+
+class MockStatsProfilePort
+  extends Mock
+  implements StatsProfilePort {}
 
 class MockProfileCubit
   extends MockCubit<ProfileState>

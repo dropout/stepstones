@@ -3,6 +3,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:core/core.dart';
 import 'package:profile/src/data/datasource/profile_data_provider.dart';
 import 'package:profile/src/domain/repository/profile_repository.dart';
+import 'package:profile/src/domain/service/profile_auth_port.dart';
 import 'package:profile/src/domain/service/profile_stats_updater_service.dart';
 import 'package:profile/src/domain/usecase/load_profile_use_case.dart';
 import 'package:profile/src/domain/usecase/delete_profile_use_case.dart';
@@ -38,3 +39,4 @@ class MockProfileRepository extends Mock implements ProfileRepository {}
 class MockProfileDataProvider extends Mock implements ProfileDataProvider {}
 
 class MockAuthPublicApi extends Mock implements AuthPublicApi {}
+class MockProfileAuthPort extends Mock implements ProfileAuthPort {}

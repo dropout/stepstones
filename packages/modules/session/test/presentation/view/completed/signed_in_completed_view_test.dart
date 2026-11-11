@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:session/src/data/datasource/faker_session_extension.dart';
 import 'package:session/src/data/mapper/update_profile_stats_result_mapper.dart';
 import 'package:session/src/domain/entity/session_entity.dart';
-import 'package:session/src/domain/entity/update_profile_stats_result_entity.dart';
+import 'package:session/src/domain/service/session_app_port.dart';
 import 'package:session/src/public/view/session_result.dart';
 import 'package:session/src/public/view/signed_in_completed_view.dart';
 import 'package:social/social.dart';
@@ -69,7 +69,7 @@ void main() {
         );
   });
 
-  late UpdateProfileStatsResultEntity updateResult;
+  late ProfileUpdateResult updateResult;
 
   Future<void> pumpView(
     WidgetTester tester, {
@@ -77,7 +77,7 @@ void main() {
     required bool usePresence,
   }) async {
     final SessionEntity session = Faker().createSessionEntity();
-    updateResult = UpdateProfileStatsResultEntity(
+    updateResult = (
       updatedProfile: Faker().createProfile(),
       oldProfile: Faker().createProfile(),
       session: session,

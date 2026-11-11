@@ -1,7 +1,6 @@
 import 'package:stats/src/domain/entity/stats_bucket_entity.dart';
 import 'package:stats/src/domain/enum/stats_entity_granularity.dart';
 import 'package:stats/src/domain/usecase/query_session_stats_use_case.dart';
-import 'package:stats/src/public/enum/stats_granularity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -44,7 +43,7 @@ void main() {
 				profileId: profileId,
 				from: from,
 				to: to,
-				granularity: StatsGranularity.days,
+				granularity: StatsEntityGranularity.days,
 			);
 
 			expect(result, equals(buckets));
@@ -78,7 +77,7 @@ void main() {
 					profileId: profileId,
 					from: from,
 					to: to,
-					granularity: StatsGranularity.months,
+					granularity: StatsEntityGranularity.months,
 				),
 				throwsA(same(error)),
 			);

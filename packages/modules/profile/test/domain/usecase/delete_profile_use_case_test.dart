@@ -8,18 +8,18 @@ import '../../profile_mock_definitions.dart';
 
 
 void main() {
-  late MockAuthPublicApi authService;
+  late MockProfileAuthPort authService;
   late DeleteProfileUseCase useCase;
   late MockProfileRepository profileRepository;
   late MockStorageRepository storageRepository;
 
   setUp(() {
-    authService = MockAuthPublicApi();
+    authService = MockProfileAuthPort();
     profileRepository = MockProfileRepository();
     storageRepository = MockStorageRepository();
 
     useCase = DeleteProfileUseCase(
-      authApi: authService,
+      authPort: authService,
       profileRepository: profileRepository,
       storageRepository: storageRepository,
     );
@@ -28,9 +28,8 @@ void main() {
   group('DeleteProfileUseCase.execute', () {
     test('returns completed when user deletion succeeds', () async {
       when(() => authService.deleteUser()).thenAnswer((_) async {});
-      when(() => authService.authSessionStream).thenAnswer(
-        (_) => Stream.value((isAuthenticated: true, userId: 'user123')),
-      );
+      when(() => authService.getAuthenticatedUserId())
+          .thenAnswer((_) async => 'user123');
       when(() => profileRepository.delete(any())).thenAnswer((_) async {});
       when(() => storageRepository.deleteProfileFolder(any())).thenAnswer((_) async {});
 
@@ -43,9 +42,8 @@ void main() {
     });
 
     test('returns authRequired when deletion requires recent login', () async {
-      when(() => authService.authSessionStream).thenAnswer(
-        (_) => Stream.value((isAuthenticated: true, userId: 'user123')),
-      );
+      when(() => authService.getAuthenticatedUserId())
+          .thenAnswer((_) async => 'user123');
       when(
         () => authService.deleteUser(),
       ).thenThrow(Exception('requires-recent-login'));
@@ -58,9 +56,8 @@ void main() {
 
     test('rethrows non-auth-related exceptions', () async {    
       final exception = Exception('network-error');
-      when(() => authService.authSessionStream).thenAnswer(
-        (_) => Stream.value((isAuthenticated: true, userId: 'user123')),
-      );
+      when(() => authService.getAuthenticatedUserId())
+          .thenAnswer((_) async => 'user123');
       when(() => authService.deleteUser()).thenThrow(exception);
 
       expect(() => useCase.execute(), throwsA(same(exception)));
