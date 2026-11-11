@@ -28,6 +28,13 @@ start using the package.
 TODO: Include short and useful examples for package users. Add longer examples
 to `/example` folder.
 
+For widget tests, add `flutter_test` as a dev dependency, import
+`package:core/testing.dart`, and call
+`setTestViewport(tester)` before pumping the screen. It defaults to a
+390 × 844 logical-pixel portrait viewport and resets the view at teardown.
+Pass `logicalSize` and `devicePixelRatio` to model other devices, and retain
+separate tests for smaller screens and accessibility settings.
+
 ```dart
 const like = 'sample';
 ```

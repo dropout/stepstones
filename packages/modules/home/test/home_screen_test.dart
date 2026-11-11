@@ -1,4 +1,3 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -8,6 +7,7 @@ import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:chanting/chanting.dart';
 import 'package:timer/timer.dart';
 
@@ -82,6 +82,7 @@ void main() {
     });
 
     testWidgets('can display timer settings when signed out', (tester) async {
+      setTestViewport(tester);
       when(() => mockAuthBloc.state).thenReturn(AuthState.signedOut());
       when(() => mockTimerSettingsCubit.state).thenReturn(TimerSettingsState(timerSettings: TimerSettings()));
 
@@ -115,6 +116,7 @@ void main() {
     });
 
     testWidgets('can display timer settings when signed in', (tester) async {
+      setTestViewport(tester);
       when(() => mockAuthBloc.state).thenReturn(
         AuthState.signedIn(userId: 'userid'),
       );
@@ -149,6 +151,7 @@ void main() {
     });
 
     testWidgets('can display chanting settings when signed in', (tester) async {
+      setTestViewport(tester);
       when(() => mockAuthBloc.state).thenReturn(
         AuthState.signedIn(userId: 'userid'),
       );
@@ -184,8 +187,9 @@ void main() {
       );
 
       await tester.pump(Duration(milliseconds: 512));
-      await tester.tap(find.byKey(ValueKey('session_type_toggle')));
+      await tester.tap(find.byType(SessionTypeToggle));
       await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(ChantingSettingsView), findsOneWidget);
     });
