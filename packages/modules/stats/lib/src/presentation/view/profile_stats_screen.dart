@@ -28,7 +28,4 @@ class ProfileStatsScreen extends StatelessWidget {
     );
   }
 
-
-
-
 }

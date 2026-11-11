@@ -110,9 +110,9 @@ class _DefaultScreenSetupState extends State<DefaultScreenSetup>
     return buildScaffolding(
       context,
       CustomScrollView(
+        key: const ValueKey('default_screen_setup_custom_scroll_view'),
         controller: titleEffectScrollController,
-        physics: widget.scrollPhysics,
-        
+        physics: widget.scrollPhysics,        
         slivers: [
           if (widget.enableAppBarSliver)
             buildTitleEffectAppBar(

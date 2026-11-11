@@ -53,13 +53,13 @@ void main() {
     });
 
     test('can read presence stream by id', () {
-      when(() => mockPresenceDataProvider.readStream('test_id'))
+      when(() => mockPresenceDataProvider.readStream('test_id', filterCached: false))
           .thenAnswer((_) => presenceStreamController.stream);
 
       final stream = presenceRepository.readStream('test_id');
 
       expect(stream, isA<Stream<PresenceEntity>>());
-      verify(() => mockPresenceDataProvider.readStream('test_id')).called(1);
+      verify(() => mockPresenceDataProvider.readStream('test_id', filterCached: false)).called(1);
     });
 
     test('can update presence', () async {
