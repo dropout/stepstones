@@ -6,6 +6,14 @@ This document defines import and dependency rules for the feature module package
 
 Keep modules cohesive, testable, and easy to evolve by avoiding unnecessary or circular cross-module dependencies and coupling to implementation details.
 
+## How to read this guide
+
+| Category | Meaning | How to use it |
+|---|---|---|
+| **Target rules** | The boundaries described by the dependency policy and layer guidance. | Follow them for new and changed code. |
+| **Current dependencies** | The feature dependencies declared in package manifests today. | Use the graph to understand existing paths and avoid cycles; a declared dependency is not necessarily a recommended pattern. |
+| **Legacy deviations** | Existing code that does not yet meet a target rule. | Do not copy it as a pattern or add new violations; address it when migration is in scope. |
+
 ## Rule of thumb
 
 1. Domain defines what is needed.
@@ -80,6 +88,48 @@ Not allowed:
 1. Import from another module's `domain`, `presentation`, or `data` path under `src/`.
 2. Import private/internal files from another module.
 3. Depend on another module's internal Cubits, screens, or widgets.
+
+## Example: session consumes stats
+
+When a completed session is logged, the session module asks the stats module to record statistics. The arrow shows the runtime call path for that operation:
+
+```mermaid
+flowchart LR
+    usecase["session: SaveSessionStatsUseCase"]
+    port["session: SessionAppPort<br/>domain contract"]
+    adapter["session: DefaultSessionAppPort<br/>data adapter"]
+    api["stats: StatsPublicApi<br/>exported via stats.dart"]
+
+    usecase --> port
+    port -->|implemented by| adapter
+    adapter -->|"maps SessionEntity to StatsSession"| api
+```
+
+1. The session [package manifest](../packages/modules/session/pubspec.yaml) declares a dependency on `stats`.
+2. [SaveSessionStatsUseCase](../packages/modules/session/lib/src/domain/usecase/save_session_stats_use_case.dart) calls [SessionAppPort](../packages/modules/session/lib/src/domain/service/session_app_port.dart), a contract owned by the session domain.
+3. [DefaultSessionAppPort](../packages/modules/session/lib/src/data/service/default_session_app_port.dart) implements the port. It imports `package:stats/stats.dart`, maps the session's internal `SessionEntity` to the public `StatsSession` model, and calls `StatsPublicApi.logSessionStats`.
+4. The stats [barrel](../packages/modules/stats/lib/stats.dart) exports `StatsPublicApi` and `StatsSession`; the session [DI setup](../packages/modules/session/lib/src/session_di.dart) connects the port, adapter, public API, and use case.
+
+The existing port also handles profile and health operations; the example focuses on its stats operation. This port-and-adapter approach isolates domain orchestration from another module's implementation. Not every cross-module interaction needs a port: presentation can consume a deliberately exported public widget directly.
+
+## Where should a contract live?
+
+Choose the owner by responsibility and dependency direction, not by the number of consumers.
+
+| Need | Preferred location | Example |
+|---|---|---|
+| An operation or model belongs to a feature and other modules need it. | The owning feature's public API, exported through its barrel. Keep its internal entities and implementations private. | `StatsPublicApi` and `StatsSession` belong to `stats`. |
+| A feature's domain needs an external capability for its own workflow. | A port in the consuming feature's domain, implemented by an adapter in its data layer. The adapter can use another feature's public API. | `SessionAppPort` belongs to `session`; `DefaultSessionAppPort` calls `StatsPublicApi`. |
+| A capability or concept is foundational, stable, and independent of any feature. | `core`, provided its contract and types do not make `core` depend on a feature. | `HapticsService` is a shared device-capability contract. |
+
+Before moving or creating a contract in `core`, ask:
+
+1. Is it genuinely feature-independent, or is it named and shaped around one feature's workflow?
+2. Can its contract and all referenced types remain independent of feature packages?
+3. Would a feature-owned public API or a consumer-owned port express the relationship more clearly?
+4. Is the resulting dependency direction appropriate and free of cycles?
+
+Reuse alone is not enough to make a contract foundational. Do not move a feature-specific repository, model, or API into `core` merely because multiple modules use it or to hide a circular dependency. Reconsider ownership or introduce a narrow port and appropriate composition instead; then verify the resulting package graph remains acyclic.
 
 ## Profile model in insights: recommended approach
 
@@ -173,20 +223,11 @@ If an insights widget only needs:
 
 then prefer an insights-local presentation model such as `SessionSummaryViewData` instead of binding the widget directly to the full foreign `Session` entity.
 
-### When to place a model in `core`
-
-Move a model into `core` only when:
-
-1. It is used by multiple modules as the same core business concept.
-2. It is stable and not shaped around one module's private workflow.
-3. It is foundational and can live in `core` without making `core` depend on a feature.
-
-Otherwise, keep the domain model in its owning module and expose a separate public contract if consumers need it.
-
 ## Migration guardrails
 
-1. Do not introduce temporary cross-module `src/` imports during migration; use a public contract or port instead.
-2. Update dependency wiring in one place after each phase (composition root/DI).
+1. Run boundary checks for affected modules and distinguish pre-existing findings from new ones. Fix violations introduced by the change and report existing findings separately.
+2. Do not introduce cross-module `src/` imports; use a public contract or port instead. If a temporary exception is genuinely necessary, agree on its scope and migration plan before introducing it, and record the reason and follow-up in the relevant issue or change.
+3. Update dependency wiring in one place after each phase (composition root/DI).
 
 ## PR review checklist
 
@@ -194,17 +235,15 @@ Otherwise, keep the domain model in its owning module and expose a separate publ
 2. Are cross-module imports using package barrels and public contracts only?
 3. Did a domain file import UI or infrastructure details?
 4. Are mappings done at module boundaries instead of leaking foreign models deeply?
-5. Are shared abstractions placed in core/shared rather than in a feature module?
+5. Are contracts owned by the appropriate feature or by `core` only when foundational?
 6. Are presentation widgets depending on foreign public models only when those models are stable contracts?
 7. Is a new dependency justified, acyclic, and reflected in the graph?
 
-## Automation
+## Automated checks
 
-Boundary checks are automated via:
+The written rules describe the target; automated checks cover only part of it:
 
-1. Local script: `bash support/maintenance_scripts/check_module_boundaries.sh [module_dir...]` (source of truth, also used by agents through `ai/skills/verify-package`).
-2. Analyzer plugin: `packages/stepstones_lints` mirrors the domain checks for editor feedback (not enabled yet).
+1. Run `bash support/maintenance_scripts/check_module_boundaries.sh [module_dir...]` from the workspace root. It checks specific import and export patterns for domain isolation, cross-package `src/` access, data-to-presentation dependencies, public entity leaks, and internal layer exports.
+2. The `packages/stepstones_lints` analyzer plugin mirrors domain checks for editor feedback but is not enabled yet.
 
-The script fails when a module imports another package's `src/` files, a domain file imports
-platform packages, Flutter UI or another feature module outside a port, data imports presentation,
-the public API exposes entities, or a barrel exports internal layers.
+A passing script does not prove full compliance: it does not determine whether a dependency is justified, detect every violation, or verify the entire dependency graph. Review those aspects separately, including circular dependencies.
