@@ -76,7 +76,7 @@ The app uses feature-first Flutter packages with a pragmatic three-layer structu
 - **Data:** Firebase and local data providers, repository implementations, platform integrations, and mapping between external data and domain models.
 - **Public API:** Feature packages expose deliberate APIs for cross-package use. Internal `src/` implementation files are not cross-module contracts.
 
-Within a module, presentation depends on domain contracts and data implements domain contracts. Cross-feature dependencies use published public contracts, with ports where domain orchestration needs an external capability; modules do not import another package's internal `src/` files. See the [module dependency guidelines](./new_docs/module_dependency_guidelines.md) for detailed import rules.
+Within a module, presentation depends on domain contracts and data implements domain contracts. Cross-feature dependencies use published public contracts, with ports where domain orchestration needs an external capability; modules do not import another package's internal `src/` files. See the [module dependency guidelines](./module_dependency_guidelines.md) for detailed import rules.
 
 ### 2.2. Package / Container View
 

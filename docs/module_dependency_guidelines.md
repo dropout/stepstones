@@ -1,10 +1,10 @@
 # Module Dependency Guidelines
 
-This document defines import and dependency rules for the feature module packages under `packages/modules`.
+This document defines import and dependency rules for the feature module packages under `packages/modules`. For module structure and development, see the [module development guidelines](./module_development_guidelines.md).
 
 ## Goal
 
-Keep modules independent, testable, and easy to evolve by preventing deep cross-module coupling.
+Keep modules cohesive, testable, and easy to evolve by avoiding unnecessary or circular cross-module dependencies and coupling to implementation details.
 
 ## Rule of thumb
 
@@ -27,7 +27,7 @@ Keep modules independent, testable, and easy to evolve by preventing deep cross-
 - `packages/modules/social`
 - `packages/modules/stats`
 
-Each module is its own package with layers under `lib/src/` (`domain/`, `data/`, `presentation/`, `public/`).
+Feature modules are separate packages. Their internal structure is described in the [module development guidelines](./module_development_guidelines.md#package-structure).
 
 ## Direct feature-module dependencies
 
@@ -35,86 +35,43 @@ This graph shows direct dependencies declared in the feature package manifests. 
 
 ```mermaid
 flowchart TB
-
-   profile --> auth
-
-   
-
-   social --> profile
-   stats --> profile
-   
-   practice --> stats
-   practice --> social
-   practice --> profile
-
-   subgraph practice [practice]
+   subgraph practice["practice"]
       direction LR
-      timer ~~~ chanting ~~~ session
+      timer["timer"]
+      chanting["chanting"]
    end
 
-   home --> practice
-
-```
-
-
-```mermaid
-flowchart BT
-
+   home --> profile
    home --> timer
    home --> chanting
-   home --> profile
-
+   profile --> auth
+   social --> profile
+   stats --> profile
+   timer --> auth
+   timer --> profile
+   timer --> social
    session --> profile
    session --> social
    session --> stats
-
-    
-
-    profile --> auth
-    social --> profile
-    stats --> profile
-
-    timer --> auth
-    timer --> profile
-    
-   session ~~~ timer
-   session ~~~ chanting
-
-   timer --> social
-
    chanting --> auth
    chanting --> profile
    chanting --> session
    chanting --> social
-
 ```
 
-In this feature-to-feature graph, `auth` is the lowest-level feature dependency. `donate` and `app_events` currently have no declared dependencies on other feature packages.
+The `practice` box groups packages by folder; it is not itself a package. In this feature-to-feature graph, `auth` is the lowest-level feature dependency. `donate` and `app_events` currently have no declared dependencies on other feature packages.
 
 ## Layering inside a module
 
-Allowed direction:
-
-1. `presentation -> domain`
-2. `presentation -> application` (if present)
-3. `application -> domain`
-4. `data -> domain`
-5. `data -> core infrastructure`
-
-Disallowed direction:
-
-1. `domain -> presentation`
-2. `domain -> data`
-3. `presentation -> another module's data`
-4. `presentation -> another module's presentation`
+Presentation depends on domain contracts, and data implements them. For layer responsibilities and package layout, see the [module development guidelines](./module_development_guidelines.md#layers).
 
 ## Cross-module dependency policy
 
-A module may depend on another module only through stable contracts.
+A module may depend on another module through its public API. Before adding a dependency, review the graph and existing dependency paths, consider the direction and responsibility of the relationship, and avoid circular dependencies. Do not add a dependency merely because another module exposes a convenient type or implementation.
 
 Allowed:
 
-1. Import from another module's package barrel (for example `package:profile/profile.dart`), using only its public API.
+1. Import from another module's package barrel (for example `package:profile/profile.dart`), using its public API, including deliberately exported reusable UI.
 2. Import from `core` shared abstractions.
 3. In a domain port, import another module's package barrel only when the port needs a stable public contract type.
 
@@ -122,7 +79,7 @@ Not allowed:
 
 1. Import from another module's `domain`, `presentation`, or `data` path under `src/`.
 2. Import private/internal files from another module.
-3. Depend on another module's Cubits, screens, or implementation widgets.
+3. Depend on another module's internal Cubits, screens, or widgets.
 
 ## Profile model in insights: recommended approach
 
@@ -176,8 +133,9 @@ import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 1. Presentation can depend on:
    - its own module's bloc/cubit/use-cases
    - stable public contracts imported from another module's barrel
+   - public UI deliberately exported by another module's barrel
    - core shared UI/utilities
-2. Presentation cannot depend on another module's bloc/cubit/widgets/screens.
+2. Presentation cannot depend on another module's internal bloc/cubit/widgets/screens.
 
 ## Foreign models in presentation
 
@@ -228,8 +186,7 @@ Otherwise, keep the domain model in its owning module and expose a separate publ
 ## Migration guardrails
 
 1. Do not introduce temporary cross-module `src/` imports during migration; use a public contract or port instead.
-2. Do not move route/bootstrap internals into feature modules until module contracts are stable.
-3. Update dependency wiring in one place after each phase (composition root/DI).
+2. Update dependency wiring in one place after each phase (composition root/DI).
 
 ## PR review checklist
 
@@ -239,6 +196,7 @@ Otherwise, keep the domain model in its owning module and expose a separate publ
 4. Are mappings done at module boundaries instead of leaking foreign models deeply?
 5. Are shared abstractions placed in core/shared rather than in a feature module?
 6. Are presentation widgets depending on foreign public models only when those models are stable contracts?
+7. Is a new dependency justified, acyclic, and reflected in the graph?
 
 ## Automation
 

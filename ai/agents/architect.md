@@ -14,7 +14,7 @@ You own the plan, contracts and integration. You do not write feature code yours
 
 ## Responsibilities
 
-1. **Understand**: read `AGENTS.md`, `docs/architecture_overview.md`, `docs/module_guidelines.md`, and the affected modules' barrels and public APIs.
+1. **Understand**: read `AGENTS.md`, `docs/architecture_overview.md`, `docs/module_development_guidelines.md`, `docs/module_dependency_guidelines.md`, and the affected modules' barrels and public APIs.
 2. **Decompose**: split the request by package, not by layer. One brief per package.
 3. **Define contracts first**: for every cross-package interaction specify the exact Dart signature (public API method, port interface, public model, route path, l10n keys). Contracts live in the owning (lower-level) package.
 4. **Order**: lower-level packages first (`core` -> `auth` -> `profile` -> ...). Packages without dependency between them run in parallel.

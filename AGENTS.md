@@ -104,4 +104,5 @@ For running and building commands look at the commands documentation: [`docs/com
 - Project overview: [README.md](README.md)
 - Commands for running and building: [docs/commands.md](docs/commands.md)
 - Architecture overview: [docs/architecture_overview.md](docs/architecture_overview.md)
-- Module guidelines: [docs/module_guidelines.md](docs/module_guidelines.md)
+- Module development guidelines: [docs/module_development_guidelines.md](docs/module_development_guidelines.md)
+- Module dependency guidelines: [docs/module_dependency_guidelines.md](docs/module_dependency_guidelines.md)

@@ -74,7 +74,7 @@ One class = one business workflow with meaningful orchestration.
 - Single public method `execute(...)`. Return an entity, a Dart record for multiple results (`({ProfileEntity originalProfile, ProfileEntity updatedProfile})`), `void`, or a `Stream` for streaming (`LoadProfileStreamUseCase`).
 - Use `clock.now()` from `package:clock` instead of `DateTime.now()` so tests can control time.
 - Orchestrate; do not compute. Calling a repository, a port, and a service in sequence belongs in the use case; the rules themselves belong in an entity or service.
-- Do **not** create a use case for trivial pass-through CRUD. A cubit may call a repository directly (see `docs/module_guidelines.md`). Do not add more one-line forwarders like `SignoutUseCase` unless they provide a stable seam.
+- Do **not** create a use case for trivial pass-through CRUD. A cubit may call a repository directly (see `docs/module_development_guidelines.md`). Do not add more one-line forwarders like `SignoutUseCase` unless they provide a stable seam.
 - Non-blocking side effects (audit, analytics) may be `unawaited`, with the dependency optional (`StatsAuditService?`).
 - Let domain/repository exceptions propagate unless the use case can add business meaning; the cubit decides how to present them.
 
