@@ -63,6 +63,15 @@ An opt-in indicator shown after a session: other people who practiced nearby and
 - Location is a city chosen in the profile, not a device position.
 - Queries are limited by a time window and a distance range, using a geohash prefix and a latitude and longitude bounding box in Firestore.
 
+### On-device profile image screening
+
+Profile pictures are visible to other people through presence, so each picked image is checked for adult content before it is accepted.
+
+- **Runs on the device.** A TensorFlow Lite image classifier runs through `flutter_litert`. The image is never sent to a server for moderation.
+- **Scoring.** The image is resized to 224×224, classified into five categories, and rejected when the combined score of the explicit categories passes a threshold.
+- **Scoped lifetime.** The interpreter is created when the image picker opens and disposed with it, so the model does not hold memory for the rest of the session.
+- **Replaceable.** The picker depends on a [`SafeImageDetector`](packages/core/lib/src/service/safe_image_detector.dart) interface, with the model behind it.
+
 ### Stats and milestones
 
 - **Session log.** Every session is recorded with its type, start, end and duration.
@@ -187,6 +196,7 @@ Further reading:
 | Backend | Firebase Auth, Firestore, Storage, Remote Config, Analytics, Crashlytics |
 | Local persistence | Drift |
 | Audio | `flutter_soloud`, `audio_service`, `audio_session` |
+| On-device ML | `flutter_litert` (TensorFlow Lite) |
 | Localization | Flutter gen-l10n per package, English and Hungarian |
 
 ## Quality and testing
@@ -194,7 +204,7 @@ Further reading:
 - **Unit and widget tests** live next to each package and run with `melos run test`.
 - **Integration tests** in [`apps/mobile_app/integration_test`](apps/mobile_app/integration_test) are written as user journeys on top of robot classes, and run against the Firebase emulator.
 - **Static analysis** runs across the workspace with `melos run analyze`.
-- **Boundary checks** run with `bash support/maintenance_scripts/check_module_boundaries.sh`. The script covers domain isolation, cross-package `src/` imports, data-to-presentation imports, entity leaks through the public API and barrel exports. A small number of legacy violations are still being worked down.
+- **Boundary checks** run with `bash support/maintenance_scripts/check_module_boundaries.sh`. The script covers domain isolation, cross-package `src/` imports, data-to-presentation imports, entity leaks through the public API and barrel exports. It currently passes with no violations.
 - **CI** is not set up yet. All checks run locally.
 
 ## Repository layout
@@ -263,6 +273,7 @@ Third-party material keeps its own terms and is not covered by the GPL:
 
 - [`gradient_flow.frag`](packages/assets/shaders/gradient_flow.frag) is adapted from Shadertoy and includes code under CC BY-NC-SA 3.0, as noted in the file header.
 - Fonts in [`packages/assets/fonts`](packages/assets/fonts) are distributed under their own licenses.
+- The image classification model in [`packages/assets`](packages/assets) is GantMan's NSFW model and is distributed under its own license.
 
 ## Author
 
