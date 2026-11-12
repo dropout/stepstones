@@ -2,6 +2,9 @@ import 'package:core/core.dart';
 import 'package:timer/src/domain/entity/timer_settings_entity.dart';
 import 'package:timer/src/domain/entity/timer_settings_history_record_entity.dart';
 
+typedef TimerSettingsHistoryDataProviderFactory =
+    TimerSettingsHistoryDataProvider Function(String profileId);
+
 abstract interface class TimerSettingsHistoryDataProvider
     implements DataProvider<TimerSettingsHistoryRecordEntity> {
 

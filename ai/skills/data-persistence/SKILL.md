@@ -86,7 +86,7 @@ registerLazySingleton<ProfileRepository>(
 );
 ```
 
-Providers whose path depends on runtime data (profile id) are created by a small factory registered in DI, not with `new` inside a repository method.
+Providers whose path depends on runtime data (profile id) are created by an injected factory registered in DI. `DefaultTimerSettingsHistoryRepository` creates a provider for the requested profile on each call.
 
 ## Testing
 
@@ -96,7 +96,6 @@ Providers whose path depends on runtime data (profile id) are created by a small
 
 ## Legacy deviations (do not copy)
 
-- `FirebaseTimerSettingsHistoryRepository` constructs its provider on every call and uses `DateTime.now()`; its provider also exposes a static `generateId` through `FirebaseFirestore.instance`.
 - `CacheFirstProfileDataProvider` works with the public `Profile` model instead of an entity.
 - `ChantCacheRepository` (domain) exposes Drift `ChantCacheEntryRow`; new repositories must return entities.
 - `DefaultChantCacheDataRepository` mixes Drift, Storage, and file-system concerns in one class; split by responsibility.

@@ -15,7 +15,9 @@ import 'package:timer/src/domain/service/timer_app_port.dart';
 import 'package:timer/src/public/model/timer_settings.dart';
 import 'package:timer/src/public/viewmodel/timer_settings_cubit.dart';
 import 'package:timer/src/data/service/default_timer_audio_service.dart';
-import 'package:timer/src/data/repository/firebase_timer_settings_history_repository.dart';
+import 'package:timer/src/data/datasource/firebase_timer_settings_history_data_provider.dart';
+import 'package:timer/src/data/datasource/timer_settings_history_data_provider.dart';
+import 'package:timer/src/data/repository/default_timer_settings_history_repository.dart';
 import 'package:timer/src/domain/repository/timer_settings_history_repository.dart';
 import 'package:timer/src/domain/service/timer_audio_service.dart';
 import 'package:timer/src/domain/usecase/complete_timer_use_case.dart';
@@ -37,10 +39,18 @@ extension TimerModuleDependencyInjection on GetIt {
       () => SoTimerAudioHandler(soloud: SoLoud.instance),
     );
 
+    // Data providers
+    registerLazySingleton<TimerSettingsHistoryDataProviderFactory>(
+      () => (profileId) => FirebaseTimerSettingsHistoryDataProvider(
+        get<FirebaseProvider>().firestore,
+        profileId,
+      ),
+    );
+
     // Repositories
     registerLazySingleton<TimerSettingsHistoryRepository>(
-      () => FirebaseTimerSettingsHistoryRepository(
-        GetIt.I.get<FirebaseProvider>().firestore,
+      () => DefaultTimerSettingsHistoryRepository(
+        providerFactory: get<TimerSettingsHistoryDataProviderFactory>(),
       ),
     );
 

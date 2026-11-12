@@ -3,6 +3,8 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:core/core.dart';
 import 'package:auth/auth.dart';
+
+import 'package:timer/src/data/datasource/timer_settings_history_data_provider.dart';
 import 'package:timer/src/domain/entity/timer_state_entity.dart';
 import 'package:timer/src/domain/repository/timer_settings_history_repository.dart';
 import 'package:timer/src/domain/service/timer_app_port.dart';
@@ -50,6 +52,10 @@ class MockTimerAudioService
 class MockTimerEventScheduler 
   extends Mock 
   implements TimerEventScheduler {}
+
+class MockTimerSettingsHistoryDataProvider 
+  extends Mock 
+  implements TimerSettingsHistoryDataProvider {}
 
 class MockTimerSettingsHistoryRepository
   extends Mock

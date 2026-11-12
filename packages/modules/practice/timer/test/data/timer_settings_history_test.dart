@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:core/core.dart';
 import 'package:timer/src/data/mapper/timer_settings_mapper.dart';
-import 'package:timer/src/data/repository/firebase_timer_settings_history_repository.dart';
+import 'package:timer/src/data/repository/default_timer_settings_history_repository.dart';
 import 'package:timer/src/domain/entity/timer_settings_entity.dart';
 import 'package:timer/src/domain/entity/timer_settings_history_record_entity.dart';
 

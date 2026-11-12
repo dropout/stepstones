@@ -1,29 +1,22 @@
 import 'package:clock/clock.dart';
-import 'package:firebase_provider/firebase_provider.dart';
-import 'package:timer/src/data/datasource/firebase_timer_settings_history_data_provider.dart';
+import 'package:timer/src/data/datasource/timer_settings_history_data_provider.dart';
 import 'package:timer/src/domain/entity/timer_settings_entity.dart';
 import 'package:timer/src/domain/entity/timer_settings_history_record_entity.dart';
 import 'package:timer/src/domain/repository/timer_settings_history_repository.dart';
 
-class FirebaseTimerSettingsHistoryRepository
+class DefaultTimerSettingsHistoryRepository
     implements TimerSettingsHistoryRepository {
 
-  final FirebaseFirestore fireStore;
+  final TimerSettingsHistoryDataProviderFactory providerFactory;
 
-  FirebaseTimerSettingsHistoryRepository(this.fireStore);
+  DefaultTimerSettingsHistoryRepository({required this.providerFactory});
 
   @override
   Future<void> recordTimerSettingsHistory(
     String profileId,
     TimerSettingsEntity timerSettings,
   ) async {
-    final timerSettingsHistoryDataProvider =
-      FirebaseTimerSettingsHistoryDataProvider(
-        fireStore,
-        profileId,
-      );
-
-    await timerSettingsHistoryDataProvider.recordUse(timerSettings, clock.now());
+    await providerFactory(profileId).recordUse(timerSettings, clock.now());
   }
 
   @override
@@ -31,12 +24,7 @@ class FirebaseTimerSettingsHistoryRepository
     String profileId,
     {int limit = 20}
   ) {
-    final timerSettingsHistoryDataProvider =
-      FirebaseTimerSettingsHistoryDataProvider(
-        fireStore,
-        profileId,
-      );
-    return timerSettingsHistoryDataProvider.query(limit: limit)
+    return providerFactory(profileId).query(limit: limit)
       .then(dedupeTimerSettingsHistory);
   }
 
@@ -45,12 +33,7 @@ class FirebaseTimerSettingsHistoryRepository
     String profileId,
     {int limit = 20}
   ) {
-    final timerSettingsHistoryDataProvider =
-      FirebaseTimerSettingsHistoryDataProvider(
-        fireStore,
-        profileId,
-      );
-    return timerSettingsHistoryDataProvider.queryStream(limit: limit)
+    return providerFactory(profileId).queryStream(limit: limit)
       .map(dedupeTimerSettingsHistory);
   }
 
