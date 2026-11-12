@@ -94,11 +94,6 @@ Providers whose path depends on runtime data (profile id) are created by an inje
 - Provider: use the emulator configuration in `packages/firebase_provider/`; do not mock `Query`.
 - Serialization: round-trip `toJson` / `fromJson` for every stored entity.
 
-## Legacy deviations (do not copy)
-
-- `CacheFirstProfileDataProvider` works with the public `Profile` model instead of an entity.
-- `ChantCacheRepository` (domain) exposes Drift `ChantCacheEntryRow`; new repositories must return entities.
-- `DefaultChantCacheDataRepository` mixes Drift, Storage, and file-system concerns in one class; split by responsibility.
 
 ## Checklist
 

@@ -75,7 +75,6 @@ Prefer injecting use cases into the public API instead of constructing them per 
 
 - `DefaultProfilePublicApi` builds use cases inside each method on every call; new code injects them.
 - `timer_settings_mapper.dart` imports `timer_module.dart` (barrel) instead of `src/public/model/`.
-- `CacheFirstProfileDataProvider` uses the public `Profile` model inside a provider; keep public models out of persistence.
 - `chant_mapper.dart` contains commented-out code; delete dead code instead of commenting it out.
 
 ## Checklist
