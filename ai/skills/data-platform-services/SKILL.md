@@ -72,16 +72,10 @@ Register by the domain interface when one exists.
 - File-system classes: use a temp directory per test and delete it in `tearDown`.
 - Do not test platform plugins themselves.
 
-## Legacy deviations (do not copy)
-
-- `ChantAssetDownloader` and `ChantCacheValidator` hold business logic and import Drift row types.
-- `DefaultTimerService` implements a domain interface marked "not in use currently"; do not extend it.
-- `timer/src/audio/` sits outside `data/` while `DefaultTimerAudioService` imports it; put new audio handlers beside the service that uses them or in `core`.
-
 ## Checklist
 
 - [ ] Implements a domain interface or is a narrow platform helper.
-- [ ] No SDK type leaves the class; no business rules inside.
+- [ ] No SDK type leaves the class; consider separating business rules when useful.
 - [ ] Dependencies injected; resources disposed.
 - [ ] Uses `clock` / `IdGeneratorService`.
 - [ ] Registered in DI by interface type.

@@ -53,11 +53,6 @@ Everything is registered in `src/<module>_di.dart` inside `extension <Module>Mod
 
 Short, one sentence, explain why. Do not restate what the code does.
 
-## Known legacy deviations (do not copy)
-
-- Inconsistent prefixes (`Firebase*` repositories wrapping providers vs `Default*`); use the rule above for new code.
-- Domain/data boundary leaks in `chanting` (Drift rows in a domain repository, business rules in `data/service`); see `data-persistence` and `data-platform-services`.
-
 ## Checklist
 
 - [ ] New classes live in the right folder and use the naming rule.
