@@ -38,6 +38,7 @@ packages/modules/<module>/lib/src/data/
 
 - `Default<Name>` for the primary implementation of a domain interface (`DefaultProfileRepository`, `DefaultTimerAppPort`, `DefaultProfilePublicApi`).
 - A technology prefix (`Firebase*`, `Drift*`, `Stubbed*`) only when more than one implementation exists or the name must say what it talks to (`FirebaseProfileDataProvider`).
+- `FirebaseStatsAuditRepository` names its direct Firestore dependency explicitly; see the intentional exception in `data-persistence`.
 - Files are snake_case of the class name. Mapper files end in `_mapper.dart`.
 
 ## DI wiring
@@ -54,7 +55,7 @@ Short, one sentence, explain why. Do not restate what the code does.
 
 ## Known legacy deviations (do not copy)
 
-- `DefaultStatsAudioRepository` (typo for Audit) and `FirebaseTimerSettingsHistoryRepository` bypass or rebuild providers; see `data-persistence`.
+- `FirebaseTimerSettingsHistoryRepository` rebuilds its provider; see `data-persistence`.
 - Inconsistent prefixes (`Firebase*` repositories wrapping providers vs `Default*`); use the rule above for new code.
 - Domain/data boundary leaks in `chanting` (Drift rows in a domain repository, business rules in `data/service`); see `data-persistence` and `data-platform-services`.
 

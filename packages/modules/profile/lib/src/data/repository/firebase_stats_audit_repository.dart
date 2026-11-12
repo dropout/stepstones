@@ -3,11 +3,11 @@ import 'package:profile/src/domain/entity/stats_audit_entry_entity.dart';
 import 'package:profile/src/domain/repository/stats_audit_repository.dart';
 
 
-class DefaultStatsAudioRepository implements StatsAuditRepository {
+class FirebaseStatsAuditRepository implements StatsAuditRepository {
 
   final FirebaseFirestore fireStore;
 
-  DefaultStatsAudioRepository(this.fireStore);
+  FirebaseStatsAuditRepository(this.fireStore);
 
   @override
   Future<void> saveAll(

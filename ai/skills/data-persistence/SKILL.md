@@ -1,6 +1,6 @@
 ---
 name: data-persistence
-description: "Implement persistence in a Stepstones module's data layer: DataProvider interfaces and Firebase/Drift/Storage implementations, repository implementations of domain repository interfaces, freezed/JSON serialization, preferCache and stream behavior, and DocumentNotFoundException handling. Use when adding or changing a data provider, a `Default*Repository`, Firestore queries, Drift table access, or stored entity shape."
+description: "Implement persistence in a Stepstones module's data layer: DataProvider interfaces and Firebase/Drift/Storage implementations, repository implementations of domain repository interfaces, freezed/JSON serialization, preferCache and stream behavior, and DocumentNotFoundException handling. Use when adding or changing a data provider, a repository implementation, Firestore queries, Drift table access, or stored entity shape."
 license: MIT
 ---
 
@@ -52,13 +52,14 @@ FirebaseProfileDataProvider(FirebaseFirestore fireStore) : super(
 
 - Entities are serialized by freezed/json_serializable: `fromJson` factory, `@JsonSerializable(explicitToJson: true)`, converters from core (`@DateTimeConverter()`, `DurationConverter`, ...). No hand-written DTO unless the stored shape differs from the entity.
 - When a field is renamed or added, check the Firebase functions in `support/firebase/` that write the same documents. Some records are created server-side.
-- Server-only fields that are not on the entity (e.g. a TTL timestamp) are added at the write site with a one-line why (see `DefaultStatsAudioRepository`'s `expireAt`).
+- Storage-specific fields are added or converted at the write site with a one-line why. `FirebaseStatsAuditRepository` converts the entity's `expireAt` to a Firestore `Timestamp` for TTL, rather than storing its JSON integer.
 
 ### Repository implementation
 
 - Standard case: `class DefaultXRepository extends CrudRepositoryOps<XEntity> implements XRepository`, constructor `required this.xDataProvider` with `: super(xDataProvider)`. Add only the query delegations the interface declares.
 - Logic beyond delegation (create-or-increment, batching, merging local and remote) is allowed in a repository only when it is about **storage mechanics**. Business rules go to the domain (service/use case).
 - Repositories receive providers through the constructor, never construct them inside methods.
+- Intentional exception: `FirebaseStatsAuditRepository` writes a single-purpose audit batch directly to Firestore behind the domain repository interface. The standard CRUD provider would add unused operations; introduce a narrow provider if reuse or independent substitution becomes necessary.
 
 ### Drift (local database)
 
@@ -95,7 +96,6 @@ Providers whose path depends on runtime data (profile id) are created by a small
 
 ## Legacy deviations (do not copy)
 
-- `DefaultStatsAudioRepository` (misspelled; should be `...Audit...`) uses `FirebaseFirestore` directly with no provider.
 - `FirebaseTimerSettingsHistoryRepository` constructs its provider on every call and uses `DateTime.now()`; its provider also exposes a static `generateId` through `FirebaseFirestore.instance`.
 - `CacheFirstProfileDataProvider` works with the public `Profile` model instead of an entity.
 - `ChantCacheRepository` (domain) exposes Drift `ChantCacheEntryRow`; new repositories must return entities.
@@ -105,6 +105,6 @@ Providers whose path depends on runtime data (profile id) are created by a small
 
 - [ ] Provider returns entities only; query built via `_buildQuery`.
 - [ ] Entity implements `SerializableEntity`; JSON round-trip tested.
-- [ ] Repository is thin, injected with a provider interface, registered by interface type.
+- [ ] Repository uses an injected provider in the standard case and is registered by interface type; document intentional exceptions.
 - [ ] No SDK or Drift type crosses the repository boundary.
 - [ ] Server-written fields checked against `support/firebase/`.
