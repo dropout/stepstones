@@ -27,14 +27,4 @@ extension ChantMapper on Chant {
     );
   }
 
-  // ChantingSettingsPlaylistItem toPlaylistItem() {
-  //   return ChantingSettingsPlaylistItem(
-  //     id: id,
-  //     chantId: id,
-  //     name: name,
-  //     blurHash: blurHash,
-  //     order: order,
-  //     duration: length,
-  //   );
-  // }
 }

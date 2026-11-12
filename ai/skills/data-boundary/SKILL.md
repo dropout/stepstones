@@ -58,7 +58,8 @@ Rules:
 
 ```dart
 registerLazySingleton<ProfilePublicApi>(() => DefaultProfilePublicApi(
-  profileRepository: get(), profileStatsUpdater: get(), ...));
+  loadProfileUseCase: get(), loadProfileStreamUseCase: get(),
+  updateProfileStatsWithSessionUseCase: get()));
 registerLazySingleton<TimerAppPort>(() => DefaultTimerAppPort(
   authPublicApi: get(), profilePublicApi: get(), socialPublicApi: get()));
 ```
@@ -70,12 +71,6 @@ Prefer injecting use cases into the public API instead of constructing them per 
 - Mappers: round trips and one case per enum value.
 - Public API: mock repositories/use cases; assert that returned values are public models.
 - Port adapters: mock the other module's `*PublicApi`; assert delegation and reshaping.
-
-## Legacy deviations (do not copy)
-
-- `DefaultProfilePublicApi` builds use cases inside each method on every call; new code injects them.
-- `timer_settings_mapper.dart` imports `timer_module.dart` (barrel) instead of `src/public/model/`.
-- `chant_mapper.dart` contains commented-out code; delete dead code instead of commenting it out.
 
 ## Checklist
 

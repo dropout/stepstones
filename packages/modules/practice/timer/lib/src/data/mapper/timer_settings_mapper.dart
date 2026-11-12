@@ -1,8 +1,10 @@
 import 'package:timer/src/domain/entity/timer_settings_entity.dart' as domain;
-import 'package:timer/src/timer_module.dart' as api;
+
+import '../../public/model/timer_settings.dart';
+
 
 /// Maps between the module's public [api.TimerSettings] DTO and the domain model.
-extension TimerSettingsToDomain on api.TimerSettings {
+extension TimerSettingsToDomain on TimerSettings {
   domain.TimerSettingsEntity toDomain() {
     return domain.TimerSettingsEntity(
       warmup: warmup,
@@ -17,8 +19,8 @@ extension TimerSettingsToDomain on api.TimerSettings {
 }
 
 extension TimerSettingsToPublic on domain.TimerSettingsEntity {
-  api.TimerSettings toApi() {
-    return api.TimerSettings(
+  TimerSettings toApi() {
+    return TimerSettings(
       warmup: warmup,
       duration: duration,
       intervalCount: intervalCount,

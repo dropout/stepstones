@@ -8,6 +8,8 @@ import 'package:profile/src/data/service/default_profile_auth_port.dart';
 import 'package:profile/src/data/service/default_profile_navigator.dart';
 import 'package:profile/src/domain/service/profile_auth_port.dart';
 import 'package:profile/src/domain/usecase/load_profile_use_case.dart';
+import 'package:profile/src/domain/usecase/load_profile_stream_use_case.dart';
+import 'package:profile/src/domain/usecase/update_profile_stats_with_session_use_case.dart';
 import 'package:profile/src/domain/usecase/update_profile_settings_use_case.dart';
 import 'package:profile/src/domain/usecase/update_profile_use_case.dart';
 import 'package:profile/src/data/datasource/firebase_profile_data_provider.dart';
@@ -80,6 +82,22 @@ extension ProfileModuleDependencyInjection on GetIt {
     );
 
     registerLazySingleton(
+      () => LoadProfileStreamUseCase(
+        profileRepository: GetIt.I.get<ProfileRepository>(),
+        profileStatsUpdater: GetIt.I.get<ProfileStatsReportUpdaterService>(),
+        statsAuditService: GetIt.I.get<StatsAuditService>(),
+      ),
+    );
+
+    registerLazySingleton(
+      () => UpdateProfileStatsWithSessionUseCase(
+        profileRepository: GetIt.I.get<ProfileRepository>(),
+        profileStatsReportUpdaterService: GetIt.I.get<ProfileStatsReportUpdaterService>(),
+        statsAuditService: GetIt.I.get<StatsAuditService>(),
+      ),
+    );
+
+    registerLazySingleton(
       () => UpdateProfileUseCase(
         profileRepository: GetIt.I.get<ProfileRepository>(),
         storageRepository: GetIt.I.get<StorageRepository>(),
@@ -129,11 +147,9 @@ extension ProfileModuleDependencyInjection on GetIt {
     // API
     registerLazySingleton<ProfilePublicApi>(
       () => DefaultProfilePublicApi(
-        profileRepository: GetIt.I.get<ProfileRepository>(),
-        profileStatsUpdater:
-            GetIt.I.get<ProfileStatsReportUpdaterService>(),
-        storageRepository: GetIt.I.get<StorageRepository>(),
-        statsAuditService: GetIt.I.get<StatsAuditService>(),
+        loadProfileUseCase: GetIt.I.get<LoadProfileUseCase>(),
+        loadProfileStreamUseCase: GetIt.I.get<LoadProfileStreamUseCase>(),
+        updateProfileStatsWithSessionUseCase: GetIt.I.get<UpdateProfileStatsWithSessionUseCase>(),
       ),
     );
 
