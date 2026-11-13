@@ -1,7 +1,9 @@
 import 'package:clock/clock.dart';
 import 'package:core/core.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
+import 'package:chanting/src/domain/entity/chant_entity.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
+import 'package:chanting/src/domain/exception/chants_unavailable_offline_exception.dart';
 import 'package:chanting/src/domain/repository/chant_repository.dart';
 import 'package:chanting/src/domain/service/chanting_app_port.dart';
 import 'package:chanting/src/domain/service/chanting_audio_service.dart';
@@ -28,8 +30,7 @@ class StartChantingUseCase with LoggerMixin {
     // Stop any existing playback before setting up new chants
     await chantingAudioService.stop();
 
-    // Load up-to-date chants from remote data source
-    final availableChants = await chantRepo.queryAll();
+    final (availableChants, isOffline) = await _loadAvailableChants();
 
     // Cache the selected chants and stream progress updates
     final cachingResultProgress = cacheChantsUseCase.execute(
@@ -39,9 +40,15 @@ class StartChantingUseCase with LoggerMixin {
 
     // Update the state with caching progress as it occurs
     late CachingProgressEntity cachingProgress;
-    await for (final progress in cachingResultProgress) {
-      cachingProgress = progress;
-      yield cachingProgress;
+    try {
+      await for (final progress in cachingResultProgress) {
+        cachingProgress = progress;
+        yield cachingProgress;
+      }
+    } catch (e) {
+      // Offline downloads fail with opaque storage errors.
+      if (isOffline) throw const ChantsUnavailableOfflineException();
+      rethrow;
     }
 
     // Take the final results and prepare the audio service
@@ -53,6 +60,19 @@ class StartChantingUseCase with LoggerMixin {
     _showPresence();
 
     logger.t('Chanting setup complete with ${resources.length} chants');
+  }
+
+  /// Falls back to the local Firestore cache when the server is unreachable.
+  Future<(List<ChantEntity>, bool)> _loadAvailableChants() async {
+    try {
+      return (await chantRepo.queryAll(), false);
+    } catch (e) {
+      logger.w('Chant list unavailable from server, trying cache: $e');
+      final cached = await chantRepo.queryAll(preferCache: true);
+      // An empty cache means the chants were never loaded online.
+      if (cached.isEmpty) throw const ChantsUnavailableOfflineException();
+      return (cached, true);
+    }
   }
 
   /// Presence is best-effort and must never break chanting.
