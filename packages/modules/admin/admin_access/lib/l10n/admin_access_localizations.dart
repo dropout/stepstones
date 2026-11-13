@@ -62,15 +62,20 @@ import 'admin_access_localizations_hu.dart';
 /// be consistent with the languages listed in the AdminAccessLocalizations.supportedLocales
 /// property.
 abstract class AdminAccessLocalizations {
-  AdminAccessLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AdminAccessLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static AdminAccessLocalizations of(BuildContext context) {
-    return Localizations.of<AdminAccessLocalizations>(context, AdminAccessLocalizations)!;
+    return Localizations.of<AdminAccessLocalizations>(
+      context,
+      AdminAccessLocalizations,
+    )!;
   }
 
-  static const LocalizationsDelegate<AdminAccessLocalizations> delegate = _AdminAccessLocalizationsDelegate();
+  static const LocalizationsDelegate<AdminAccessLocalizations> delegate =
+      _AdminAccessLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,15 +87,19 @@ abstract class AdminAccessLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('hu')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('hu'),
+  ];
 
   /// No description provided for @signInTitle.
   ///
@@ -165,16 +174,20 @@ abstract class AdminAccessLocalizations {
   String get retryButton;
 }
 
-class _AdminAccessLocalizationsDelegate extends LocalizationsDelegate<AdminAccessLocalizations> {
+class _AdminAccessLocalizationsDelegate
+    extends LocalizationsDelegate<AdminAccessLocalizations> {
   const _AdminAccessLocalizationsDelegate();
 
   @override
   Future<AdminAccessLocalizations> load(Locale locale) {
-    return SynchronousFuture<AdminAccessLocalizations>(lookupAdminAccessLocalizations(locale));
+    return SynchronousFuture<AdminAccessLocalizations>(
+      lookupAdminAccessLocalizations(locale),
+    );
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'hu'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'hu'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AdminAccessLocalizationsDelegate old) => false;

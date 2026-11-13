@@ -1,0 +1,66 @@
+{
+  "@@locale": "en",
+  "chantsTitle": "Chants",
+  "chantsCount": "{count} in the catalog",
+  "@chantsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chantsEmpty": "No chants in the catalog yet.",
+  "chantsError": "Unable to load chants.",
+  "retryButton": "Retry",
+  "saveFailed": "The change could not be saved.",
+  "selectChantHint": "Select a chant to see its details.",
+  "nameLabel": "Name",
+  "saveButton": "Save",
+  "detailId": "ID",
+  "detailLength": "Length",
+  "detailPlayCount": "Plays",
+  "detailUpdated": "Assets updated",
+  "detailAudio": "Audio",
+  "detailLyrics": "Lyrics",
+  "detailCover": "Cover",
+  "assetSummary": "v{version} · {size}",
+  "@assetSummary": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "missingBlurHash": "No blurHash: the mobile app cannot load this chant.",
+  "chantSubtitle": "{length} · {plays} plays",
+  "@chantSubtitle": {
+    "placeholders": {
+      "length": {
+        "type": "String"
+      },
+      "plays": {
+        "type": "int"
+      }
+    }
+  },
+  "newChantButton": "New chant",
+  "uploadTitle": "New chant",
+  "idLabel": "ID",
+  "idHelper": "Lowercase letters, numbers and dashes. Cannot be changed later.",
+  "chooseFileButton": "Choose…",
+  "noFileChosen": "No file chosen",
+  "uploadButton": "Upload",
+  "cancelButton": "Cancel",
+  "replaceButton": "Replace…",
+  "uploadFailed": "The upload failed. Nothing was added to the catalog.",
+  "failureEmptyName": "Enter a name.",
+  "failureNameTooLong": "The name is too long.",
+  "failureInvalidId": "The ID may only contain lowercase letters, numbers and single dashes.",
+  "failureDuplicateId": "A chant with this ID already exists.",
+  "failureMissingFile": "Choose the audio, lyrics and cover files.",
+  "failureEmptyFile": "One of the files is empty.",
+  "failureUnreadableAsset": "A file could not be read. Check that the audio is a valid MP3 and the cover a valid JPEG."
+}

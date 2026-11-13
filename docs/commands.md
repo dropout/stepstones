@@ -40,7 +40,7 @@ Run from `apps/admin_app`. The app is signed with the development team because F
     - Start the emulators first from `support/firebase/staging`: `firebase emulators:start --only auth,firestore,storage --project demo-stepstones`
 - Run against a Firebase project: `flutter run -d macos -t lib/main_<flavor>.dart --dart-define-from-file=config/<flavor>.json`
     - Copy `config/example.json` to `config/<flavor>.json` and fill it from the admin app's Firebase registration; these files are git-ignored.
-- Integration test (from `support/firebase/staging`): `firebase emulators:exec --only auth,firestore,storage --project demo-stepstones "cd ../../../apps/admin_app && flutter test integration_test/admin_access_test.dart -d macos"`
+- Integration tests (from `support/firebase/staging`, one file per `flutter test` call): `firebase emulators:exec --only auth,firestore,storage --project demo-stepstones "cd ../../../apps/admin_app && flutter test integration_test/<test_file>.dart -d macos"`
 
 ## Building
 - If build mode is not excplicitly specified use `debug` build mode.

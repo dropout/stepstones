@@ -11,6 +11,7 @@ workspace:
   - packages/assets
   - packages/core  
   - packages/modules/admin/admin_access
+  - packages/modules/admin/admin_chants
   - packages/modules/app_events
   - packages/modules/auth
   - packages/modules/donate

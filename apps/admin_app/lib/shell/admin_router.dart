@@ -1,4 +1,5 @@
 import 'package:admin_access/admin_access.dart';
+import 'package:admin_chants/admin_chants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,7 +26,12 @@ GoRouter buildAdminRouter() {
           for (final section in AdminSection.values)
             GoRoute(
               path: section.path,
-              pageBuilder: (context, state) => NoTransitionPage(child: SectionPlaceholder(section: section)),
+              pageBuilder: (context, state) => NoTransitionPage(
+                child: switch (section) {
+                  AdminSection.chants => const AdminChantsScreen(),
+                  _ => SectionPlaceholder(section: section),
+                },
+              ),
             ),
         ],
       ),

@@ -25,7 +25,8 @@ class AdminAccessLocalizationsHu extends AdminAccessLocalizations {
   String get signInButton => 'Bejelentkezés';
 
   @override
-  String get signInFailed => 'Sikertelen bejelentkezés. Ellenőrizd az e-mail címet és a jelszót.';
+  String get signInFailed =>
+      'Sikertelen bejelentkezés. Ellenőrizd az e-mail címet és a jelszót.';
 
   @override
   String get unauthorizedTitle => 'Ez nem admin fiók';
