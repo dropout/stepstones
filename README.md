@@ -23,6 +23,7 @@ Stepstones records sitting and chanting sessions, shows insights into a practice
 - [Graphics and custom widgets](#graphics-and-custom-widgets)
 - [Companion packages](#companion-packages)
 - [Architecture](#architecture)
+- [Backend](#backend)
 - [Tech stack](#tech-stack)
 - [Quality and testing](#quality-and-testing)
 - [Repository layout](#repository-layout)
@@ -60,7 +61,7 @@ A timer that is meant to be unremarkable in the best sense: it does what it is s
 
 An opt-in indicator shown after a session: other people who practiced nearby and around the same time, so the user can see they are not practicing alone.
 
-- Location is a city chosen in the profile, not a device position.
+- Location is a city chosen in the profile, not a device position. The city picker is backed by a [Places search function](#city-search).
 - Queries are limited by a time window and a distance range, using a geohash prefix and a latitude and longitude bounding box in Firestore.
 
 ### On-device profile image screening
@@ -183,6 +184,33 @@ Further reading:
 - [Module development guidelines](docs/module_development_guidelines.md)
 - [Module dependency guidelines](docs/module_dependency_guidelines.md)
 
+## Backend
+
+The Firebase backend lives in [`support/firebase`](support/firebase), one folder per flavor, with Firestore and Storage rules, indexes, the Remote Config template and Cloud Functions in TypeScript.
+
+### File-based function registration
+
+Functions are not listed by hand. [`index.ts`](support/firebase/staging/functions/src/index.ts) scans the source tree for files ending in `.f.ts` and exports each one under a name built from its path:
+
+```
+src/
+  auth/
+    beforeusercreated.f.ts   ->  auth.beforeusercreated
+  call/
+    citysearch.f.ts          ->  call.citysearch
+    getcitylocation.f.ts     ->  call.getcitylocation
+  util/                      Shared helpers, never exported
+  models.ts
+```
+
+- **One function per file.** The file's default export is the handler, and the directory is its group.
+- **The tree is the overview.** Folders mirror the trigger type or the Firestore path, so the deployed function list can be read from the file explorer.
+- **Adding a function is adding a file.** `index.ts` does not change, and helpers without the `.f` suffix stay private.
+
+### City search
+
+Presence needs a location, and the app asks for a city instead of a device position. Two callable functions back the city picker with the Google Maps Places API: one returns autocomplete suggestions, the other resolves a chosen place to coordinates.
+
 ## Tech stack
 
 | Area | Choice |
@@ -194,6 +222,7 @@ Further reading:
 | Navigation | `go_router` |
 | Models | `freezed` |
 | Backend | Firebase Auth, Firestore, Storage, Remote Config, Analytics, Crashlytics |
+| Server code | Cloud Functions in TypeScript, Google Maps Places API |
 | Local persistence | Drift |
 | Audio | `flutter_soloud`, `audio_service`, `audio_session` |
 | On-device ML | `flutter_litert` (TensorFlow Lite) |
