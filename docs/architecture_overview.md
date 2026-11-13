@@ -280,6 +280,8 @@ sequenceDiagram
 - Firestore is accessed through feature data providers and repositories. Examples include profile/session data and chant metadata.
 - Firebase Storage is used to download chant assets into the local cache.
 - Firebase Remote Config supplies remote settings at initialization. Analytics and Crashlytics are used for product events and error reporting.
+- City search uses a callable Cloud Function backed by Places autocomplete. An empty query or no matches returns an empty list; a non-string query returns `invalid-argument`, and search failures return a sanitized `internal` error rather than partial results. The Flutter functions service reports failures to Crashlytics and rethrows them for the selector to display its error state. Detailed provider errors remain in Cloud Functions logs.
+- Crashlytics collection is disabled in debug builds. Client-side reporting depends on the client receiving the error and on Crashlytics collection and delivery being enabled; use Cloud Functions logs for server-side diagnostics.
 - Firebase SDKs define the network protocols for these integrations. No app-wide custom HTTP client, retry/backoff policy, token-refresh implementation, or offline write queue is described by the flows above.
 
 ## 6. Security, Privacy & Compliance

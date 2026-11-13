@@ -1,18 +1,33 @@
 import 'package:core/src/domain/entity/city_search_result.dart';
+import 'package:core/src/service/crashlytics_service.dart';
 import 'package:core/src/service/functions_service.dart';
 import 'package:firebase_provider/firebase_provider.dart';
 
 class FirebaseFunctionsService implements FunctionsService {
 
   final FirebaseFunctions fbFunctions;
+  final CrashlyticsService crashlyticsService;
 
-  const FirebaseFunctionsService(this.fbFunctions);
+  const FirebaseFunctionsService(this.fbFunctions, this.crashlyticsService);
 
   // Because the search result in this call
   // doesn't contain nested location object,
   // a normal parsing works here.
   @override
   Future<List<CitySearchResult>> citySearch({required String queryString}) async {
+    try {
+      return await _citySearch(queryString);
+    } catch (error, stackTrace) {
+      crashlyticsService.recordError(
+        exception: error,
+        stackTrace: stackTrace,
+        reason: 'City search failed',
+      );
+      rethrow;
+    }
+  }
+
+  Future<List<CitySearchResult>> _citySearch(String queryString) async {
     final HttpsCallableResult<Map<String, dynamic>> callableResult = await fbFunctions
       .httpsCallable('call-citysearch', options: HttpsCallableOptions())
       .call(<String, dynamic>{'queryString': queryString});
@@ -39,6 +54,19 @@ class FirebaseFunctionsService implements FunctionsService {
   // and fails to parse nested objects directly.
   @override
   Future<CitySearchResult> getCityLocation({required CitySearchResult citySearchResult}) async {
+    try {
+      return await _getCityLocation(citySearchResult);
+    } catch (error, stackTrace) {
+      crashlyticsService.recordError(
+        exception: error,
+        stackTrace: stackTrace,
+        reason: 'City location lookup failed',
+      );
+      rethrow;
+    }
+  }
+
+  Future<CitySearchResult> _getCityLocation(CitySearchResult citySearchResult) async {
     final HttpsCallableResult<Map<String, dynamic>> callableResult = await fbFunctions
       .httpsCallable('call-getcitylocation', options: HttpsCallableOptions())
       .call(<String, dynamic>{'citySearchResult': citySearchResult.toJson()});

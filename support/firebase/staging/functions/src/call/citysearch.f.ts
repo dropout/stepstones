@@ -1,4 +1,4 @@
-import {onCall} from "firebase-functions/https";
+import {HttpsError, onCall} from "firebase-functions/https";
 import {logger} from "firebase-functions";
 import {safeEnvVar} from "../util/safe_shit";
 import {PlacesClient} from "@googlemaps/places";
@@ -14,15 +14,18 @@ export default onCall(
     secrets: [googleMapsKeySecret],
   },
   async function citySearch(req) {
-    const queryString: string = (req.data?.queryString ?? "").trim();
+    const input: unknown = req.data?.queryString;
+    if (input != null && typeof input !== "string") {
+      throw new HttpsError("invalid-argument", "queryString must be a string");
+    }
+    const queryString = (input ?? "").trim();
     const results: Array<CitySearchResult> = [];
-    try {
-      // If there is no queryString, return empty results
-      if (!queryString) {
-        logger.warn("citySearch: Missing queryString");
-        return {queryString: "", results: []} as CitySearchResponse;
-      }
 
+    if (!queryString) {
+      return {queryString: "", results: []} as CitySearchResponse;
+    }
+
+    try {
       // Create PlacesClient
       const GOOGLE_MAPS_API_KEY = safeEnvVar("GOOGLE_MAPS_API_KEY");
       const placesClient = new PlacesClient({
@@ -38,14 +41,14 @@ export default onCall(
 
       // Make sure we have suggestions
       // The response is an array, but we only care about the first item
-      const result =
-        (Array.isArray(autoCompleteResponse) && autoCompleteResponse[0]) ?
-          autoCompleteResponse[0] :
-          {suggestions: []};
-      const suggestions =
-        Array.isArray(result?.suggestions) ?
-          result.suggestions :
-          [];
+      const result = Array.isArray(autoCompleteResponse) ?
+        autoCompleteResponse[0] : undefined;
+      if (!result || typeof result !== "object" || Array.isArray(result) ||
+          (result.suggestions != null &&
+          !Array.isArray(result.suggestions))) {
+        throw new Error("Invalid Places autocomplete response");
+      }
+      const suggestions = result.suggestions ?? [];
 
       // Parse suggestions into CitySearchResult[]
       for (const suggestion of suggestions) {
@@ -54,18 +57,16 @@ export default onCall(
           placeId: prediction?.placeId,
           name: prediction?.text?.text ??
             prediction?.structuredFormat?.mainText?.text,
-          types: Array.isArray(prediction?.types) ? prediction.types : [],
+          types: prediction?.types ?? [],
           location: null,
         };
         const parsed = CitySearchResultSchema.safeParse(rawCityResult);
 
-        // Skip invalid results
         if (!parsed.success) {
-          logger.warn("citySearch: Failed to parse placePrediction", {
-            placeId: prediction?.placeId,
+          logger.error("citySearch: Failed to parse placePrediction", {
             issues: parsed.error.issues,
           });
-          continue;
+          throw new Error("Invalid Places autocomplete prediction");
         }
 
         // Collect parsed result
@@ -74,6 +75,7 @@ export default onCall(
       }
     } catch (error) {
       logger.error("citySearch: Error occurred", error);
+      throw new HttpsError("internal", "City search is unavailable");
     }
 
     // Construct response

@@ -238,6 +238,7 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
   final Debouncer debouncer = Debouncer(delay: Duration(milliseconds: 300));
 
   CitySelectorProcessingState loadingState = .idle;
+  int searchGeneration = 0;
 
   @override
   void initState() {
@@ -247,9 +248,10 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
 
   void handleTextFieldChange(BuildContext context, String value) {
     value = value.trim();
+    final generation = ++searchGeneration;
+    debouncer.dispose();
 
-    // Don't run a query for an empty string
-    if (value.isEmpty) {
+    if (value.length < 3) {
       setState(() {
         searchResults = [];
         loadingState = .idle;
@@ -257,40 +259,32 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
       return;
     }
 
-    // Don't search for very short strings
-    if (value.length < 3) {
-      return;
-    }
-
-    debouncer(() => searchCities(context, value));
+    debouncer(() => searchCities(context, value, generation));
   }
 
-  void searchCities(BuildContext context, String queryString) async {
-    // Extract crashlytics service for safe use of context in async calls
-    final crashlyticsService = context.services.crashlyticsService;
-
+  void searchCities(BuildContext context, String queryString, int generation) async {
+    setState(() {
+      loadingState = .searching;
+    });
+    late final List<CitySearchResult> result;
     try {
-      setState(() {
-        loadingState = .searching;
-      });
-      final result = await context.services.functionsService.citySearch(
+      result = await context.services.functionsService.citySearch(
         queryString: queryString,
       );
-      setState(() {
-        searchQuery = queryString;
-        searchResults = result;
-        loadingState = .searchCompleted;
-      });
-    } catch (e, stack) {
-      crashlyticsService.recordError(
-        exception: e,
-        stackTrace: stack,
-        reason: 'Error searching for cities. Query string: $queryString',
-      );
+    } catch (_) {
+      if (!mounted || generation != searchGeneration) return;
       setState(() {
         loadingState = .error;
       });
+      return;
     }
+    if (!mounted || generation != searchGeneration) return;
+    setState(() {
+      debugPrint('Search results for query "$queryString": $result');
+      searchQuery = queryString;
+      searchResults = result;
+      loadingState = .searchCompleted;
+    });
   }
 
   void selectCity(
@@ -298,29 +292,43 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
     CitySearchResult citySearchResult,
   ) async {
     final crashlyticsService = context.services.crashlyticsService;
+    final generation = ++searchGeneration;
+    debouncer.dispose();
 
     // Get a location with latlng for the selected city
     setState(() {
       loadingState = .saving;
     });
 
+    late final CitySearchResult fullResult;
     try {
-      final fullResult = await context.services.functionsService
-          .getCityLocation(citySearchResult: citySearchResult);
+      fullResult = await context.services.functionsService
+        .getCityLocation(citySearchResult: citySearchResult);
+    } catch (_) {
+      if (!mounted || generation != searchGeneration) return;
+      setState(() {
+        loadingState = .error;
+      });
+      return;
+    }
 
+    try {
       // Just in case for some reason service cannot return location
       // for the CitySearchResult
       if (fullResult.location == null) {
-        setState(() {
-          loadingState = .error;
-        });
         crashlyticsService.recordError(
           exception: Exception('Location data is null'),
           stackTrace: StackTrace.current,
-          reason: 'Error getting location for city: ${citySearchResult.name}',
+          reason: 'City location lookup returned no location',
         );
+        if (mounted && generation == searchGeneration) {
+          setState(() {
+            loadingState = .error;
+          });
+        }
         return;
       }
+      if (!mounted || generation != searchGeneration) return;
       final location = Location(
         name: fullResult.name,
         latLng: fullResult.location!,
@@ -331,12 +339,13 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
         ),
       );
       widget.onCitySelected?.call(location);
-    } catch (e, stack) {
+    } catch (error, stackTrace) {
       crashlyticsService.recordError(
-        exception: e,
-        stackTrace: stack,
-        reason: 'Error getting location for city: ${citySearchResult.name}',
+        exception: error,
+        stackTrace: stackTrace,
+        reason: 'Error selecting city',
       );
+      if (!mounted || generation != searchGeneration) return;
       setState(() {
         loadingState = .error;
       });
@@ -439,7 +448,14 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
 
   Widget buildIdle(BuildContext context) {
     if (widget.location == null) {
-      return Center(child: Text(context.coreL10n.locationInputNoSelection));
+      return Center(
+        child: Text(
+          context.coreL10n.locationInputNoSelection,
+          style: context.theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: .bold,
+          ),
+        )
+      );
     } else {
       return Center(
         child: Column(
@@ -476,7 +492,7 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
           Text(
             context.coreL10n.locationSearchInProgressMessage,
             textAlign: TextAlign.center,
-            style: context.theme.textTheme.bodyMedium?.copyWith(
+            style: context.theme.textTheme.bodyLarge?.copyWith(
               fontWeight: .bold,
             ),
           ),
@@ -495,7 +511,7 @@ class _CitySelectorSheetState extends State<CitySelectorSheet> {
           Text(
             context.coreL10n.locationSelectionSavingMessage,
             textAlign: TextAlign.center,
-            style: context.theme.textTheme.bodyMedium?.copyWith(
+            style: context.theme.textTheme.bodyLarge?.copyWith(
               fontWeight: .bold,
             ),
           ),

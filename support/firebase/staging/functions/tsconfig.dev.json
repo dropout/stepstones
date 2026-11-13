@@ -4,6 +4,7 @@
     "noEmit": true
   },
   "include": [
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "test/**/*.js"
   ]
 }

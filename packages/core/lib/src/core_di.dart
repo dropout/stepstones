@@ -68,7 +68,8 @@ extension CoreDependencyInjection on GetIt {
 
     registerLazySingleton<FunctionsService>(
       () => FirebaseFunctionsService(
-        get<FirebaseProvider>().getFirebaseFunctions('europe-west3')
+        get<FirebaseProvider>().getFirebaseFunctions('europe-west3'),
+        get<CrashlyticsService>(),
       ),
     );
 
