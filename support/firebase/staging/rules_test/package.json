@@ -1,0 +1,12 @@
+{
+  "name": "rules_test",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "cd .. && firebase emulators:exec --only firestore,storage --project demo-stepstones-rules \"node --test rules_test/*.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.3.0"
+  }
+}

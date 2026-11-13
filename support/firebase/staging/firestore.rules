@@ -3,11 +3,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Admins carry a custom auth claim granted by set_admin_claim.mjs.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
     // Only the authenticated owner can access their profile document.
     match /profiles/{profileId} {
       allow read, write: if request.auth != null
         && request.auth.uid == profileId;
-    } 
+    }
 
     // Allow the profile owner to access documents in profile subcollections,
     // while keeping statsAudit governed by its more restrictive rule below.
@@ -24,9 +29,18 @@ service cloud.firestore {
       allow read, delete: if false;
     }
 
-    // Only authenticated users can read chants; playCount is server-maintained.
+    // Authenticated users can read chants; only admins can write them.
+    // playCount is server-maintained, so admin writes must leave it untouched.
     match /chants/{chantId} {
       allow read: if request.auth != null;
+      allow create: if isAdmin()
+        && request.resource.data.id == chantId
+        && !('playCount' in request.resource.data);
+      allow update: if isAdmin()
+        && request.resource.data.id == chantId
+        && request.resource.data.get('playCount', null)
+          == resource.data.get('playCount', null);
+      allow delete: if isAdmin();
     }
 
     // Only authenticated users can access presence.
@@ -34,11 +48,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
-    
-
-    
-
-
+    // Server-maintained aggregates: readable by admins, never client-writable.
+    match /global_stats/{document=**} {
+      allow read: if isAdmin();
+    }
 
   }
 }
