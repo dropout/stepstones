@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "appTitle": "Stepstones Admin",
+  "navChants": "Chants",
+  "navPresence": "Presence",
+  "navStats": "Global stats",
+  "signOut": "Sign out",
+  "comingSoon": "This section is not built yet.",
+  "initErrorTitle": "The admin app could not start"
+}

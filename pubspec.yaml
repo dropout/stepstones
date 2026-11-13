@@ -5,10 +5,12 @@ environment:
 
 workspace:
   - apps/mobile_app
+  - apps/admin_app
   - apps/widgetbook
   - packages/firebase_provider
   - packages/assets
   - packages/core  
+  - packages/modules/admin/admin_access
   - packages/modules/app_events
   - packages/modules/auth
   - packages/modules/donate

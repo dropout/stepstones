@@ -27,9 +27,20 @@ If no build mode specified, use `debug`.
     - Run with `--coverage` for getting test coverage report.
 - Staging Cloud Functions tests: `npm --prefix support/firebase/staging/functions test`
 - Staging Cloud Functions lint: `npm --prefix support/firebase/staging/functions run lint`
+- Staging security rules tests (Firestore and Storage emulators): `npm --prefix support/firebase/staging/rules_test test`
+    - First run needs `npm --prefix support/firebase/staging/rules_test install`.
+- Grant or revoke the admin claim (run from `support/maintenance_scripts`): `node src/set_admin_claim.mjs --project=<firebase-project-id> (--email=<email>|--uid=<uid>) [--revoke] (--confirm|--dry-run)`
 - Integration Tests: `flutter test integration_test/<test_file>.dart --flavor <flavor> --dart-define=IS_TEST=true --dart-define=TEST_USER_EMAIL=<email> --dart-define=TEST_USER_PASSWORD=<password>`
 - Format: `dart format .`
 - Clean: `flutter clean`
+
+## Admin app (macOS)
+Run from `apps/admin_app`. The app is signed with the development team because Firebase Auth needs keychain access.
+- Run against local emulators (no config file needed): `flutter run -d macos -t lib/main_dev.dart`
+    - Start the emulators first from `support/firebase/staging`: `firebase emulators:start --only auth,firestore,storage --project demo-stepstones`
+- Run against a Firebase project: `flutter run -d macos -t lib/main_<flavor>.dart --dart-define-from-file=config/<flavor>.json`
+    - Copy `config/example.json` to `config/<flavor>.json` and fill it from the admin app's Firebase registration; these files are git-ignored.
+- Integration test (from `support/firebase/staging`): `firebase emulators:exec --only auth,firestore,storage --project demo-stepstones "cd ../../../apps/admin_app && flutter test integration_test/admin_access_test.dart -d macos"`
 
 ## Building
 - If build mode is not excplicitly specified use `debug` build mode.

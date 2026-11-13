@@ -1,0 +1,15 @@
+{
+  "@@locale": "hu",
+  "signInTitle": "Stepstones Admin",
+  "signInSubtitle": "Jelentkezz be egy admin fiókkal.",
+  "emailLabel": "E-mail",
+  "passwordLabel": "Jelszó",
+  "signInButton": "Bejelentkezés",
+  "signInFailed": "Sikertelen bejelentkezés. Ellenőrizd az e-mail címet és a jelszót.",
+  "unauthorizedTitle": "Ez nem admin fiók",
+  "unauthorizedBody": "A(z) {email} fióknak nincs admin jogosultsága.",
+  "recheckButton": "Ellenőrzés újra",
+  "signOutButton": "Kijelentkezés",
+  "errorTitle": "Nem sikerült ellenőrizni az admin jogosultságot",
+  "retryButton": "Újra"
+}

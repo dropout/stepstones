@@ -1,0 +1,10 @@
+{
+  "@@locale": "hu",
+  "appTitle": "Stepstones Admin",
+  "navChants": "Énekek",
+  "navPresence": "Jelenlét",
+  "navStats": "Globális statisztika",
+  "signOut": "Kijelentkezés",
+  "comingSoon": "Ez a rész még nem készült el.",
+  "initErrorTitle": "Az admin alkalmazás nem tudott elindulni"
+}

@@ -27,6 +27,9 @@ For running and building commands look at the commands documentation: [`docs/com
 - `apps/mobile_app/lib/bootstrap/`: Initialization and bootstrap code for the app.
 - `apps/mobile_app/lib/main_<flavor_name>.dart`: Mobile app entry point for each flavor.
 - `apps/mobile_app/integration_test/`: Integration tests.
+- `apps/admin_app/`: macOS admin app shell (chants, presence, global stats); flavor entry points `lib/main_<flavor>.dart`.
+- `packages/modules/admin/`: Admin-only feature modules; never a dependency of `mobile_app`.
+- `packages/modules/admin/admin_access/`: Sign-in and admin-claim gate for the admin app.
 - `packages/core/`: Core module, including app entry point, dependency injection, and shared utilities.
 - `packages/modules/`: Feature modules, each with its own layers.
 - `packages/modules/auth/`: Authentication feature module.
@@ -45,6 +48,7 @@ For running and building commands look at the commands documentation: [`docs/com
 - `docs/`: Project-wide documentation.
 - `ai/`: Agents, Skills, Prompts for AI augmented development.
 - `support/firebase/`: Flavor specific Firebase backend source code and configuration.
+- `support/firebase/staging/rules_test/`: Emulator tests for the Firestore and Storage security rules.
 - `support/maintenance_scripts`: Maintenance and helper scripts.
 
 ## Architecture Rules

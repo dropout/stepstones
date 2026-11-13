@@ -35,8 +35,9 @@ class FirebaseProvider {
 
   FirebaseProvider({this.persistenceEnabled = true});
 
-  Future<FirebaseApp> initialize() async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
+  /// Pass [options] on platforms without a bundled native Firebase config file.
+  Future<FirebaseApp> initialize({FirebaseOptions? options}) async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp(options: options);
 
     if (kDebugMode) {
       await FirebaseCrashlytics.instance

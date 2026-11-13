@@ -1,0 +1,20 @@
+{
+  "@@locale": "en",
+  "signInTitle": "Stepstones Admin",
+  "signInSubtitle": "Sign in with an admin account.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "signInButton": "Sign in",
+  "signInFailed": "Sign-in failed. Check the email and password.",
+  "unauthorizedTitle": "Not an admin account",
+  "unauthorizedBody": "{email} does not have admin access.",
+  "@unauthorizedBody": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "recheckButton": "Check again",
+  "signOutButton": "Sign out",
+  "errorTitle": "Unable to verify admin access",
+  "retryButton": "Retry"
+}
