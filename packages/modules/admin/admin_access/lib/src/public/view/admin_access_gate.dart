@@ -34,9 +34,12 @@ class AdminAccessGateContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AdminAccessLocalizations.of(context);
     final cubit = context.read<AdminAccessCubit>();
-    return BlocBuilder<AdminAccessCubit, AdminAccessState>(
+    return BlocConsumer<AdminAccessCubit, AdminAccessState>(
+      listenWhen: (previous, current) => current is AdminAccessSigningOutState,
+      // Waits for the frame that disposes the admin area, so its Firestore listeners are gone before the session.
+      listener: (context, state) => WidgetsBinding.instance.addPostFrameCallback((_) => cubit.completeSignOut()),
       builder: (context, state) => switch (state) {
-        AdminAccessCheckingState() => const Scaffold(
+        AdminAccessCheckingState() || AdminAccessSigningOutState() => const Scaffold(
           key: Key('admin_access_checking'),
           body: Center(child: CircularProgressIndicator()),
         ),

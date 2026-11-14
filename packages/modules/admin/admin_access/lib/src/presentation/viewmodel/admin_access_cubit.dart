@@ -16,6 +16,7 @@ sealed class AdminAccessState with _$AdminAccessState {
   const factory AdminAccessState.checking() = AdminAccessCheckingState;
   const factory AdminAccessState.signedOut({@Default(false) bool signInFailed}) = AdminAccessSignedOutState;
   const factory AdminAccessState.signingIn() = AdminAccessSigningInState;
+  const factory AdminAccessState.signingOut() = AdminAccessSigningOutState;
   const factory AdminAccessState.unauthorized({String? email}) = AdminAccessUnauthorizedState;
   const factory AdminAccessState.authorized({required String userId, String? email}) = AdminAccessAuthorizedState;
   const factory AdminAccessState.error() = AdminAccessErrorState;
@@ -68,11 +69,20 @@ class AdminAccessCubit extends Cubit<AdminAccessState> with LoggerMixin {
     }
   }
 
-  Future<void> signOut() async {
+  /// Hides the admin area first; the gate calls [completeSignOut] once it is off screen.
+  void signOut() {
+    if (state is! AdminAccessSigningOutState) emit(const AdminAccessState.signingOut());
+  }
+
+  /// Ends the session; runs after the admin area is disposed so its listeners never see a signed-out user.
+  Future<void> completeSignOut() async {
+    if (state is! AdminAccessSigningOutState) return;
     try {
+      // The access stream emits the signed-out state.
       await authApi.signOut();
     } catch (e, stack) {
       crashlyticsService.recordError(exception: e, stackTrace: stack, reason: 'Unable to sign out of admin');
+      if (!isClosed) await recheck();
     }
   }
 

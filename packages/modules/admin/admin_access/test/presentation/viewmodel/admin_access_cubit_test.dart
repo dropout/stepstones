@@ -125,13 +125,52 @@ void main() {
     verify: (_) => verifyErrorRecorded(),
   );
 
-  test('signOut delegates to the auth API', () async {
-    when(() => authApi.signOut()).thenAnswer((_) async {});
-    final cubit = buildCubit();
-    await cubit.signOut();
-    verify(() => authApi.signOut()).called(1);
-    await cubit.close();
-  });
+  blocTest<AdminAccessCubit, AdminAccessState>(
+    'signOut hides the admin area without ending the session yet',
+    build: buildCubit,
+    seed: () => const AdminAccessState.authorized(userId: 'a1', email: 'admin@example.com'),
+    act: (cubit) => cubit.signOut(),
+    expect: () => const [AdminAccessState.signingOut()],
+    verify: (_) => verifyNever(() => authApi.signOut()),
+  );
+
+  blocTest<AdminAccessCubit, AdminAccessState>(
+    'completeSignOut ends the session and follows the access stream',
+    setUp: () => when(() => authApi.signOut()).thenAnswer((_) async => accessController.add(signedOut)),
+    build: buildCubit,
+    seed: () => const AdminAccessState.signingOut(),
+    act: (cubit) async {
+      cubit.start();
+      await cubit.completeSignOut();
+    },
+    expect: () => const [AdminAccessState.signedOut()],
+    verify: (_) => verify(() => authApi.signOut()).called(1),
+  );
+
+  blocTest<AdminAccessCubit, AdminAccessState>(
+    'completeSignOut does nothing unless a sign-out was requested',
+    build: buildCubit,
+    seed: () => const AdminAccessState.authorized(userId: 'a1', email: 'admin@example.com'),
+    act: (cubit) => cubit.completeSignOut(),
+    expect: () => const <AdminAccessState>[],
+    verify: (_) => verifyNever(() => authApi.signOut()),
+  );
+
+  blocTest<AdminAccessCubit, AdminAccessState>(
+    'a failed sign-out is recorded and restores the current access',
+    setUp: () {
+      when(() => authApi.signOut()).thenThrow(StateError('offline'));
+      when(() => repository.refreshAccess()).thenAnswer((_) async => authorized);
+    },
+    build: buildCubit,
+    seed: () => const AdminAccessState.signingOut(),
+    act: (cubit) => cubit.completeSignOut(),
+    expect: () => const [
+      AdminAccessState.checking(),
+      AdminAccessState.authorized(userId: 'a1', email: 'admin@example.com'),
+    ],
+    verify: (_) => verifyErrorRecorded(),
+  );
 
   test('close cancels the access subscription', () async {
     final cubit = buildCubit()..start();

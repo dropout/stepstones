@@ -21,11 +21,16 @@ void main() {
       ),
     ).thenAnswer((_) async {});
     when(() => cubit.recheck()).thenAnswer((_) async {});
-    when(() => cubit.signOut()).thenAnswer((_) async {});
+    when(() => cubit.signOut()).thenReturn(null);
+    when(() => cubit.completeSignOut()).thenAnswer((_) async {});
   });
 
-  Future<void> pumpGate(WidgetTester tester, AdminAccessState state) async {
-    whenListen(cubit, const Stream<AdminAccessState>.empty(), initialState: state);
+  Future<void> pumpGate(
+    WidgetTester tester,
+    AdminAccessState state, {
+    Stream<AdminAccessState> stream = const Stream<AdminAccessState>.empty(),
+  }) async {
+    whenListen(cubit, stream, initialState: state);
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('en'),
@@ -80,6 +85,25 @@ void main() {
     await tester.tap(find.text('Sign out'));
     verify(() => cubit.recheck()).called(1);
     verify(() => cubit.signOut()).called(1);
+  });
+
+  testWidgets('removes the admin area before the session is ended', (tester) async {
+    await pumpGate(
+      tester,
+      const AdminAccessState.authorized(userId: 'a1', email: 'admin@example.com'),
+      stream: Stream.value(const AdminAccessState.signingOut()),
+    );
+    expect(find.textContaining('admin area'), findsOneWidget);
+    // The area is still mounted here, so the session must not have been ended yet.
+    when(() => cubit.completeSignOut()).thenAnswer((_) async {
+      expect(find.textContaining('admin area'), findsNothing);
+    });
+
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const Key('admin_access_checking')), findsOneWidget);
+    verify(() => cubit.completeSignOut()).called(1);
   });
 
   testWidgets('shows the error view with retry', (tester) async {

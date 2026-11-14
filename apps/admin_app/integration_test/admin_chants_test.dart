@@ -30,7 +30,11 @@ void main() {
     await signIn(tester, adminEmail, password);
     await pumpUntil(tester, find.text('First $run'));
     expect(find.text('Second $run'), findsOneWidget);
-    expect(find.byIcon(Icons.warning_amber), findsOneWidget);
+    // Scoped to this run's tiles because the emulator may hold chants from other tests.
+    Finder warningOn(String chantId) =>
+        find.descendant(of: find.byKey(ValueKey('admin_chant_$chantId')), matching: find.byIcon(Icons.warning_amber));
+    expect(warningOn(secondId), findsOneWidget);
+    expect(warningOn(firstId), findsNothing);
 
     await tester.tap(find.text('First $run'));
     await pumpUntil(tester, find.byKey(const Key('admin_chant_name')));
