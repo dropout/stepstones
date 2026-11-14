@@ -1,6 +1,6 @@
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 
 abstract interface class ChantCacheRepository {
   // ---------------------------------------------------------------------------
@@ -8,11 +8,11 @@ abstract interface class ChantCacheRepository {
   // ---------------------------------------------------------------------------
 
   /// Reads a cache entry from the local database for the given content ID and asset type.
-  Future<ChantCacheEntity?> readEntry(String contentId, CachedAssetType type);
+  Future<ChantCacheEntity?> readEntry(String contentId, ChantAssetType type);
 
   Future<void> markState({
     required String contentId,
-    required CachedAssetType assetType,
+    required ChantAssetType assetType,
     required CacheDownloadState state,
     String? lastError,
   });
@@ -21,7 +21,7 @@ abstract interface class ChantCacheRepository {
   Future<void> upsertEntry(ChantCacheEntity entry);
 
   /// Deletes a cache entry from the local database for the given content ID and asset type.
-  Future<void> deleteEntry(String contentId, CachedAssetType type);
+  Future<void> deleteEntry(String contentId, ChantAssetType type);
 
   /// Deletes all cache entries from the local database.
   Future<void> deleteAllEntries();

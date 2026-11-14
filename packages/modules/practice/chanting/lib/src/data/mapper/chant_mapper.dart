@@ -1,5 +1,5 @@
 import 'package:chanting/src/data/mapper/chant_meta_data_mapper.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/public/model/chant.dart';
 
 extension ChantEntityMapper on ChantEntity {

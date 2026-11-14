@@ -22,7 +22,7 @@ void main() {
     playCount: 7,
     blurHash: 'LEHV6nWB2yk8',
   );
-  const broken = AdminChantEntity(id: 'broken', name: 'Broken', order: 1);
+  const broken = AdminChantEntity(id: 'broken', name: 'Broken', order: 1, isLoadableByMobileApp: false);
 
   setUp(() {
     cubit = MockAdminChantsCubit();
@@ -76,7 +76,7 @@ void main() {
     expect(find.text('No chants in the catalog yet.'), findsOneWidget);
   });
 
-  testWidgets('lists chants with length and play count and flags a missing blurHash', (tester) async {
+  testWidgets('lists chants with length and play count and flags one the mobile app cannot load', (tester) async {
     await pumpView(tester, const AdminChantsState.loaded(chants: [heart, broken]));
     expect(find.text('Heart Sutra'), findsOneWidget);
     expect(find.text('3:05 · 7 plays'), findsOneWidget);
@@ -114,7 +114,7 @@ void main() {
     expect(tester.widget<TextButton>(find.byKey(const Key('admin_chant_replace_audio'))).onPressed, isNull);
   });
 
-  testWidgets('warns in the detail panel when the blurHash is missing', (tester) async {
+  testWidgets('warns in the detail panel when the mobile app cannot load the chant', (tester) async {
     await pumpView(tester, const AdminChantsState.loaded(chants: [heart, broken]));
     await tester.tap(find.text('Broken'));
     await tester.pump();

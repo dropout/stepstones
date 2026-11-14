@@ -19,8 +19,7 @@ sealed class AdminChantEntity with _$AdminChantEntity {
     @Default(AdminChantAssetEntity()) AdminChantAssetEntity lyrics,
     @Default(AdminChantAssetEntity()) AdminChantAssetEntity cover,
     DateTime? assetsUpdatedAt,
+    // False when the mobile app's chant model cannot parse the document.
+    @Default(true) bool isLoadableByMobileApp,
   }) = _AdminChantEntity;
-
-  // The mobile app's chant model requires a blurHash and fails to parse without one.
-  bool get isLoadableByMobileApp => blurHash != null && blurHash!.isNotEmpty;
 }

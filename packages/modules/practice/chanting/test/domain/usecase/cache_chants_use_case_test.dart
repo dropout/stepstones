@@ -1,6 +1,6 @@
 import 'package:chanting/src/domain/entity/cache_validation_result_entity.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
 import 'package:chanting/src/domain/service/chant_cache_services.dart';

@@ -1,4 +1,4 @@
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:core/core.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -26,46 +26,46 @@ sealed class ChantMetaData with _$ChantMetaData implements SerializableEntity {
   factory ChantMetaData.fromJson(Map<String, Object?> json) =>
       _$ChantMetaDataFromJson(json);
 
-  String getStoragePath(CachedAssetType type) {
+  String getStoragePath(ChantAssetType type) {
     switch (type) {
-      case CachedAssetType.audio:
-        return '/chants/$id/${type.defaultFileName}';
-      case CachedAssetType.lyrics:
-        return '/chants/$id/${type.defaultFileName}';
-      case CachedAssetType.cover:
-        return '/chants/$id/${type.defaultFileName}';
+      case ChantAssetType.audio:
+        return '/chants/$id/${type.fileName}';
+      case ChantAssetType.lyrics:
+        return '/chants/$id/${type.fileName}';
+      case ChantAssetType.cover:
+        return '/chants/$id/${type.fileName}';
     }
   }
 
-  int getVersion(CachedAssetType type) {
+  int getVersion(ChantAssetType type) {
     switch (type) {
-      case CachedAssetType.audio:
+      case ChantAssetType.audio:
         return audioVersion;
-      case CachedAssetType.lyrics:
+      case ChantAssetType.lyrics:
         return lyricsVersion;
-      case CachedAssetType.cover:
+      case ChantAssetType.cover:
         return coverVersion;
     }
   }
 
-  String getHash(CachedAssetType type) {
+  String getHash(ChantAssetType type) {
     switch (type) {
-      case CachedAssetType.audio:
+      case ChantAssetType.audio:
         return audioSha256;
-      case CachedAssetType.lyrics:
+      case ChantAssetType.lyrics:
         return lyricsSha256;
-      case CachedAssetType.cover:
+      case ChantAssetType.cover:
         return coverSha256;
     }
   }
 
-  int getBytes(CachedAssetType type) {
+  int getBytes(ChantAssetType type) {
     switch (type) {
-      case CachedAssetType.audio:
+      case ChantAssetType.audio:
         return audioBytes;
-      case CachedAssetType.lyrics:
+      case ChantAssetType.lyrics:
         return lyricsBytes;
-      case CachedAssetType.cover:
+      case ChantAssetType.cover:
         return coverBytes;
     }
   }

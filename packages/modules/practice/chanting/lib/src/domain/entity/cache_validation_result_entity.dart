@@ -1,7 +1,6 @@
 import 'package:core/core.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'cache_validation_result_entity.freezed.dart';
@@ -31,20 +30,20 @@ sealed class CacheValidationResultEntity
 
   bool get isValid => isAudioCacheValid && isLyricsCacheValid;
 
-  bool getAssetValidity(CachedAssetType type) => switch (type) {
+  bool getAssetValidity(ChantAssetType type) => switch (type) {
     .audio => isAudioCacheValid,
     .lyrics => isLyricsCacheValid,
     _ => false,
   };
 
-  ChantCacheEntity? getCacheEntryForType(CachedAssetType type) =>
+  ChantCacheEntity? getCacheEntryForType(ChantAssetType type) =>
       switch (type) {
         .audio => audioCacheEntry,
         .lyrics => lyricsCacheEntry,
         _ => null,
       };
 
-  String? getCachePathForType(CachedAssetType type) => switch (type) {
+  String? getCachePathForType(ChantAssetType type) => switch (type) {
     .audio => audioCachePath,
     .lyrics => lyricsCachePath,
     _ => null,

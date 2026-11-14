@@ -16,6 +16,7 @@ dependencies:
 
   # Shared modules
   core: ^0.0.1
+  chant_schema: ^0.0.1
   firebase_provider: ^1.0.0
 
   # Feature modules

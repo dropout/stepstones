@@ -1,5 +1,5 @@
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/drift/chant_cache_database.dart';
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
 
@@ -8,7 +8,7 @@ extension ChantCacheEntryRowMapper on ChantCacheEntryRow {
     return ChantCacheEntity(
       id: id,
       contentId: contentId,
-      assetType: CachedAssetType.values.byName(assetType),
+      assetType: ChantAssetType.values.byName(assetType),
       storagePath: storagePath,
       localFilePath: localFilePath,
       cachedVersion: cachedVersion,

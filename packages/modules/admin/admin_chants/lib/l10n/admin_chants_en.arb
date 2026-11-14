@@ -34,7 +34,7 @@
       }
     }
   },
-  "missingBlurHash": "No blurHash: the mobile app cannot load this chant.",
+  "notLoadableByMobileApp": "The mobile app cannot load this chant: required fields are missing.",
   "chantSubtitle": "{length} · {plays} plays",
   "@chantSubtitle": {
     "placeholders": {

@@ -72,7 +72,7 @@ class _AdminChantDetailPanelState extends State<AdminChantDetailPanel> {
         if (!chant.isLoadableByMobileApp) ...[
           const SizedBox(height: 16),
           Text(
-            l10n.missingBlurHash,
+            l10n.notLoadableByMobileApp,
             key: const Key('admin_chant_missing_blurhash'),
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error),
           ),

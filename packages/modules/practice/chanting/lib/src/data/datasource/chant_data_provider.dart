@@ -1,5 +1,5 @@
 import 'package:core/core.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 
 abstract interface class ChantDataProvider
     implements DataProvider<ChantEntity> {

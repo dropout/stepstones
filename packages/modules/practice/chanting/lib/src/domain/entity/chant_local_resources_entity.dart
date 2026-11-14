@@ -1,5 +1,5 @@
 import 'package:core/core.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chant_local_resources_entity.freezed.dart';

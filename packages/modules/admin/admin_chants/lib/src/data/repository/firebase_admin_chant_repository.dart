@@ -1,8 +1,10 @@
+import 'package:chant_schema/chant_schema.dart';
 import 'package:clock/clock.dart';
 import 'package:firebase_provider/firebase_provider.dart';
 
 import 'package:admin_chants/src/data/mapper/admin_chant_mapper.dart';
 import 'package:admin_chants/src/domain/entity/admin_chant_entity.dart';
+import 'package:admin_chants/src/domain/enum/chant_asset_type.dart';
 import 'package:admin_chants/src/domain/entity/prepared_chant_asset_entity.dart';
 import 'package:admin_chants/src/domain/failure/chant_failure.dart';
 import 'package:admin_chants/src/domain/repository/admin_chant_repository.dart';
@@ -13,7 +15,7 @@ class FirebaseAdminChantRepository implements AdminChantRepository {
 
   const FirebaseAdminChantRepository({required this.firestore, required this.storage});
 
-  CollectionReference<Map<String, dynamic>> get _chants => firestore.collection('chants');
+  CollectionReference<Map<String, dynamic>> get _chants => firestore.collection(chantsCollection);
 
   @override
   Stream<List<AdminChantEntity>> watchChants() {

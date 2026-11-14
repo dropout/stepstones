@@ -91,7 +91,7 @@ void main() {
     expect((createdMeta['audioSha256']! as String).length, 64);
     for (final type in ChantAssetType.values) {
       expect(
-        await readEmulatorStorageObjectSize(type.storagePath(chantId)),
+        await readEmulatorStorageObjectSize(type.storagePath(chantId).substring(1)),
         createdMeta['${type.name}Bytes'],
         reason: type.name,
       );
@@ -117,7 +117,10 @@ void main() {
     expect(replacedMeta['audioVersion'], 1);
     expect(replaced['blurHash'], isNot(created['blurHash']));
     expect(replaced['length'], created['length']);
-    expect(await readEmulatorStorageObjectSize(ChantAssetType.cover.storagePath(chantId)), replacedMeta['coverBytes']);
+    expect(
+      await readEmulatorStorageObjectSize(ChantAssetType.cover.storagePath(chantId).substring(1)),
+      replacedMeta['coverBytes'],
+    );
 
     await tester.tap(find.byKey(const Key('admin_shell_sign_out')));
     await pumpUntil(tester, signInForm);

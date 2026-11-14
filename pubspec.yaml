@@ -9,6 +9,7 @@ workspace:
   - apps/widgetbook
   - packages/firebase_provider
   - packages/assets
+  - packages/chant_schema
   - packages/core  
   - packages/modules/admin/admin_access
   - packages/modules/admin/admin_chants

@@ -117,7 +117,7 @@ class _AdminChantsViewState extends State<AdminChantsView> {
                             trailing: chant.isLoadableByMobileApp
                                 ? null
                                 : Tooltip(
-                                    message: l10n.missingBlurHash,
+                                    message: l10n.notLoadableByMobileApp,
                                     child: Icon(Icons.warning_amber, color: theme.colorScheme.error),
                                   ),
                           );

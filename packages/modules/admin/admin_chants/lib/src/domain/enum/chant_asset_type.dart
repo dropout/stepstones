@@ -1,14 +1,18 @@
-/// The three files of a chant; names and paths must match what the mobile app downloads.
-enum ChantAssetType {
-  audio(fileName: 'chant.mp3', extensions: ['mp3'], contentType: 'audio/mpeg'),
-  lyrics(fileName: 'chant.ass', extensions: ['ass'], contentType: 'text/plain'),
-  cover(fileName: 'cover.jpg', extensions: ['jpg', 'jpeg'], contentType: 'image/jpeg');
+import 'package:chant_schema/chant_schema.dart';
 
-  const ChantAssetType({required this.fileName, required this.extensions, required this.contentType});
+export 'package:chant_schema/chant_schema.dart' show ChantAssetType;
 
-  final String fileName;
-  final List<String> extensions;
-  final String contentType;
+/// What the admin app needs to pick and upload each chant file.
+extension ChantAssetUpload on ChantAssetType {
+  List<String> get extensions => switch (this) {
+    .audio => const ['mp3'],
+    .lyrics => const ['ass'],
+    .cover => const ['jpg', 'jpeg'],
+  };
 
-  String storagePath(String chantId) => 'chants/$chantId/$fileName';
+  String get contentType => switch (this) {
+    .audio => 'audio/mpeg',
+    .lyrics => 'text/plain',
+    .cover => 'image/jpeg',
+  };
 }

@@ -1,4 +1,4 @@
-import 'package:chanting/src/domain/entity/chant_metadata_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/public/model/chant_meta_data.dart';
 
 extension ChantMetaDataEntityMapper on ChantMetaDataEntity {

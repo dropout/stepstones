@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/service/chant_cache_services.dart';
 import 'package:chanting/src/data/service/file_validation_extension.dart';
 
@@ -30,7 +30,7 @@ class ChantCacheFileSystem implements ChantCacheFileAccess {
 
   Future<String> buildCacheFilePath({
     required String contentId,
-    required CachedAssetType assetType,
+    required ChantAssetType assetType,
     required int version,
   }) async {
     final root = await _rootDirectory();

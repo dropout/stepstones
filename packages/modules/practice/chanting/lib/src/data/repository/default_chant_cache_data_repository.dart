@@ -1,5 +1,5 @@
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
 import 'package:chanting/src/data/mapper/chant_cache_mapper.dart';
 import 'package:core/core.dart';
@@ -14,7 +14,7 @@ class DefaultChantCacheDataRepository with LoggerMixin implements ChantCacheRepo
   DefaultChantCacheDataRepository({required this.chantCacheDataProvider, required this.chantCacheFileSystem});
 
   @override
-  Future<ChantCacheEntity?> readEntry(String contentId, CachedAssetType type) async =>
+  Future<ChantCacheEntity?> readEntry(String contentId, ChantAssetType type) async =>
       (await chantCacheDataProvider.readEntry(contentId, type))?.toDomain();
 
   @override
@@ -23,7 +23,7 @@ class DefaultChantCacheDataRepository with LoggerMixin implements ChantCacheRepo
   @override
   Future<void> markState({
     required String contentId,
-    required CachedAssetType assetType,
+    required ChantAssetType assetType,
     required CacheDownloadState state,
     String? lastError,
   }) async {
@@ -36,7 +36,7 @@ class DefaultChantCacheDataRepository with LoggerMixin implements ChantCacheRepo
   }
 
   @override
-  Future<void> deleteEntry(String contentId, CachedAssetType type) async =>
+  Future<void> deleteEntry(String contentId, ChantAssetType type) async =>
       await chantCacheDataProvider.deleteEntry(contentId, type);
 
   @override

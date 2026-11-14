@@ -1,7 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:core/core.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
 import 'package:chanting/src/domain/exception/chants_unavailable_offline_exception.dart';
 import 'package:chanting/src/domain/repository/chant_repository.dart';

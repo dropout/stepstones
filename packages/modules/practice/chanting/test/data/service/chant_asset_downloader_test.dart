@@ -7,7 +7,7 @@ import 'package:chanting/src/data/service/chant_local_resource_resolver.dart';
 import 'package:chanting/src/domain/entity/cache_validation_result_entity.dart';
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
 import 'package:chanting/src/domain/service/chant_cache_validator.dart';
 import 'package:chanting/src/domain/usecase/cache_chants_use_case.dart';
@@ -71,8 +71,8 @@ void main() {
     final oldFile = File('${directory.path}/old.mp3');
     await oldFile.writeAsString('old');
     final chant = chantFixture('chant');
-    final oldEntry = cacheEntryFixture('chant', CachedAssetType.audio, oldFile.path);
-    final lyricsEntry = cacheEntryFixture('chant', CachedAssetType.lyrics, '${directory.path}/lyrics.ass', version: 2);
+    final oldEntry = cacheEntryFixture('chant', ChantAssetType.audio, oldFile.path);
+    final lyricsEntry = cacheEntryFixture('chant', ChantAssetType.lyrics, '${directory.path}/lyrics.ass', version: 2);
     await File(lyricsEntry.localFilePath).writeAsString('abc');
     final repository = MockCacheRepository();
     final storage = MockStorage();
@@ -81,8 +81,8 @@ void main() {
     registerFallbackValue(oldEntry);
     final writes = <ChantCacheEntity>[];
     when(() => repository.ensureCacheDirectories()).thenAnswer((_) async {});
-    when(() => repository.readEntry('chant', CachedAssetType.audio)).thenAnswer((_) async => oldEntry);
-    when(() => repository.readEntry('chant', CachedAssetType.lyrics)).thenAnswer((_) async => lyricsEntry);
+    when(() => repository.readEntry('chant', ChantAssetType.audio)).thenAnswer((_) async => oldEntry);
+    when(() => repository.readEntry('chant', ChantAssetType.lyrics)).thenAnswer((_) async => lyricsEntry);
     when(() => repository.upsertEntry(any())).thenAnswer((invocation) async {
       writes.add(invocation.positionalArguments.single as ChantCacheEntity);
     });
@@ -115,7 +115,7 @@ void main() {
     final events = await progress;
 
     expect(await oldFile.exists(), isFalse);
-    final audioWrites = writes.where((entry) => entry.assetType == CachedAssetType.audio).toList();
+    final audioWrites = writes.where((entry) => entry.assetType == ChantAssetType.audio).toList();
     expect(audioWrites, hasLength(2));
     expect(audioWrites.first.failureCount, 3);
     expect(audioWrites.first.createdAtEpochMs, 42);
@@ -135,8 +135,8 @@ void main() {
     addTearDown(task.events.close);
     final chant = chantFixture('chant');
     late String destinationPath;
-    registerFallbackValue(cacheEntryFixture('chant', CachedAssetType.audio, '/old'));
-    registerFallbackValue(CachedAssetType.audio);
+    registerFallbackValue(cacheEntryFixture('chant', ChantAssetType.audio, '/old'));
+    registerFallbackValue(ChantAssetType.audio);
     registerFallbackValue(CacheDownloadState.failed);
     when(() => repository.upsertEntry(any())).thenAnswer((_) async {});
     when(
@@ -173,7 +173,7 @@ void main() {
     verify(
       () => repository.markState(
         contentId: 'chant',
-        assetType: CachedAssetType.audio,
+        assetType: ChantAssetType.audio,
         state: CacheDownloadState.failed,
         lastError: any(named: 'lastError', that: contains('hash mismatch')),
       ),
@@ -189,8 +189,8 @@ void main() {
     final lyrics = FakeDownloadTask();
     addTearDown(audio.events.close);
     addTearDown(lyrics.events.close);
-    registerFallbackValue(cacheEntryFixture('chant', CachedAssetType.audio, '/old'));
-    registerFallbackValue(CachedAssetType.audio);
+    registerFallbackValue(cacheEntryFixture('chant', ChantAssetType.audio, '/old'));
+    registerFallbackValue(ChantAssetType.audio);
     registerFallbackValue(CacheDownloadState.failed);
     when(() => repository.upsertEntry(any())).thenAnswer((_) async {});
     when(
@@ -228,7 +228,7 @@ void main() {
     verify(
       () => repository.markState(
         contentId: 'chant',
-        assetType: CachedAssetType.audio,
+        assetType: ChantAssetType.audio,
         state: CacheDownloadState.failed,
         lastError: any(named: 'lastError'),
       ),
@@ -236,7 +236,7 @@ void main() {
     verify(
       () => repository.markState(
         contentId: 'chant',
-        assetType: CachedAssetType.lyrics,
+        assetType: ChantAssetType.lyrics,
         state: CacheDownloadState.failed,
         lastError: any(named: 'lastError'),
       ),
@@ -250,8 +250,8 @@ void main() {
     final storage = MockStorage();
     final audio = FakeDownloadTask();
     addTearDown(audio.events.close);
-    registerFallbackValue(cacheEntryFixture('chant', CachedAssetType.audio, '/old'));
-    registerFallbackValue(CachedAssetType.audio);
+    registerFallbackValue(cacheEntryFixture('chant', ChantAssetType.audio, '/old'));
+    registerFallbackValue(ChantAssetType.audio);
     registerFallbackValue(CacheDownloadState.failed);
     when(() => repository.upsertEntry(any())).thenAnswer((_) async {});
     when(
@@ -289,7 +289,7 @@ void main() {
     verify(
       () => repository.markState(
         contentId: 'chant',
-        assetType: CachedAssetType.audio,
+        assetType: ChantAssetType.audio,
         state: CacheDownloadState.failed,
         lastError: any(named: 'lastError'),
       ),
@@ -297,7 +297,7 @@ void main() {
     verify(
       () => repository.markState(
         contentId: 'chant',
-        assetType: CachedAssetType.lyrics,
+        assetType: ChantAssetType.lyrics,
         state: CacheDownloadState.failed,
         lastError: any(named: 'lastError'),
       ),
@@ -311,8 +311,8 @@ void main() {
     final storage = MockStorage();
     final task = FakeDownloadTask();
     addTearDown(task.events.close);
-    registerFallbackValue(cacheEntryFixture('chant', CachedAssetType.audio, '/old'));
-    registerFallbackValue(CachedAssetType.audio);
+    registerFallbackValue(cacheEntryFixture('chant', ChantAssetType.audio, '/old'));
+    registerFallbackValue(ChantAssetType.audio);
     registerFallbackValue(CacheDownloadState.failed);
     when(() => repository.upsertEntry(any())).thenAnswer((_) async {});
     when(
@@ -352,7 +352,7 @@ void main() {
     verify(
       () => repository.markState(
         contentId: 'chant',
-        assetType: CachedAssetType.audio,
+        assetType: ChantAssetType.audio,
         state: CacheDownloadState.failed,
         lastError: any(named: 'lastError'),
       ),

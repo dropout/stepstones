@@ -1,4 +1,4 @@
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
 import 'package:chanting/src/domain/service/chant_cache_services.dart';
 import 'package:chanting/src/domain/service/chant_cache_validator.dart';
@@ -15,10 +15,10 @@ void main() {
   test('preserves both existing entries when assets require replacement', () async {
     final repository = MockCacheRepository();
     final files = MockFileAccess();
-    final audio = cacheEntryFixture('chant', CachedAssetType.audio, '/old/audio');
-    final lyrics = cacheEntryFixture('chant', CachedAssetType.lyrics, '/old/lyrics');
-    when(() => repository.readEntry('chant', CachedAssetType.audio)).thenAnswer((_) async => audio);
-    when(() => repository.readEntry('chant', CachedAssetType.lyrics)).thenAnswer((_) async => lyrics);
+    final audio = cacheEntryFixture('chant', ChantAssetType.audio, '/old/audio');
+    final lyrics = cacheEntryFixture('chant', ChantAssetType.lyrics, '/old/lyrics');
+    when(() => repository.readEntry('chant', ChantAssetType.audio)).thenAnswer((_) async => audio);
+    when(() => repository.readEntry('chant', ChantAssetType.lyrics)).thenAnswer((_) async => lyrics);
 
     final result = await ChantCacheValidator(
       chantCacheRepo: repository,
@@ -33,9 +33,9 @@ void main() {
   test('preserves valid and missing entries independently', () async {
     final repository = MockCacheRepository();
     final files = MockFileAccess();
-    final audio = cacheEntryFixture('chant', CachedAssetType.audio, '/audio', version: 2);
-    when(() => repository.readEntry('chant', CachedAssetType.audio)).thenAnswer((_) async => audio);
-    when(() => repository.readEntry('chant', CachedAssetType.lyrics)).thenAnswer((_) async => null);
+    final audio = cacheEntryFixture('chant', ChantAssetType.audio, '/audio', version: 2);
+    when(() => repository.readEntry('chant', ChantAssetType.audio)).thenAnswer((_) async => audio);
+    when(() => repository.readEntry('chant', ChantAssetType.lyrics)).thenAnswer((_) async => null);
     when(() => files.exists('/audio')).thenAnswer((_) async => true);
     when(() => files.sha256('/audio')).thenAnswer((_) async => chantFixture('chant').metaData.audioSha256);
     when(() => files.size('/audio')).thenAnswer((_) async => 3);

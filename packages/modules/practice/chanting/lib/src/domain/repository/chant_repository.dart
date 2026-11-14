@@ -1,4 +1,4 @@
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:core/core.dart';
 
 abstract interface class ChantRepository

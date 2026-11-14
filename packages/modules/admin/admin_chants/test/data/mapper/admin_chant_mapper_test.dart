@@ -17,6 +17,7 @@ void main() {
       'playCount': 7,
       'blurHash': 'LEHV6nWB2yk8',
       'metaData': {
+        'id': 'heart-sutra',
         'audioVersion': 3,
         'audioSha256': 'aaa',
         'audioBytes': 2048,
@@ -53,6 +54,18 @@ void main() {
     expect(chant.isLoadableByMobileApp, isFalse);
     expect(chant.audio, const AdminChantAssetEntity());
     expect(chant.assetsUpdatedAt, isNull);
+  });
+
+  test('flags a document the mobile model cannot parse even when it has a blurHash', () {
+    final chant = adminChantFromFirestore('partial', {
+      'id': 'partial',
+      'name': 'Partial',
+      'length': 60,
+      'blurHash': 'LEHV6nWB2yk8',
+      'metaData': {'id': 'partial', 'audioVersion': 1},
+    });
+
+    expect(chant.isLoadableByMobileApp, isFalse);
   });
 
   test('uses the document id, not the id field', () {

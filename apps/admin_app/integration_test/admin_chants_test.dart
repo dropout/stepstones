@@ -21,7 +21,15 @@ void main() {
       'length': 125,
       'playCount': 4,
       'blurHash': 'LEHV6nWB2yk8',
-      'metaData': {'id': firstId, 'audioVersion': 1, 'audioBytes': 2048},
+      'metaData': {
+        'id': firstId,
+        for (final asset in ['audio', 'lyrics', 'cover']) ...{
+          '${asset}Version': 1,
+          '${asset}Sha256': 'sha-$asset',
+          '${asset}Bytes': 2048,
+        },
+        'updatedAt': 1700000000000,
+      },
     });
     // No blurHash and no playCount, like a chant written by the legacy upload script.
     await seedEmulatorDocument('chants', secondId, {'id': secondId, 'name': 'Second $run', 'order': 1, 'length': 60});

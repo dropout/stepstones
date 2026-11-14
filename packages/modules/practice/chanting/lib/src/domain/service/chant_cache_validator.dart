@@ -1,8 +1,7 @@
 import 'package:core/core.dart';
 import 'package:chanting/src/domain/entity/cache_validation_result_entity.dart';
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
 import 'package:chanting/src/domain/service/chant_cache_services.dart';
 import 'package:clock/clock.dart';
@@ -44,7 +43,7 @@ class ChantCacheValidator with LoggerMixin implements ChantCacheValidationServic
 
   Future<AssetValidationResult> validateChantAssetCache({
     required ChantEntity chant,
-    required CachedAssetType type,
+    required ChantAssetType type,
     required ChantCacheRepository chantCacheRepo,
   }) async {
     // Collecting metadata for the asset from remote source

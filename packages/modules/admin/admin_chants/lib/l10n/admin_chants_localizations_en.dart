@@ -65,8 +65,8 @@ class AdminChantsLocalizationsEn extends AdminChantsLocalizations {
   }
 
   @override
-  String get missingBlurHash =>
-      'No blurHash: the mobile app cannot load this chant.';
+  String get notLoadableByMobileApp =>
+      'The mobile app cannot load this chant: required fields are missing.';
 
   @override
   String chantSubtitle(String length, int plays) {

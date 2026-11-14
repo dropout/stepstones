@@ -203,11 +203,11 @@ abstract class AdminChantsLocalizations {
   /// **'v{version} · {size}'**
   String assetSummary(int version, String size);
 
-  /// No description provided for @missingBlurHash.
+  /// No description provided for @notLoadableByMobileApp.
   ///
   /// In en, this message translates to:
-  /// **'No blurHash: the mobile app cannot load this chant.'**
-  String get missingBlurHash;
+  /// **'The mobile app cannot load this chant: required fields are missing.'**
+  String get notLoadableByMobileApp;
 
   /// No description provided for @chantSubtitle.
   ///

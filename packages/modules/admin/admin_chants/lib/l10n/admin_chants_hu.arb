@@ -17,7 +17,7 @@
   "detailLyrics": "Szöveg",
   "detailCover": "Borító",
   "assetSummary": "v{version} · {size}",
-  "missingBlurHash": "Nincs blurHash: a mobilalkalmazás nem tudja betölteni ezt az éneket.",
+  "notLoadableByMobileApp": "A mobilalkalmazás nem tudja betölteni ezt az éneket: kötelező mezők hiányoznak.",
   "chantSubtitle": "{length} · {plays} lejátszás",
   "newChantButton": "Új ének",
   "uploadTitle": "Új ének",

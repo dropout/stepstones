@@ -65,8 +65,8 @@ class AdminChantsLocalizationsHu extends AdminChantsLocalizations {
   }
 
   @override
-  String get missingBlurHash =>
-      'Nincs blurHash: a mobilalkalmazás nem tudja betölteni ezt az éneket.';
+  String get notLoadableByMobileApp =>
+      'A mobilalkalmazás nem tudja betölteni ezt az éneket: kötelező mezők hiányoznak.';
 
   @override
   String chantSubtitle(String length, int plays) {

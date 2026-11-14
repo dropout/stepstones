@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:chanting/src/drift/chant_cache_database.dart';
 import 'package:chanting/src/data/datasource/chant_cache_data_provider.dart';
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
+import 'package:chant_schema/chant_schema.dart';
 
 class DriftChantCacheDataProvider implements ChantCacheDataProvider {
   final ChantCacheDatabase db;
@@ -12,7 +12,7 @@ class DriftChantCacheDataProvider implements ChantCacheDataProvider {
   @override
   Future<ChantCacheEntryRow?> readEntry(
     String contentId,
-    CachedAssetType type,
+    ChantAssetType type,
   ) async {
     final query = db.select(db.chantCacheEntries)
       ..where((tbl) => tbl.contentId.equals(contentId))
@@ -31,7 +31,7 @@ class DriftChantCacheDataProvider implements ChantCacheDataProvider {
   @override
   Future<void> markState({
     required String contentId,
-    required CachedAssetType assetType,
+    required ChantAssetType assetType,
     required CacheDownloadState state,
     String? lastError,
   }) async {
@@ -60,7 +60,7 @@ class DriftChantCacheDataProvider implements ChantCacheDataProvider {
   }
 
   @override
-  Future<void> deleteEntry(String contentId, CachedAssetType type) async {
+  Future<void> deleteEntry(String contentId, ChantAssetType type) async {
     await (db.delete(db.chantCacheEntries)
           ..where((tbl) => tbl.contentId.equals(contentId))
           ..where((tbl) => tbl.assetType.equals(type.name)))

@@ -7,9 +7,8 @@ import 'package:chanting/src/data/service/file_validation_extension.dart';
 import 'package:chanting/src/domain/entity/cache_validation_result_entity.dart';
 import 'package:chanting/src/domain/entity/caching_progress_entity.dart';
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
 import 'package:chanting/src/domain/repository/chant_cache_data_repository.dart';
 import 'package:chanting/src/domain/service/chant_cache_services.dart';
 import 'package:clock/clock.dart';
@@ -57,10 +56,10 @@ class ChantAssetDownloader with LoggerMixin implements ChantAssetDownloadService
 
       for (final result in chants) {
         if (!result.isAudioCacheValid) {
-          trackDownload(await _startDownload(result.chant, CachedAssetType.audio, result.audioCacheEntry));
+          trackDownload(await _startDownload(result.chant, ChantAssetType.audio, result.audioCacheEntry));
         }
         if (!result.isLyricsCacheValid) {
-          trackDownload(await _startDownload(result.chant, CachedAssetType.lyrics, result.lyricsCacheEntry));
+          trackDownload(await _startDownload(result.chant, ChantAssetType.lyrics, result.lyricsCacheEntry));
         }
       }
 
@@ -122,7 +121,7 @@ class ChantAssetDownloader with LoggerMixin implements ChantAssetDownloadService
 
   Future<_PendingDownload> _startDownload(
     ChantEntity chant,
-    CachedAssetType assetType,
+    ChantAssetType assetType,
     ChantCacheEntity? existing,
   ) async {
     final metadata = chant.metaData;
@@ -194,7 +193,7 @@ class ChantAssetDownloader with LoggerMixin implements ChantAssetDownloadService
     }
   }
 
-  Future<void> _markFailed(String contentId, CachedAssetType assetType, String path, Object error) async {
+  Future<void> _markFailed(String contentId, ChantAssetType assetType, String path, Object error) async {
     try {
       await chantCacheRepo.markState(
         contentId: contentId,

@@ -1,5 +1,4 @@
-import 'package:chanting/src/domain/entity/chant_entity.dart';
-import 'package:chanting/src/domain/entity/chant_metadata_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/repository/chant_repository.dart';
 import 'package:core/core.dart';
 import 'package:faker/faker.dart';

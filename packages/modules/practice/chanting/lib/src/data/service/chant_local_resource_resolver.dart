@@ -1,5 +1,5 @@
 import 'package:chanting/src/data/service/chant_cache_file_system.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/entity/chant_local_resources_entity.dart';
 import 'package:chanting/src/domain/service/chant_cache_services.dart';
 

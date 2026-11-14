@@ -1,6 +1,6 @@
 import 'package:chanting/src/data/datasource/chant_data_provider.dart';
 import 'package:core/core.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:firebase_provider/firebase_provider.dart';
 
 class FirebaseChantsDataProvider extends FirebaseDataProvider<ChantEntity>

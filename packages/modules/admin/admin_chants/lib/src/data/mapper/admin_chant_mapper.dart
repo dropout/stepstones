@@ -1,9 +1,9 @@
+import 'package:chant_schema/chant_schema.dart';
 import 'package:firebase_provider/firebase_provider.dart';
 
 import 'package:admin_chants/src/domain/entity/admin_chant_asset_entity.dart';
 import 'package:admin_chants/src/domain/entity/admin_chant_entity.dart';
 import 'package:admin_chants/src/domain/entity/prepared_chant_asset_entity.dart';
-import 'package:admin_chants/src/domain/enum/chant_asset_type.dart';
 
 /// Maps a `chants/{id}` document; tolerant of missing fields so a malformed chant stays visible and fixable.
 AdminChantEntity adminChantFromFirestore(String documentId, Map<String, dynamic> data) {
@@ -11,10 +11,10 @@ AdminChantEntity adminChantFromFirestore(String documentId, Map<String, dynamic>
   final meta = metaData is Map ? metaData : const <String, dynamic>{};
   final updatedAt = _int(meta['updatedAt']);
 
-  AdminChantAssetEntity asset(String prefix) => AdminChantAssetEntity(
-    version: _int(meta['${prefix}Version']),
-    sha256: _string(meta['${prefix}Sha256']) ?? '',
-    bytes: _int(meta['${prefix}Bytes']),
+  AdminChantAssetEntity asset(ChantAssetType type) => AdminChantAssetEntity(
+    version: _int(meta[type.versionField]),
+    sha256: _string(meta[type.sha256Field]) ?? '',
+    bytes: _int(meta[type.bytesField]),
   );
 
   return AdminChantEntity(
@@ -24,24 +24,28 @@ AdminChantEntity adminChantFromFirestore(String documentId, Map<String, dynamic>
     length: Duration(seconds: _int(data['length'])),
     playCount: _int(data['playCount']),
     blurHash: _string(data['blurHash']),
-    audio: asset('audio'),
-    lyrics: asset('lyrics'),
-    cover: asset('cover'),
+    audio: asset(.audio),
+    lyrics: asset(.lyrics),
+    cover: asset(.cover),
     assetsUpdatedAt: updatedAt > 0 ? DateTime.fromMillisecondsSinceEpoch(updatedAt) : null,
+    isLoadableByMobileApp: _parsesAsMobileChant(data),
   );
+}
+
+/// Runs the mobile app's own parser, so the warning matches exactly what the app can load.
+bool _parsesAsMobileChant(Map<String, dynamic> data) {
+  try {
+    return ChantEntity.fromJson(data).blurHash.isNotEmpty;
+  } catch (_) {
+    return false;
+  }
 }
 
 int _int(Object? value) => value is num ? value.toInt() : 0;
 
 String? _string(Object? value) => value is String ? value : null;
 
-Map<String, Object?> _assetFields(PreparedChantAssetEntity asset, {required Object version}) => {
-  '${asset.type.name}Version': version,
-  '${asset.type.name}Sha256': asset.sha256,
-  '${asset.type.name}Bytes': asset.bytes.length,
-};
-
-/// Builds a new `chants/{id}` document in the shape the mobile app's ChantEntity parses.
+/// Builds a new `chants/{id}` document from the shared schema the mobile app parses.
 Map<String, Object?> adminChantToFirestore({
   required String chantId,
   required String name,
@@ -50,18 +54,26 @@ Map<String, Object?> adminChantToFirestore({
   required PreparedChantAssetEntity lyrics,
   required PreparedChantAssetEntity cover,
   required DateTime updatedAt,
-}) => {
-  'id': chantId,
-  'name': name,
-  'order': order,
-  'length': audio.length!.inSeconds,
-  'blurHash': cover.blurHash,
-  'metaData': {
-    'id': chantId,
-    for (final asset in [audio, lyrics, cover]) ..._assetFields(asset, version: 1),
-    'updatedAt': updatedAt.millisecondsSinceEpoch,
-  },
-};
+}) => ChantEntity(
+  id: chantId,
+  name: name,
+  order: order,
+  length: audio.length!,
+  blurHash: cover.blurHash!,
+  metaData: ChantMetaDataEntity(
+    id: chantId,
+    audioVersion: 1,
+    lyricsVersion: 1,
+    coverVersion: 1,
+    audioSha256: audio.sha256,
+    lyricsSha256: lyrics.sha256,
+    coverSha256: cover.sha256,
+    audioBytes: audio.bytes.length,
+    lyricsBytes: lyrics.bytes.length,
+    coverBytes: cover.bytes.length,
+    updatedAt: updatedAt,
+  ),
+).toJson();
 
 /// Builds the field updates for a replaced asset; the version increment invalidates mobile caches.
 Map<String, Object?> adminChantAssetUpdateToFirestore({
@@ -71,8 +83,9 @@ Map<String, Object?> adminChantAssetUpdateToFirestore({
 }) => {
   // Repairs legacy documents that lack the nested id the mobile model requires.
   'metaData.id': chantId,
-  for (final MapEntry(:key, :value) in _assetFields(asset, version: FieldValue.increment(1)).entries)
-    'metaData.$key': value,
+  'metaData.${asset.type.versionField}': FieldValue.increment(1),
+  'metaData.${asset.type.sha256Field}': asset.sha256,
+  'metaData.${asset.type.bytesField}': asset.bytes.length,
   'metaData.updatedAt': updatedAt.millisecondsSinceEpoch,
   if (asset.type == ChantAssetType.audio) 'length': asset.length!.inSeconds,
   if (asset.type == ChantAssetType.cover) 'blurHash': asset.blurHash,

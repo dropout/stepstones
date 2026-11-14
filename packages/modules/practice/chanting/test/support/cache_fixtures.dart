@@ -1,8 +1,6 @@
 import 'package:chanting/src/domain/entity/chant_cache_entity.dart';
-import 'package:chanting/src/domain/entity/chant_entity.dart';
-import 'package:chanting/src/domain/entity/chant_metadata_entity.dart';
+import 'package:chant_schema/chant_schema.dart';
 import 'package:chanting/src/domain/enum/cache_download_state.dart';
-import 'package:chanting/src/domain/enum/cached_asset_type.dart';
 
 ChantEntity chantFixture(String id) => ChantEntity(
   id: id,
@@ -24,11 +22,11 @@ ChantEntity chantFixture(String id) => ChantEntity(
   ),
 );
 
-ChantCacheEntity cacheEntryFixture(String id, CachedAssetType type, String path, {int version = 1}) => ChantCacheEntity(
+ChantCacheEntity cacheEntryFixture(String id, ChantAssetType type, String path, {int version = 1}) => ChantCacheEntity(
   id: '$id:${type.name}',
   contentId: id,
   assetType: type,
-  storagePath: '/chants/$id/${type.defaultFileName}',
+  storagePath: '/chants/$id/${type.fileName}',
   localFilePath: path,
   cachedVersion: version,
   remoteUpdatedAtEpochMs: 1,
