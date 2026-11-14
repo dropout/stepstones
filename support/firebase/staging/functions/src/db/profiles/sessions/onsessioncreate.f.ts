@@ -34,8 +34,10 @@ function countCompletedChants(value: unknown): Map<string, number> {
 /**
  * Deploy as `db-profiles-sessions-onsessioncreate`.
  * Triggered when a new session document is created.
- * @param {FirestoreEvent} event The Firestore event containing the new session document.
- * @returns {Promise<void>} A promise that resolves when the function completes.
+ * @param {FirestoreEvent} event The Firestore event
+ * containing the new session document.
+ * @returns {Promise<void>} A promise that resolves
+ * when the function completes.
  */
 export default onDocumentCreated(
   {
