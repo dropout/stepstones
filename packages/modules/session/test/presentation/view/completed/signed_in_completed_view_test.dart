@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +19,6 @@ import 'package:session/src/public/view/signed_in_completed_view.dart';
 import 'package:social/social.dart';
 
 import 'package:core/core.dart';
-
 
 import '../../../session_mock_definitions.dart';
 import '../../../session_test_helper.dart';
@@ -38,8 +40,7 @@ void main() {
     mockResourceResolver = MockResourceResolver();
     mockPresenceCubit = MockPresenceCubit();
 
-    when(() => mockPresenceCubit.state)
-        .thenReturn(const PresenceState.initial());
+    when(() => mockPresenceCubit.state).thenReturn(const PresenceState.initial());
     when(
       () => mockPresenceCubit.loadPresenceData(
         ownProfileId: any(named: 'ownProfileId'),
@@ -50,11 +51,8 @@ void main() {
     GetIt.I.registerFactory<PresenceCubit>(() => mockPresenceCubit);
 
     mockPreferences = MockSharedPreferencesService();
-    when(() => mockPreferences.get<bool>(key: any(named: 'key')))
-        .thenAnswer((_) async => null);
-    GetIt.I.registerFactory<LocationPromptCubit>(
-      () => LocationPromptCubit(preferences: mockPreferences),
-    );
+    when(() => mockPreferences.get<bool>(key: any(named: 'key'))).thenAnswer((_) async => null);
+    GetIt.I.registerFactory<LocationPromptCubit>(() => LocationPromptCubit(preferences: mockPreferences));
 
     when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
     when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) {
@@ -62,20 +60,18 @@ void main() {
     });
 
     nock.cleanAll();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('plugins.flutter.io/path_provider'),
-          (MethodCall methodCall) async => '.',
-        );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (MethodCall methodCall) async => '.',
+    );
   });
 
   tearDown(() {
     GetIt.I.reset();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('plugins.flutter.io/path_provider'),
-          null,
-        );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      null,
+    );
   });
 
   late ProfileUpdateResult updateResult;
@@ -94,8 +90,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      SessionTestHelper.withLocalizationProvider(
-        Provider<Services>.value(
+      Localizations(
+        delegates: [...SessionTestHelper.getLocalizationDelegates(), SocialLocalizations.delegate],
+        locale: const Locale('hu', 'HU'),
+        child: Provider<Services>.value(
           value: mockServices,
           child: SignedInCompletedView(
             profileId: updateResult.updatedProfile.id,
@@ -110,9 +108,7 @@ void main() {
   }
 
   group('SignedInCompletedView settings', () {
-    testWidgets('shows result, stats and presence when both enabled', (
-      tester,
-    ) async {
+    testWidgets('shows result, stats and presence when both enabled', (tester) async {
       await pumpView(tester, showStats: true, usePresence: true);
 
       expect(find.byType(SessionResult), findsOneWidget);
@@ -121,14 +117,49 @@ void main() {
       expect(find.byType(PresenceArea), findsOneWidget);
     });
 
-    testWidgets('prompts for a city when the profile has none', (tester) async {
+    testWidgets('prompts only when other people appear in presence', (tester) async {
+      final states = StreamController<PresenceState>();
+      addTearDown(states.close);
+      whenListen(mockPresenceCubit, states.stream, initialState: const PresenceState.loading());
+
       await pumpView(tester, showStats: false, usePresence: true);
 
-      expect(find.byType(LocationPromptCard), findsOneWidget);
+      expect(find.byType(LocationPromptCard), findsNothing);
+      states.add(const PresenceState.loaded(presenceList: []));
+      await tester.pump();
+      expect(find.byType(LocationPromptCard), findsNothing);
+
+      final presence = Presence(
+        id: 'other',
+        profile: const SocialProfile(id: 'other', firstName: 'Alex', lastName: 'Example'),
+        startedAt: DateTime(2026),
+      );
+      states.add(PresenceState.loaded(presenceList: [presence]));
+      await tester.pumpAndSettle();
+      expect(find.byType(PresenceListItem), findsOneWidget);
       expect(find.byType(LocationPitch), findsOneWidget);
+
+      states.add(PresenceState.loadingMore(presenceList: [presence]));
+      await tester.pumpAndSettle();
+      expect(find.byType(LocationPitch), findsOneWidget);
+
+      states.add(const PresenceState.error());
+      await tester.pumpAndSettle();
+      expect(find.byType(LocationPromptCard), findsNothing);
     });
 
     testWidgets('does not prompt when a city is already set', (tester) async {
+      when(() => mockPresenceCubit.state).thenReturn(
+        PresenceState.loaded(
+          presenceList: [
+            Presence(
+              id: 'other',
+              profile: const SocialProfile(id: 'other', firstName: 'Alex', lastName: 'Example'),
+              startedAt: DateTime(2026),
+            ),
+          ],
+        ),
+      );
       await pumpView(
         tester,
         showStats: false,
@@ -155,15 +186,14 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('hides presence when presence feature disabled', (
-      tester,
-    ) async {
+    testWidgets('hides presence when presence feature disabled', (tester) async {
       await pumpView(tester, showStats: true, usePresence: false);
 
       expect(find.byType(SessionResult), findsOneWidget);
       expect(find.byType(MilestoneProgressView), findsOneWidget);
       expect(find.byType(ProgressSummary), findsOneWidget);
       expect(find.byType(PresenceArea), findsNothing);
+      expect(find.byType(LocationPromptCard), findsNothing);
       verifyNever(
         () => mockPresenceCubit.loadPresenceData(
           ownProfileId: any(named: 'ownProfileId'),

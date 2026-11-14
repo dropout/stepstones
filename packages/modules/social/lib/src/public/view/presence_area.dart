@@ -6,7 +6,6 @@ import 'package:social/src/social_module.dart';
 import 'package:social/src/public/view/presence_view.dart';
 
 class PresenceArea extends StatelessWidget {
-  
   static Widget withCubit({
     required String profileId,
     int batchSize = 18,
@@ -14,6 +13,7 @@ class PresenceArea extends StatelessWidget {
     bool isLoadMoreEnabled = true,
     int intervalInMinutes = 120,
     void Function(PresenceCubit cubit)? onCubitCreated,
+    Widget Function(BuildContext context, PresenceState state, Widget area)? builder,
   }) {
     return SmartBlocProvider<PresenceCubit, PresenceState>(
       key: const ValueKey('presence_cubit'),
@@ -25,13 +25,14 @@ class PresenceArea extends StatelessWidget {
         return cubit;
       },
       builder: (context, state) {
-        return PresenceArea(
+        final area = PresenceArea(
           profileId: profileId,
           batchSize: batchSize,
           maxPageCount: maxPageCount,
           isLoadMoreEnabled: isLoadMoreEnabled,
           intervalInMinutes: intervalInMinutes,
         );
+        return builder != null ? builder(context, state, area) : area;
       },
     );
   }

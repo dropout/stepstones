@@ -3,8 +3,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:core/core.dart';
 import 'package:profile/profile.dart';
 import 'package:social/social.dart';
-import '../model/update_profile_stats_result.dart';
 
+import '../model/update_profile_stats_result.dart';
 
 import 'session_result.dart';
 
@@ -15,12 +15,9 @@ class const SignedInCompletedView({
   final bool usePresenceFeature = true,
   super.key,
 }) extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-
-    if (usePresenceFeature == false &&
-        showStatsOnFinishScreen == false) {
+    if (usePresenceFeature == false && showStatsOnFinishScreen == false) {
       return SizedBox.expand(
         child: Center(
           child: SessionResult(
@@ -39,7 +36,9 @@ class const SignedInCompletedView({
               maxWidth: DesignSpec.breakpointSm,
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: DesignSpec.paddingLg),
+              padding: const EdgeInsets.symmetric(
+                horizontal: DesignSpec.paddingLg,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -54,7 +53,9 @@ class const SignedInCompletedView({
                     MilestoneProgressView(
                       statsReport: updateResult.updatedProfile.statsReport,
                       showAnimation: updateResult.updatedProfile
-                          .consecutiveDaysProgressCheck(updateResult.oldProfile),
+                          .consecutiveDaysProgressCheck(
+                            updateResult.oldProfile,
+                          ),
                       textColor: Colors.white,
                     ),
                   if (showStatsOnFinishScreen) Gap.large(),
@@ -64,9 +65,6 @@ class const SignedInCompletedView({
                       updatedProfile: updateResult.updatedProfile,
                     ),
                   if (usePresenceFeature) Gap.xxl(),
-                  // Location improves presence sorting, so nudge once.
-                  if (usePresenceFeature)
-                    LocationPromptCard(profile: updateResult.updatedProfile),
                   if (usePresenceFeature)
                     PresenceArea.withCubit(
                       profileId: updateResult.updatedProfile.id,
@@ -75,6 +73,23 @@ class const SignedInCompletedView({
                           ownProfileId: updateResult.updatedProfile.id,
                           limit: 18,
                           windowSize: const Duration(minutes: 120),
+                        );
+                      },
+                      builder: (context, state, area) {
+                        // final hasPresence = switch (state) {
+                        //   PresenceLoadedState(:final presenceList) ||
+                        //   PresenceLoadingMoreState(:final presenceList) => presenceList.isNotEmpty,
+                        //   _ => false,
+                        // };
+                        final hasPresence = true;
+                        return Column(
+                          children: [
+                            if (hasPresence)
+                              LocationPromptCard(
+                                profile: updateResult.updatedProfile,
+                              ),
+                            area,
+                          ],
                         );
                       },
                     ),
