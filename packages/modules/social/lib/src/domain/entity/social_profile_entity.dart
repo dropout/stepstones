@@ -13,6 +13,7 @@ sealed class SocialProfileEntity with _$SocialProfileEntity {
 
   const SocialProfileEntity._();
 
+  @JsonSerializable(explicitToJson: true)
   const factory SocialProfileEntity({
     required String id,
     required String firstName,

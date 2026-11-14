@@ -6,6 +6,9 @@ part 'admin_access_entity.freezed.dart';
 
 @freezed
 sealed class AdminAccessEntity with _$AdminAccessEntity {
-  const factory AdminAccessEntity({required AdminAccessStatus status, String? userId, String? email}) =
-      _AdminAccessEntity;
+  const factory AdminAccessEntity({
+    required AdminAccessStatus status, 
+    String? userId, 
+    String? email
+  }) = _AdminAccessEntity;
 }
