@@ -24,6 +24,7 @@ import 'package:profile/src/data/repository/firebase_stats_audit_repository.dart
 import 'package:profile/src/domain/usecase/delete_profile_use_case.dart';
 import 'package:profile/src/presentation/viewmodel/delete_profile_cubit.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
+import 'package:profile/src/public/viewmodel/location_prompt_cubit.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:profile/src/public/api/profile_public_api.dart';
 
@@ -125,6 +126,12 @@ extension ProfileModuleDependencyInjection on GetIt {
         loadProfileUseCase: GetIt.I.get<LoadProfileUseCase>(),
         updateProfileUseCase: GetIt.I.get<UpdateProfileUseCase>(),
         updateProfileSettingsUseCase: GetIt.I.get<UpdateProfileSettingsUseCase>(),
+      ),
+    );
+
+    registerFactory<LocationPromptCubit>(
+      () => LocationPromptCubit(
+        preferences: GetIt.I.get<SharedPreferencesService>(),
       ),
     );
 

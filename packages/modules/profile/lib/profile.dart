@@ -25,6 +25,8 @@ export 'src/public/view/stats/milestone_progress_view.dart';
 export 'src/public/view/stats/progress_summary.dart';
 export 'src/public/view/stats/summary_view.dart';
 
+export 'src/public/view/location_pitch.dart';
+export 'src/public/view/location_prompt_card.dart';
 export 'src/public/view/profile_avatar.dart';
 export 'src/public/view/profile_button.dart';
 export 'src/public/view/profile_image.dart';

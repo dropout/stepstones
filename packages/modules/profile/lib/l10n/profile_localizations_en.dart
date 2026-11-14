@@ -280,4 +280,28 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
   @override
   String get healthConnect_unnecessaryText_android =>
       'Keep the time you\'ve spent meditating in the application in sync with Google Health Connect. To manage permissions, go to Settings > Security & Privacy > Privacy > Health Connect.';
+
+  @override
+  String profileWizardStepLabel(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get profileWizardContinue => 'Continue';
+
+  @override
+  String get profileWizardFinish => 'Finish';
+
+  @override
+  String get profileWizardSkip => 'Not now';
+
+  @override
+  String get locationPitchTitle => 'See who is practising near you';
+
+  @override
+  String get locationPitchBody =>
+      'Add your city and the list after each session shows the people closest to you first. Only your city is used, never your exact position.';
+
+  @override
+  String get locationPromptAction => 'Add my city';
 }

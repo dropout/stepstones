@@ -279,4 +279,28 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
   @override
   String get healthConnect_unnecessaryText_android =>
       'A Google Health Connect szolgáltatás már engedélyezve van, így a meditációra fordított időt már elmenthetjük a Google Health Connect-be.';
+
+  @override
+  String profileWizardStepLabel(int current, int total) {
+    return '$current. lépés / $total';
+  }
+
+  @override
+  String get profileWizardContinue => 'Tovább';
+
+  @override
+  String get profileWizardFinish => 'Befejezés';
+
+  @override
+  String get profileWizardSkip => 'Most nem';
+
+  @override
+  String get locationPitchTitle => 'Nézd meg, ki gyakorol a közeledben';
+
+  @override
+  String get locationPitchBody =>
+      'Add meg a városodat, és minden ülés után előre kerülnek a hozzád legközelebb gyakorlók. Csak a városodat használjuk, a pontos helyzetedet soha.';
+
+  @override
+  String get locationPromptAction => 'Város megadása';
 }

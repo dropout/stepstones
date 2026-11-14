@@ -62,5 +62,13 @@
   "healthConnect_unnecessaryTitle_ios": "Save completed sessions to\nApple Health",
   "healthConnect_unnecessaryText_ios": "Keep the time you've spent meditating in sync with Apple Health. To manage permissions, go to Settings > Apps > Health > Data Access & Devices.",
   "healthConnect_unnecessaryTitle_android": "Save completed sessions to\nGoogle Health Connect",
-  "healthConnect_unnecessaryText_android": "Keep the time you've spent meditating in the application in sync with Google Health Connect. To manage permissions, go to Settings > Security & Privacy > Privacy > Health Connect."
+  "healthConnect_unnecessaryText_android": "Keep the time you've spent meditating in the application in sync with Google Health Connect. To manage permissions, go to Settings > Security & Privacy > Privacy > Health Connect.",
+  "profileWizardStepLabel": "Step {current} of {total}",
+  "@profileWizardStepLabel": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "profileWizardContinue": "Continue",
+  "profileWizardFinish": "Finish",
+  "profileWizardSkip": "Not now",
+  "locationPitchTitle": "See who is practising near you",
+  "locationPitchBody": "Add your city and the list after each session shows the people closest to you first. Only your city is used, never your exact position.",
+  "locationPromptAction": "Add my city"
 }

@@ -62,5 +62,12 @@
   "healthConnect_unnecessaryTitle_ios": "Befejezett ülések mentése az\nApple Health-be",
   "healthConnect_unnecessaryText_ios": "Az Apple Health szolgáltatás már engedélyezve van, így a meditációra fordított időt már elmenthetjük az Apple Health-be.",
   "healthConnect_unnecessaryTitle_android": "Befejezett ülések mentése a\nGoogle Health-be",
-  "healthConnect_unnecessaryText_android": "A Google Health Connect szolgáltatás már engedélyezve van, így a meditációra fordított időt már elmenthetjük a Google Health Connect-be."
+  "healthConnect_unnecessaryText_android": "A Google Health Connect szolgáltatás már engedélyezve van, így a meditációra fordított időt már elmenthetjük a Google Health Connect-be.",
+  "profileWizardStepLabel": "{current}. lépés / {total}",
+  "profileWizardContinue": "Tovább",
+  "profileWizardFinish": "Befejezés",
+  "profileWizardSkip": "Most nem",
+  "locationPitchTitle": "Nézd meg, ki gyakorol a közeledben",
+  "locationPitchBody": "Add meg a városodat, és minden ülés után előre kerülnek a hozzád legközelebb gyakorlók. Csak a városodat használjuk, a pontos helyzetedet soha.",
+  "locationPromptAction": "Város megadása"
 }

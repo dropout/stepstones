@@ -478,6 +478,48 @@ abstract class ProfileLocalizations {
   /// In en, this message translates to:
   /// **'Keep the time you\'ve spent meditating in the application in sync with Google Health Connect. To manage permissions, go to Settings > Security & Privacy > Privacy > Health Connect.'**
   String get healthConnect_unnecessaryText_android;
+
+  /// No description provided for @profileWizardStepLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String profileWizardStepLabel(int current, int total);
+
+  /// No description provided for @profileWizardContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get profileWizardContinue;
+
+  /// No description provided for @profileWizardFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get profileWizardFinish;
+
+  /// No description provided for @profileWizardSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get profileWizardSkip;
+
+  /// No description provided for @locationPitchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See who is practising near you'**
+  String get locationPitchTitle;
+
+  /// No description provided for @locationPitchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your city and the list after each session shows the people closest to you first. Only your city is used, never your exact position.'**
+  String get locationPitchBody;
+
+  /// No description provided for @locationPromptAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add my city'**
+  String get locationPromptAction;
 }
 
 class _ProfileLocalizationsDelegate

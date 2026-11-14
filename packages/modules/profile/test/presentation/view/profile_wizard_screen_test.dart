@@ -2,7 +2,9 @@ import 'package:core/core.dart';
 import 'package:faker/faker.dart';
 import 'package:get_it/get_it.dart';
 import 'package:profile/src/data/datasource/faker_profile_extension.dart';
-import 'package:profile/src/presentation/view/profile_edit_form.dart';
+import 'package:profile/src/presentation/view/profile_basics_fields.dart';
+import 'package:profile/src/presentation/view/profile_location_field.dart';
+import 'package:profile/src/presentation/view/wizard/profile_wizard_step_indicator.dart';
 import 'package:profile/src/presentation/view/screen/profile_wizard_screen.dart';
 
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
@@ -25,6 +27,7 @@ void main() {
 
     setUpAll(() {
       registerFallbackValue(ProfileEditState.initial());
+      registerFallbackValue(Faker().createProfile());
     });
 
     setUp(() {
@@ -145,9 +148,11 @@ void main() {
 
         await tester.pumpAndSettle();
 
-        expect(find.byType(ProfileEditForm), findsOneWidget);
+        expect(find.byType(ProfileBasicsFields), findsOneWidget);
+        expect(find.byType(ProfileLocationField), findsNothing);
+        expect(find.byType(ProfileWizardStepIndicator), findsOneWidget);
         expect(find.byType(AppButton), findsOneWidget);
-        expect(find.text('MENTÉS'), findsOneWidget);
+        expect(find.text('TOVÁBB'), findsOneWidget);
       });
     });
 
@@ -198,6 +203,62 @@ void main() {
             completeProfile: true,
           ),
         ).called(1);
+      });
+    });
+
+    testWidgets('moves to the optional location step after basics are saved',
+        (WidgetTester tester) async {
+      await mockNetworkImages(() async {
+        final Profile profile = Faker().createProfile();
+
+        when(() => mockProfileEditCubit.state)
+            .thenReturn(ProfileEditState.loaded(profile: profile));
+        when(() => mockProfileEditCubit.stream).thenAnswer(
+          (_) => Stream<ProfileEditState>.fromIterable([
+            ProfileEditState.loaded(profile: profile),
+          ]),
+        );
+        when(
+          () => mockProfileEditCubit.updateProfile(
+            profile: any(named: 'profile'),
+            formData: any(named: 'formData'),
+            onComplete: any(named: 'onComplete'),
+            onError: any(named: 'onError'),
+            completeProfile: any(named: 'completeProfile'),
+          ),
+        ).thenAnswer((invocation) {
+          final onComplete = invocation.namedArguments[#onComplete]
+              as void Function(Profile);
+          onComplete(profile);
+        });
+        when(() => mockServices.analyticsService)
+            .thenReturn(MockAnalyticsService());
+        when(() => mockHapticsService.success()).thenReturn(null);
+        when(() => mockHapticsService.tap()).thenReturn(null);
+
+        await tester.pumpWidget(
+          ProfileTestHelper.withLocalizationProvider(
+            MultiProvider(
+              providers: [
+                Provider<Services>.value(value: mockServices),
+                BlocProvider<ProfileEditCubit>(
+                  create: (context) => mockProfileEditCubit,
+                ),
+              ],
+              child: ShaderRenderingScope(
+                enabled: false,
+                child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(AppButton));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ProfileLocationField), findsOneWidget);
+        expect(find.text('BEFEJEZÉS'), findsOneWidget);
+        expect(find.text('MOST NEM', skipOffstage: false), findsOneWidget);
       });
     });
   });
