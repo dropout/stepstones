@@ -207,7 +207,17 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
           ),
         ),
       ],
-      overlay: _buildActionButton(context, profile, wizardState),
+      overlay: SafeArea(
+        top: false,
+        child: Align(
+          alignment: const Alignment(0.0, 1.0),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: DesignSpec.paddingLg),
+            child: _buildActionButton(context, profile, wizardState),
+          ),
+        ),
+      ),
+      
     );
   }
 
