@@ -25,9 +25,11 @@ void main() {
   late MockServices mockServices;
   late MockResourceResolver mockResourceResolver;
   late MockPresenceCubit mockPresenceCubit;
+  late MockSharedPreferencesService mockPreferences;
 
   setUpAll(() {
     registerFallbackValue(Duration.zero);
+    registerFallbackValue(SharedPreferencesKey.homeScreenState);
     nock.init();
   });
 
@@ -46,6 +48,13 @@ void main() {
       ),
     ).thenAnswer((_) async {});
     GetIt.I.registerFactory<PresenceCubit>(() => mockPresenceCubit);
+
+    mockPreferences = MockSharedPreferencesService();
+    when(() => mockPreferences.get<bool>(key: any(named: 'key')))
+        .thenAnswer((_) async => null);
+    GetIt.I.registerFactory<LocationPromptCubit>(
+      () => LocationPromptCubit(preferences: mockPreferences),
+    );
 
     when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
     when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) {
@@ -75,10 +84,11 @@ void main() {
     WidgetTester tester, {
     required bool showStats,
     required bool usePresence,
+    Location? updatedLocation,
   }) async {
     final SessionEntity session = Faker().createSessionEntity();
     updateResult = (
-      updatedProfile: Faker().createProfile(),
+      updatedProfile: Faker().createProfile().copyWith(location: updatedLocation),
       oldProfile: Faker().createProfile(),
       session: session,
     );
@@ -109,6 +119,28 @@ void main() {
       expect(find.byType(MilestoneProgressView), findsOneWidget);
       expect(find.byType(ProgressSummary), findsOneWidget);
       expect(find.byType(PresenceArea), findsOneWidget);
+    });
+
+    testWidgets('prompts for a city when the profile has none', (tester) async {
+      await pumpView(tester, showStats: false, usePresence: true);
+
+      expect(find.byType(LocationPromptCard), findsOneWidget);
+      expect(find.byType(LocationPitch), findsOneWidget);
+    });
+
+    testWidgets('does not prompt when a city is already set', (tester) async {
+      await pumpView(
+        tester,
+        showStats: false,
+        usePresence: true,
+        updatedLocation: const Location(
+          name: 'Budapest',
+          latLng: LatLng(latitude: 47.4979, longitude: 19.0402),
+          geoHash: 'u2mwd',
+        ),
+      );
+
+      expect(find.byType(LocationPitch), findsNothing);
     });
 
     testWidgets('loads presence data for the updated profile', (tester) async {

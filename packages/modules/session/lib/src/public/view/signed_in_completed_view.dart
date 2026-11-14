@@ -64,6 +64,9 @@ class const SignedInCompletedView({
                       updatedProfile: updateResult.updatedProfile,
                     ),
                   if (usePresenceFeature) Gap.xxl(),
+                  // Location improves presence sorting, so nudge once.
+                  if (usePresenceFeature)
+                    LocationPromptCard(profile: updateResult.updatedProfile),
                   if (usePresenceFeature)
                     PresenceArea.withCubit(
                       profileId: updateResult.updatedProfile.id,

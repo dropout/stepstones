@@ -32,4 +32,5 @@ export 'src/public/view/profile_button.dart';
 export 'src/public/view/profile_image.dart';
 export 'src/public/view/profile_image_placeholder.dart';
 
+export 'src/public/viewmodel/location_prompt_cubit.dart';
 export 'src/public/viewmodel/profile_cubit.dart';
