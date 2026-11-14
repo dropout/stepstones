@@ -22,6 +22,7 @@ import 'package:profile/src/domain/service/stats_audit_service.dart';
 import 'package:profile/src/domain/repository/stats_audit_repository.dart';
 import 'package:profile/src/data/repository/firebase_stats_audit_repository.dart';
 import 'package:profile/src/domain/usecase/delete_profile_use_case.dart';
+import 'package:profile/src/domain/usecase/reset_onboarding_use_case.dart';
 import 'package:profile/src/presentation/viewmodel/delete_profile_cubit.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
 import 'package:profile/src/public/viewmodel/location_prompt_cubit.dart';
@@ -108,6 +109,13 @@ extension ProfileModuleDependencyInjection on GetIt {
     registerLazySingleton(
       () => UpdateProfileSettingsUseCase(
         profileRepository: GetIt.I.get<ProfileRepository>(),
+      ),
+    );
+
+    registerLazySingleton(
+      () => ResetOnboardingUseCase(
+        profileRepository: GetIt.I.get<ProfileRepository>(),
+        preferences: GetIt.I.get<SharedPreferencesService>(),
       ),
     );
 

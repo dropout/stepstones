@@ -1,10 +1,12 @@
 import 'package:profile/l10n/profile_localizations.dart';
 import 'package:profile/src/presentation/view/settings/profile_settings_health_connect.dart';
 import 'package:profile/src/presentation/view/settings/profile_settings_clear_cache.dart';
+import 'package:profile/src/presentation/view/settings/profile_settings_reset_onboarding.dart';
 import 'package:profile/src/presentation/view/settings/profile_settings_switch.dart';
 import 'package:core/core.dart';
 import 'package:profile/src/public/model/profile.dart';
 import 'package:profile/src/public/model/profile_settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
@@ -76,6 +78,10 @@ class _ProfileSettingsFormState extends State<ProfileSettingsForm> {
               clearCacheCapability: widget.clearCacheCapability!,
             ),
           Gap.large(),
+          if (kDebugMode) ...[
+            ProfileSettingsResetOnboarding(profile: widget.profile),
+            Gap.large(),
+          ],
           SeparatorGem(count: 1),
           AppButton.small(
             fColor: Colors.black,
