@@ -23,7 +23,7 @@ class UpdateProfileUseCase with LoggerMixin {
       firstName: _getFirstName(updatedFields) ?? profile.firstName,
       lastName:  _getLastName(updatedFields) ?? profile.lastName,
       completed: (completeProfile) ? true : profile.completed,
-      location: _getLocation(updatedFields),
+      location: _getLocation(updatedFields, profile.location),
     );
 
     Uint8List? imageData = _getImageData(updatedFields);
@@ -70,11 +70,12 @@ class UpdateProfileUseCase with LoggerMixin {
     return formData['imageData'] as Uint8List;
   }
 
-  Location? _getLocation(Map<String,dynamic> formData) {
-    if (formData.containsKey('location') == false || formData['location'] == null) {
-      return null;
+  // Absent key keeps the current value; an explicit null clears it.
+  Location? _getLocation(Map<String,dynamic> formData, Location? current) {
+    if (!formData.containsKey('location')) {
+      return current;
     }
-    return formData['location'] as Location;
+    return formData['location'] as Location?;
   }
 
 }

@@ -61,6 +61,58 @@ void main() {
       verifyNever(() => storageRepository.uploadProfileImage(any(), any()));
     });
 
+    group('location', () {
+      const budapest = Location(
+        name: 'Budapest',
+        latLng: LatLng(latitude: 47.4979, longitude: 19.0402),
+        geoHash: 'u2mwd',
+      );
+
+      setUp(() {
+        when(() => profileRepository.update(any()))
+            .thenAnswer((_) async => fakeModelFactory.createProfileEntity());
+      });
+
+      test('keeps the current location when the key is absent', () async {
+        final profile = fakeModelFactory
+            .createProfileEntity()
+            .copyWith(location: budapest);
+
+        final result = await useCase.execute(
+          profile: profile,
+          updatedFields: {'firstName': 'John'},
+        );
+
+        expect(result.location, budapest);
+      });
+
+      test('sets the location when provided', () async {
+        final profile = fakeModelFactory
+            .createProfileEntity()
+            .copyWith(location: null);
+
+        final result = await useCase.execute(
+          profile: profile,
+          updatedFields: {'location': budapest},
+        );
+
+        expect(result.location, budapest);
+      });
+
+      test('clears the location when explicitly null', () async {
+        final profile = fakeModelFactory
+            .createProfileEntity()
+            .copyWith(location: budapest);
+
+        final result = await useCase.execute(
+          profile: profile,
+          updatedFields: {'location': null},
+        );
+
+        expect(result.location, isNull);
+      });
+    });
+
     test('uploads image and updates profile with blurhash when image is provided',
         () async {
       final profile = fakeModelFactory.createProfileEntity();
