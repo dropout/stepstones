@@ -31,6 +31,7 @@ For running and building commands look at the commands documentation: [`docs/com
 - `packages/modules/admin/`: Admin-only feature modules; never a dependency of `mobile_app`.
 - `packages/modules/admin/admin_access/`: Sign-in and admin-claim gate for the admin app.
 - `packages/modules/admin/admin_chants/`: Chant catalog management (list, rename, reorder, upload, replace assets) for the admin app.
+- `packages/modules/admin/admin_presence/`: Live overview of recent practice starts for the admin app.
 - `packages/core/`: Core module, including app entry point, dependency injection, and shared utilities.
 - `packages/modules/`: Feature modules, each with its own layers.
 - `packages/modules/auth/`: Authentication feature module.

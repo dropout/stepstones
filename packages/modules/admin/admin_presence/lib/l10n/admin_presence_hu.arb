@@ -1,0 +1,20 @@
+{
+  "@@locale": "hu",
+  "presenceTitle": "Jelenlét",
+  "presenceCount": "Az elmúlt {window} alatt {count} fő kezdett gyakorolni",
+  "presenceLive": "Élő",
+  "presenceEmpty": "Ebben az időszakban senki sem kezdett gyakorolni.",
+  "presenceError": "A jelenlét betöltése nem sikerült.",
+  "retryButton": "Újra",
+  "presenceTruncated": "Csak a legutóbbi {limit} látható.",
+  "windowHour": "1 óra",
+  "windowThreeHours": "3 óra",
+  "windowDay": "24 óra",
+  "windowWeek": "7 nap",
+  "startedJustNow": "épp most",
+  "startedMinutesAgo": "{minutes} perce",
+  "startedHoursAgo": "{hours} órája",
+  "startedDaysAgo": "{days} napja",
+  "byLocationTitle": "Helyszín szerint",
+  "unknownLocation": "Nincs megosztott helyszín"
+}

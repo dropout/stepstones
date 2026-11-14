@@ -1,5 +1,6 @@
 import 'package:admin_access/admin_access.dart';
 import 'package:admin_chants/admin_chants.dart';
+import 'package:admin_presence/admin_presence.dart';
 import 'package:flutter_localizations/flutter_localizations.dart' hide GlobalMaterialLocalizations;
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -21,6 +22,7 @@ class AdminApp extends StatelessWidget {
         AppLocalizations.delegate,
         AdminAccessLocalizations.delegate,
         AdminChantsLocalizations.delegate,
+        AdminPresenceLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

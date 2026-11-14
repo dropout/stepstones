@@ -12,6 +12,7 @@ workspace:
   - packages/core  
   - packages/modules/admin/admin_access
   - packages/modules/admin/admin_chants
+  - packages/modules/admin/admin_presence
   - packages/modules/app_events
   - packages/modules/auth
   - packages/modules/donate

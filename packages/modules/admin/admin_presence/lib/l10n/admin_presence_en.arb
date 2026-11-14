@@ -1,0 +1,58 @@
+{
+  "@@locale": "en",
+  "presenceTitle": "Presence",
+  "presenceCount": "{count} started practicing in the past {window}",
+  "@presenceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "presenceLive": "Live",
+  "presenceEmpty": "Nobody started practicing in this period.",
+  "presenceError": "Unable to load presence.",
+  "retryButton": "Retry",
+  "presenceTruncated": "Only the latest {limit} are shown.",
+  "@presenceTruncated": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "windowHour": "1 hour",
+  "windowThreeHours": "3 hours",
+  "windowDay": "24 hours",
+  "windowWeek": "7 days",
+  "startedJustNow": "just now",
+  "startedMinutesAgo": "{minutes} min ago",
+  "@startedMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "startedHoursAgo": "{hours} h ago",
+  "@startedHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "startedDaysAgo": "{days} d ago",
+  "@startedDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "byLocationTitle": "By location",
+  "unknownLocation": "No location shared"
+}
