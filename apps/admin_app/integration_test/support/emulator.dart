@@ -73,6 +73,10 @@ Future<void> seedEmulatorDocument(String path, String documentId, Map<String, Ob
   body: {'fields': _encodeFields(data)},
 );
 
+/// Creates or replaces a document, bypassing security rules.
+Future<void> setEmulatorDocument(String documentPath, Map<String, Object?> data) =>
+    _send('PATCH', '$_firestoreEmulator/$documentPath', asOwner: true, body: {'fields': _encodeFields(data)});
+
 Object? _decodeValue(Map<String, dynamic> value) {
   if (value.containsKey('stringValue')) return value['stringValue'];
   if (value.containsKey('integerValue')) return int.parse(value['integerValue'] as String);

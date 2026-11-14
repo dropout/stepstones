@@ -1,6 +1,7 @@
 import 'package:admin_access/admin_access.dart';
 import 'package:admin_chants/admin_chants.dart';
 import 'package:admin_presence/admin_presence.dart';
+import 'package:admin_stats/admin_stats.dart';
 import 'package:auth/auth.dart';
 import 'package:core/core.dart';
 import 'package:firebase_provider/firebase_provider.dart';
@@ -16,5 +17,6 @@ extension AdminAppDependencyInjection on GetIt {
     registerAdminAccessModuleDependencies();
     registerAdminChantsModuleDependencies();
     registerAdminPresenceModuleDependencies();
+    registerAdminStatsModuleDependencies();
   }
 }

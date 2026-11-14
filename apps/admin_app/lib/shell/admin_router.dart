@@ -1,12 +1,12 @@
 import 'package:admin_access/admin_access.dart';
 import 'package:admin_chants/admin_chants.dart';
 import 'package:admin_presence/admin_presence.dart';
+import 'package:admin_stats/admin_stats.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import 'admin_section.dart';
 import 'admin_shell.dart';
-import 'section_placeholder.dart';
 
 GoRouter buildAdminRouter() {
   return GoRouter(
@@ -31,7 +31,7 @@ GoRouter buildAdminRouter() {
                 child: switch (section) {
                   AdminSection.chants => const AdminChantsScreen(),
                   AdminSection.presence => const AdminPresenceScreen(),
-                  AdminSection.stats => SectionPlaceholder(section: section),
+                  AdminSection.stats => const AdminStatsScreen(),
                 },
               ),
             ),

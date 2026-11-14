@@ -1,0 +1,86 @@
+{
+  "@@locale": "en",
+  "statsTitle": "Global stats",
+  "statsError": "Unable to load global stats.",
+  "retryButton": "Retry",
+  "refreshButton": "Refresh",
+  "allTimeTitle": "All time",
+  "todayTitle": "Today (UTC)",
+  "rangeTitle": "Last {days} days",
+  "@rangeTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionsCount": "{count} sessions",
+  "@sessionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "practiceTime": "{time} practiced",
+  "@practiceTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours} h {minutes} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "typeBreakdown": "{type}: {count}",
+  "@typeBreakdown": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "typeTimer": "Timer",
+  "typeChanting": "Chanting",
+  "rangeWeek": "7 days",
+  "rangeMonth": "30 days",
+  "rangeQuarter": "90 days",
+  "dailyTitle": "Sessions per day",
+  "dailyLoading": "Loading daily history…",
+  "dailyFailed": "The daily history could not be loaded.",
+  "dayColumn": "Day (UTC)",
+  "sessionsColumn": "Sessions",
+  "timeColumn": "Time",
+  "dayTooltip": "{day}: {count} sessions",
+  "@dayTooltip": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noSessionsYet": "No sessions have been counted yet. Totals grow as sessions are recorded while the aggregation function is deployed."
+}

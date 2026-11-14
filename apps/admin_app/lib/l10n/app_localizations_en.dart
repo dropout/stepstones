@@ -25,8 +25,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOut => 'Sign out';
 
   @override
-  String get comingSoon => 'This section is not built yet.';
-
-  @override
   String get initErrorTitle => 'The admin app could not start';
 }

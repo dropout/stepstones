@@ -25,8 +25,5 @@ class AppLocalizationsHu extends AppLocalizations {
   String get signOut => 'Kijelentkezés';
 
   @override
-  String get comingSoon => 'Ez a rész még nem készült el.';
-
-  @override
   String get initErrorTitle => 'Az admin alkalmazás nem tudott elindulni';
 }

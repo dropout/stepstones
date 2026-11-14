@@ -26,6 +26,7 @@ dependencies:
   admin_access: ^0.0.1
   admin_chants: ^0.0.1
   admin_presence: ^0.0.1
+  admin_stats: ^0.0.1
 
 dev_dependencies:
   flutter_test:

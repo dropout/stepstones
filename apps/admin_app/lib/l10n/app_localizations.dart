@@ -128,12 +128,6 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get signOut;
 
-  /// No description provided for @comingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'This section is not built yet.'**
-  String get comingSoon;
-
   /// No description provided for @initErrorTitle.
   ///
   /// In en, this message translates to:
