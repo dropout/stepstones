@@ -1,10 +1,9 @@
-import 'package:profile/l10n/profile_localizations.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:core/core.dart';
-import 'package:profile/src/presentation/view/form_builder_profile_image_picker.dart';
+import 'package:profile/src/presentation/view/profile_basics_fields.dart';
+import 'package:profile/src/presentation/view/profile_location_field.dart';
 import 'package:profile/src/public/model/profile.dart';
 
 
@@ -35,136 +34,23 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
     super.initState();
   }
 
-  void onFormChanged(BuildContext context) {
-    widget.onChanged?.call();
-  }
-
-  void showImageErrorSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('error uploading image'),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  void onProfileImagePickerError(
-    BuildContext context,
-    ProfileImagePickerError errorType,
-    dynamic error
-  ) {
-    switch (errorType) {
-      case ProfileImagePickerError.photoAccessDenied:
-        showAppDialog(context, const PhotoAccessDeniedDialog());
-        break;
-      case ProfileImagePickerError.notSafeImage:
-        showAppDialog(context, const ImageUploadNotSafeDialog());
-      default:
-        showImageErrorSnackBar(context);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    var profile = widget.profile;
     return FormBuilder(
       key: _formKey,
       autovalidateMode: AutovalidateMode.disabled,
       skipDisabled: true,
-      onChanged: () => onFormChanged(context),
+      onChanged: () => widget.onChanged?.call(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            ProfileLocalizations.of(context).profileImageLabel,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: AppColors.charcoal,
-            ),
-          ),
-          Gap.xs(),
-          FormBuilderProfileImagePicker(
-            key: const Key('profile_edit_form_image_picker'),
-            name: 'imageData',
-            label: ProfileLocalizations.of(context).profileImageLabel,
-            profile: profile,
-            onError: (errorType, error) => onProfileImagePickerError(context, errorType, error),
-          ),
+          ProfileBasicsFields(profile: widget.profile, formStateKey: _formKey),
           Gap.medium(),
-          ...buildNameInputs(context),
-          Gap.medium(),
-          FormBuilderCitySelector(
-            name: 'location',
-            label: ProfileLocalizations.of(context).profileLocationLabel,
-            key: const Key('profile_edit_form_location_input'),
-            initialValue: profile.location,
-            onChanged: (_) =>
-              _formKey.currentState?.fields['location']?.validate(),
-          ),
+          ProfileLocationField(profile: widget.profile, formStateKey: _formKey),
           Gap.medium(),
         ],
       )
     );
-  }
-
-  // First name first or last name first depending on locale
-  List<Widget> buildNameInputs(BuildContext context) {
-    Locale locale = Localizations.localeOf(context);
-    if (locale.languageCode.toLowerCase() == 'hu' ) {
-      return [
-        AppTextInput(
-          name: 'lastName',
-          keyboardType: .name,
-          label: ProfileLocalizations.of(context).profileLastnameLabel,
-          key: const Key('profile_edit_form_last_name_input'),
-          initialValue: widget.profile.lastName,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-          ]),
-          onChanged: (_) =>
-            _formKey.currentState?.fields['lastName']?.validate(),
-        ),
-        Gap.medium(),
-        AppTextInput(
-          name: 'firstName',
-          keyboardType: .name,
-          label: ProfileLocalizations.of(context).profileFirstnameLabel,
-          key: const Key('profile_edit_form_first_name_input'),
-          initialValue: widget.profile.firstName,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-          ]),
-          onChanged: (_) =>
-            _formKey.currentState?.fields['firstName']?.validate(),
-        ),
-      ];
-    } else {
-      return [
-        AppTextInput(
-          name: 'firstName',
-          label: ProfileLocalizations.of(context).profileFirstnameLabel,
-          key: const Key('profile_edit_form_first_name_input'),
-          initialValue: widget.profile.firstName,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-          ]),
-          onChanged: (_) =>
-            _formKey.currentState?.fields['firstName']?.validate(),
-        ),
-        Gap.medium(),
-        AppTextInput(
-          name: 'lastName',
-          label: ProfileLocalizations.of(context).profileLastnameLabel,
-          key: const Key('profile_edit_form_last_name_input'),
-          initialValue: widget.profile.lastName,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-          ]),
-          onChanged: (_) =>
-            _formKey.currentState?.fields['lastName']?.validate(),
-        ),
-      ];
-    }
   }
 
 }
