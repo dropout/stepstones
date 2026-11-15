@@ -8,5 +8,9 @@ class DefaultHomeNavigator extends HomeNavigator {
   Future<void> navigateToHome({
     int? refresh,
     NavigationType type = .push,
-  }) async => navigateTo(HomeRoute(refresh: refresh), type: type);
+    bool gradientTransition = false,
+  }) async => navigateTo(
+    HomeRoute(refresh: refresh, gradientTransition: gradientTransition),
+    type: type,
+  );
 }

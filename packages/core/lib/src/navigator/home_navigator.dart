@@ -5,7 +5,8 @@ abstract class HomeNavigator extends BaseNavigator {
 
   Future<void> navigateToHome({
     int? refresh,
-    NavigationType type = .push
+    NavigationType type = .push,
+    bool gradientTransition = false,
   });
 
 }

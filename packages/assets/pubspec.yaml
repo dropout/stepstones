@@ -22,7 +22,7 @@ flutter:
     - shaders/linear_gradient_mask.frag
     - shaders/parchment_noise.frag
     - shaders/test.frag
-    - shaders/gradient_transition.frag
+    - shaders/gradient_transition_mask.frag
 
   fonts:
     - family: RobotoSlab

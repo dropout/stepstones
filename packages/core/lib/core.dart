@@ -86,6 +86,7 @@ export 'src/presentation/view/input/profile_image_picker/profile_image_selection
 export 'src/presentation/view/painting/exponential_gradient.dart';
 export 'src/presentation/view/painting/gradient_translate.dart';
 export 'src/presentation/view/parchment_background.dart';
+export 'src/presentation/view/transition/gradient_transition.dart';
 export 'src/presentation/view/transition/linear_gradient_mask_transition.dart';
 export 'src/presentation/view/util/app_animation.dart';
 export 'src/presentation/view/util/app_button.dart';

@@ -105,7 +105,7 @@ class const SessionCompletedScreen({
 
 class const CompletedScreenBottomArea({super.key}) extends StatelessWidget {
   void _onOkayButtonPressed(BuildContext context) {
-    context.services.homeNavigator.navigateToHome();
+    context.services.homeNavigator.navigateToHome(gradientTransition: true);
     context.hapticsTap();
   }
 

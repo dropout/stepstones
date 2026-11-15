@@ -1,3 +1,5 @@
+import 'package:assets/assets.dart';
+import 'package:core/core.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,11 +14,36 @@ class HomeRoute extends GoRouteData with $HomeRoute {
   /// as timer settings change.
   final int? refresh;
 
-  const HomeRoute({this.refresh});
+  /// Reveals the home screen with the gradient sweep instead of the default
+  /// page transition.
+  final bool gradientTransition;
+
+  const HomeRoute({this.refresh, this.gradientTransition = false});
 
   @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const HomeScreen();
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    if (!gradientTransition) {
+      return MaterialPage(key: state.pageKey, child: const HomeScreen());
+    }
+    return CustomTransitionPage(
+      key: state.pageKey,
+      transitionDuration: Durations.extralong4,
+      reverseTransitionDuration: Durations.long1,
+      child: const HomeScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          GradientTransition(          
+            progress: animation,
+            direction: .bottomToTop,
+            sweepLength: 3.0,
+            wobble: 0.1,        
+            wobbleScale: 1.0,
+            grain: 0.0,            
+            shader: context.services.shaderService.get(
+              Assets.shaderGradientTransitionMask,
+            ),
+            child: child,
+          ),
+    );
   }
 }
 

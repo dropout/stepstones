@@ -24,34 +24,13 @@ class SessionCompletedRoute extends GoRouteData with $SessionCompletedRoute {
       transitionDuration: Durations.extralong4,
       reverseTransitionDuration: Durations.long1,
       child: SessionCompletedScreen(session: $extra, key: state.pageKey),
-      transitionsBuilder:
-          (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            if (animation.status == AnimationStatus.reverse) {
-              return LinearGradientMaskTransition(
-                progress: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeIn,
-                ),
-                shader: context.services.shaderService.get(
-                  Assets.shaderLinearGradientMask,
-                ),
-                child: child,
-              );
-            } else {
-              return FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeInOutExpo,
-                ),
-                child: child,
-              );
-            }
-          },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOutExpo,
+        ),
+        child: child,
+      ),
     );
   }
 }

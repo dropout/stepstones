@@ -257,7 +257,9 @@ void main() {
       SessionEntity session = Faker().createSessionEntity();
 
       when(() => mockAuthBloc.state).thenReturn(const AuthState.initial());
-      when(() => mockHomeNavigator.navigateToHome()).thenAnswer((_) async {});
+      when(
+        () => mockHomeNavigator.navigateToHome(gradientTransition: true),
+      ).thenAnswer((_) async {});
 
       await pumpScreen(tester, session);
 
@@ -266,7 +268,9 @@ void main() {
       );
       await tester.pump();
 
-      verify(() => mockHomeNavigator.navigateToHome()).called(1);
+      verify(
+        () => mockHomeNavigator.navigateToHome(gradientTransition: true),
+      ).called(1);
 
       // expect(didPop, true);
       // expect(goRouter.state.path, '/');

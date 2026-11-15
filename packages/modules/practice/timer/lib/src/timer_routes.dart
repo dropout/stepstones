@@ -23,24 +23,16 @@ class TimerRoute extends GoRouteData with $TimerRoute {
       transitionDuration: transitionDuration,
       reverseTransitionDuration: transitionDuration,
       child: TimerScreen(key: state.pageKey, timerSettings: settings),
-      transitionsBuilder:
-          (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
-            return LinearGradientMaskTransition(
-              progress: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeIn,
-              ),
-              shader: context.services.shaderService.get(
-                Assets.shaderLinearGradientMask,
-              ),
-              child: child,
-            );
-          },
+      transitionsBuilder: (context, animation, secondary, child) => GradientTransition(
+        progress: animation,
+        direction: .bottomToTop,
+        sweepLength: 3.0,
+        wobble: 0.1,        
+        wobbleScale: 1.0,
+        grain: 0.0,
+        shader: context.services.shaderService.get(Assets.shaderGradientTransitionMask),
+        child: child,
+      ),
     );
   }
 }

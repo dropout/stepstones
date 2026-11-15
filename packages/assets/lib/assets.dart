@@ -24,15 +24,15 @@ class Assets {
       'packages/assets/shaders/parchment_noise.frag';
   static const String shaderExponentialGradient =
       'packages/assets/shaders/exponential_gradient.frag';
-  static const String shaderGradientTransition =
-      'packages/assets/shaders/gradient_transition.frag';
+  static const String shaderGradientTransitionMask =
+      'packages/assets/shaders/gradient_transition_mask.frag';
 
   static const List<String> allShaders = [
     shaderGradientFlow,
     shaderLinearGradientMask,
     shaderParchmentNoise,
     shaderExponentialGradient,
-    shaderGradientTransition,
+    shaderGradientTransitionMask,
   ];
 
   // ML Models
