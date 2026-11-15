@@ -20,7 +20,7 @@ flutter:
     - shaders/gradient_flow.frag
     - shaders/exponential_gradient.frag
     - shaders/linear_gradient_mask.frag
-    - shaders/parchment_noise.frag
+    - shaders/parchment_paper.frag
     - shaders/test.frag
     - shaders/gradient_transition_mask.frag
 

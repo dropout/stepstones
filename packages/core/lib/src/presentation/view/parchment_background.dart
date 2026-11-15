@@ -32,7 +32,7 @@ class ParchmentBackground extends StatelessWidget {
     }
 
     final shader = context.services.shaderService.get(
-      Assets.shaderParchmentNoise,
+      Assets.shaderParchment,
     );
 
     final screenSize = MediaQuery.of(context).size;

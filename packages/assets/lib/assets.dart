@@ -20,8 +20,8 @@ class Assets {
       'packages/assets/shaders/gradient_flow.frag';
   static const String shaderLinearGradientMask =
       'packages/assets/shaders/linear_gradient_mask.frag';
-  static const String shaderParchmentNoise =
-      'packages/assets/shaders/parchment_noise.frag';
+  static const String shaderParchment =
+      'packages/assets/shaders/parchment_paper.frag';
   static const String shaderExponentialGradient =
       'packages/assets/shaders/exponential_gradient.frag';
   static const String shaderGradientTransitionMask =
@@ -30,7 +30,7 @@ class Assets {
   static const List<String> allShaders = [
     shaderGradientFlow,
     shaderLinearGradientMask,
-    shaderParchmentNoise,
+    shaderParchment,
     shaderExponentialGradient,
     shaderGradientTransitionMask,
   ];
