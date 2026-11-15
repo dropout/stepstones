@@ -11,6 +11,7 @@ import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 import 'package:core/core.dart';
 import 'package:stepstones_widgetbook/addons/background_addon.dart';
+import 'package:stepstones_widgetbook/use_case/profile/profile_wizard_screen_use_case.dart';
 import 'package:timer/timer.dart';
 
 import 'main.directories.g.dart';
@@ -18,6 +19,8 @@ import 'main.directories.g.dart';
 final ShaderService shaderService = DefaultShaderService();
 
 void main() async {
+  configureProfileWizardUseCase();
+
   await shaderService.loadShader(Assets.shaderLinearGradientMask);
   await shaderService.loadShader(Assets.shaderGradientFlow);
   await shaderService.loadShader(Assets.shaderParchmentNoise);
@@ -62,14 +65,14 @@ class WidgetbookApp extends StatelessWidget {
             width: 520,
             height: 800,
             pixelRatio: 1.0,
-            platform: TargetPlatform.windows
+            platform: TargetPlatform.macOS
           ),
           ViewportData(
             name: 'Custom 640x1024',
             width: 640,
             height: 1024,
             pixelRatio: 1.0,
-            platform: TargetPlatform.windows
+            platform: TargetPlatform.macOS,
           ),
           // Breakpoint md to lg: 768 - 1024
           IosViewports.iPad,
@@ -80,7 +83,7 @@ class WidgetbookApp extends StatelessWidget {
           MacosViewports.desktop,
         ]),
         BackgroundAddon(initialColor: AppColors.backgroundPaper),
-        LocalizationAddon(        
+        LocalizationAddon(
           locales: TimerLocalizations.supportedLocales,
           localizationsDelegates: [
             GlobalMaterialLocalizations.delegate,
