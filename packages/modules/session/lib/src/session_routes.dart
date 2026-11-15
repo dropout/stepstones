@@ -1,4 +1,3 @@
-import 'package:assets/assets.dart';
 import 'package:core/core.dart';
 import 'public/model/session.dart';
 import 'presentation/view/session_completed_screen.dart';
@@ -27,7 +26,7 @@ class SessionCompletedRoute extends GoRouteData with $SessionCompletedRoute {
       transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
         opacity: CurvedAnimation(
           parent: animation,
-          curve: Curves.easeInOutExpo,
+          curve: Curves.easeOut,
         ),
         child: child,
       ),
