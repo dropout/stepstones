@@ -62,20 +62,15 @@ import 'profile_localizations_hu.dart';
 /// be consistent with the languages listed in the ProfileLocalizations.supportedLocales
 /// property.
 abstract class ProfileLocalizations {
-  ProfileLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  ProfileLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static ProfileLocalizations of(BuildContext context) {
-    return Localizations.of<ProfileLocalizations>(
-      context,
-      ProfileLocalizations,
-    )!;
+    return Localizations.of<ProfileLocalizations>(context, ProfileLocalizations)!;
   }
 
-  static const LocalizationsDelegate<ProfileLocalizations> delegate =
-      _ProfileLocalizationsDelegate();
+  static const LocalizationsDelegate<ProfileLocalizations> delegate = _ProfileLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -87,19 +82,15 @@ abstract class ProfileLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('en'),
-    Locale('hu'),
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('hu')];
 
   /// No description provided for @profile.
   ///
@@ -164,14 +155,26 @@ abstract class ProfileLocalizations {
   /// No description provided for @profileWizardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Complete your profile!'**
+  /// **'Just a moment!'**
   String get profileWizardTitle;
 
   /// No description provided for @profileWizardDescription.
   ///
   /// In en, this message translates to:
-  /// **'Add your name and profile photo to complete the profile and unlock the full potential of the application.'**
+  /// **'It seems like your profile information have not been verified yet.\n\nCan you help us and check if everything we received about you is correct?\n\nIt takes less than a minute.'**
   String get profileWizardDescription;
+
+  /// No description provided for @profileBasicsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s complete your profile!'**
+  String get profileBasicsTitle;
+
+  /// No description provided for @profileBasicsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your name and a profile photo so others can recognize you.'**
+  String get profileBasicsDescription;
 
   /// No description provided for @profileSettings.
   ///
@@ -534,20 +537,16 @@ abstract class ProfileLocalizations {
   String get locationPromptAction;
 }
 
-class _ProfileLocalizationsDelegate
-    extends LocalizationsDelegate<ProfileLocalizations> {
+class _ProfileLocalizationsDelegate extends LocalizationsDelegate<ProfileLocalizations> {
   const _ProfileLocalizationsDelegate();
 
   @override
   Future<ProfileLocalizations> load(Locale locale) {
-    return SynchronousFuture<ProfileLocalizations>(
-      lookupProfileLocalizations(locale),
-    );
+    return SynchronousFuture<ProfileLocalizations>(lookupProfileLocalizations(locale));
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'hu'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'hu'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_ProfileLocalizationsDelegate old) => false;

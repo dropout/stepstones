@@ -169,6 +169,11 @@ void main() {
         expect(find.byType(ProfileBasicsFields), findsOneWidget);
         expect(find.byType(ProfileLocationField), findsNothing);
         expect(find.byType(OnboardingWizardStepIndicator), findsOneWidget);
+        final l10n = ProfileLocalizations.of(
+          tester.element(find.byType(OnboardingWizardScreen)),
+        );
+        expect(find.text(l10n.profileBasicsTitle), findsOneWidget);
+        expect(find.text(l10n.profileBasicsDescription), findsOneWidget);
         expect(find.byType(AppButton), findsOneWidget);
         expect(find.text('TOVÁBB'), findsOneWidget);
       });

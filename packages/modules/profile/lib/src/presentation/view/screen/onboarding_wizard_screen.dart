@@ -185,13 +185,7 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
                   duration: Durations.medium1,
                   child: switch (step) {
                     .intro => _buildIntro(context),
-                    .basics => FormBuilder(
-                      key: _basicsFormKey,
-                      child: ProfileBasicsFields(
-                        profile: profile,
-                        formStateKey: _basicsFormKey,
-                      ),
-                    ),
+                    .basics => _buildBasics(context, profile),
                     .location => FormBuilder(
                       key: _locationFormKey,
                       child: Column(
@@ -213,29 +207,29 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
             ),
           ),
         ),
-        SliverSafeArea(
-          top: false,
-          sliver: SliverToBoxAdapter(
-            child: SizedBox(
-              height: DesignSpec.spacing4xl,
-              child: Center(
-                child: switch (step) {
-                  // Sign out stays available in case the user cannot continue.
-                  .intro || .basics => _textButton(
-                    context,
-                    ProfileLocalizations.of(context).signOut,
-                    () => _onSignOut(context),
-                  ),
-                  .location => _textButton(
-                    context,
-                    ProfileLocalizations.of(context).profileWizardSkip,
-                    () => _onSkipLocation(context, profile),
-                  ),
-                },
-              ),
-            ),
-          ),
-        ),
+        // SliverSafeArea(
+        //   top: false,
+        //   sliver: SliverToBoxAdapter(
+        //     child: SizedBox(
+        //       height: DesignSpec.spacing4xl,
+        //       child: Center(
+        //         child: switch (step) {
+        //           // Sign out stays available in case the user cannot continue.
+        //           .intro || .basics => _textButton(
+        //             context,
+        //             ProfileLocalizations.of(context).signOut,
+        //             () => _onSignOut(context),
+        //           ),
+        //           .location => _textButton(
+        //             context,
+        //             ProfileLocalizations.of(context).profileWizardSkip,
+        //             () => _onSkipLocation(context, profile),
+        //           ),
+        //         },
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
       overlay: SafeArea(
         top: false,
@@ -267,6 +261,7 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Gap.large(),
         Text(
           _introTitle(l10n),
           style: Theme.of(context).textTheme.headlineLarge
@@ -276,9 +271,41 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
         Text(
           description,
           key: const Key('onboarding_wizard_intro_message'),
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: .w500,
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBasics(BuildContext context, Profile profile) {
+    final l10n = ProfileLocalizations.of(context);
+    return FormBuilder(
+      key: _basicsFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.profileBasicsTitle,
+            style: Theme.of(context).textTheme.headlineLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          Gap.medium(),
+          Text(
+            l10n.profileBasicsDescription,
+            key: const Key('onboarding_wizard_basics_message'),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontWeight: .w500,
+            ),
+          ),
+          Gap.large(),
+          ProfileBasicsFields(
+            profile: profile,
+            formStateKey: _basicsFormKey,
+          ),
+        ],
+      ),
     );
   }
 
