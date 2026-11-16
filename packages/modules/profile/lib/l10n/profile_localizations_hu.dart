@@ -34,6 +34,13 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
   String get profileLocationLabel => 'Város';
 
   @override
+  String get onboardingWelcomeTitle => 'Köszönjük, hogy regisztráltál!';
+
+  @override
+  String get onboardingWelcomeDescription =>
+      'Állítsuk be a profilodat, hogy a legtöbbet hozhasd ki az alkalmazásból. Egy pillanat az egész.';
+
+  @override
   String get profileWizardTitle => 'Véglegesítsd a profilodat!';
 
   @override

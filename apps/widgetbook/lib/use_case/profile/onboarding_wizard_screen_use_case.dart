@@ -1,13 +1,16 @@
 // ignore_for_file: implementation_imports
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:core/core.dart' show OnboardingIntent;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:profile/profile.dart';
-import 'package:profile/src/presentation/view/screen/profile_wizard_screen.dart';
+import 'package:profile/src/presentation/view/screen/onboarding_wizard_screen.dart';
+import 'package:profile/src/presentation/viewmodel/onboarding_wizard_cubit.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
+import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 class _MockProfileEditCubit extends MockCubit<ProfileEditState>
@@ -16,7 +19,7 @@ class _MockProfileEditCubit extends MockCubit<ProfileEditState>
 class _MockProfileCubit extends MockCubit<ProfileState>
     implements ProfileCubit {}
 
-void configureProfileWizardUseCase() {
+void configureOnboardingWizardUseCase() {
   final profile = Profile.anonymous().copyWith(
     id: 'widgetbook-profile',
     firstName: 'Layman',
@@ -42,15 +45,31 @@ void configureProfileWizardUseCase() {
 
 @widgetbook.UseCase(
   name: 'Default',
-  type: ProfileWizardScreen,
+  type: OnboardingWizardScreen,
   path: '[Profile]/internal/screen/',
 )
-Widget buildProfileWizardScreen(BuildContext context) {
+Widget buildOnboardingWizardScreen(BuildContext context) {
+  final step = context.knobs.object.dropdown(
+    label: 'Step',
+    options: OnboardingWizardStep.values,
+    labelBuilder: (s) => s.name,
+  );
+  final intent = context.knobs.object.dropdown(
+    label: 'Intent',
+    options: OnboardingIntent.values,
+    labelBuilder: (i) => i.name,
+  );
   final profileCubit = _MockProfileCubit();
   when(() => profileCubit.state).thenReturn(const ProfileState.initial());
 
   return BlocProvider<ProfileCubit>.value(
     value: profileCubit,
-    child: const ProfileWizardScreen(profileId: 'widgetbook-profile'),
+    // The key rebuilds the screen so the cubit picks up the new step.
+    child: OnboardingWizardScreen(
+      key: ValueKey((step, intent)),
+      profileId: 'widgetbook-profile',
+      intent: intent,
+      initialStep: step,
+    ),
   );
 }

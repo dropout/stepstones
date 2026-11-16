@@ -1,14 +1,16 @@
 import 'package:core/core.dart';
 import 'package:faker/faker.dart';
 import 'package:get_it/get_it.dart';
+import 'package:profile/l10n/profile_localizations.dart';
 import 'package:profile/src/data/datasource/faker_profile_extension.dart';
 import 'package:profile/src/presentation/view/profile_basics_fields.dart';
 import 'package:profile/src/presentation/view/profile_location_field.dart';
-import 'package:profile/src/presentation/view/wizard/profile_wizard_step_indicator.dart';
-import 'package:profile/src/presentation/view/screen/profile_wizard_screen.dart';
+import 'package:profile/src/presentation/view/wizard/onboarding_wizard_step_indicator.dart';
+import 'package:profile/src/presentation/view/screen/onboarding_wizard_screen.dart';
 
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/widgets.dart' show Key;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
@@ -19,7 +21,7 @@ import '../../profile_mock_definitions.dart';
 import '../../profile_test_helper.dart';
 
 void main() {
-  group('ProfileWizardScreen Tests', () {
+  group('OnboardingWizardScreen Tests', () {
     late MockProfileEditCubit mockProfileEditCubit;
     late Services mockServices;
     late CrashlyticsService mockCrashlyticsService;
@@ -43,6 +45,11 @@ void main() {
       when(() => mockServices.crashlyticsService)
           .thenReturn(mockCrashlyticsService);
       when(() => mockServices.hapticsService).thenReturn(mockHapticsService);
+      when(() => mockServices.analyticsService)
+          .thenReturn(MockAnalyticsService());
+      when(() => mockHapticsService.tap()).thenReturn(null);
+      when(() => mockHapticsService.success()).thenReturn(null);
+      when(() => mockHapticsService.error()).thenReturn(null);
     });
 
     tearDown(() {
@@ -63,7 +70,7 @@ void main() {
             create: (context) => mockProfileEditCubit,
             child: ShaderRenderingScope(
               enabled: false,
-              child: ProfileWizardScreen(profileId: 'test_profile_id')
+              child: OnboardingWizardScreen(profileId: 'test_profile_id')
             ),
           ),
         ),
@@ -87,7 +94,7 @@ void main() {
             create: (context) => mockProfileEditCubit,
             child: ShaderRenderingScope(
               enabled: false,
-              child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              child: OnboardingWizardScreen(profileId: 'test_profile_id'),
             ),
           ),
         ),
@@ -109,12 +116,14 @@ void main() {
             create: (context) => mockProfileEditCubit,
             child: ShaderRenderingScope(
               enabled: false,
-              child: ProfileWizardScreen(profileId: 'test_profile_id'),
+              child: OnboardingWizardScreen(profileId: 'test_profile_id'),
             ),
           ),
         ),
       );
       expect(find.byType(AppErrorDisplay), findsOneWidget);
+      // Error state must stay escapable even on first sign-in.
+      expect(find.byType(CustomBackButton), findsOneWidget);
     });
 
     testWidgets('can display loaded state', (WidgetTester tester) async {
@@ -140,7 +149,7 @@ void main() {
               ],
               child: ShaderRenderingScope(
                 enabled: false,
-                child: ProfileWizardScreen(profileId: 'test_profile_id'),
+                child: OnboardingWizardScreen(profileId: 'test_profile_id'),
               ),
             ),
           ),
@@ -148,9 +157,18 @@ void main() {
 
         await tester.pumpAndSettle();
 
+        expect(find.byKey(const Key('onboarding_wizard_intro_message')),
+            findsOneWidget);
+        expect(find.byType(ProfileBasicsFields), findsNothing);
+        expect(find.byType(OnboardingWizardStepIndicator), findsNothing);
+        expect(find.text('TOVÁBB'), findsOneWidget);
+
+        await tester.tap(find.byType(AppButton));
+        await tester.pumpAndSettle();
+
         expect(find.byType(ProfileBasicsFields), findsOneWidget);
         expect(find.byType(ProfileLocationField), findsNothing);
-        expect(find.byType(ProfileWizardStepIndicator), findsOneWidget);
+        expect(find.byType(OnboardingWizardStepIndicator), findsOneWidget);
         expect(find.byType(AppButton), findsOneWidget);
         expect(find.text('TOVÁBB'), findsOneWidget);
       });
@@ -179,12 +197,14 @@ void main() {
               ],
               child: ShaderRenderingScope(
                 enabled: false,
-                child: ProfileWizardScreen(profileId: 'test_profile_id'),
+                child: OnboardingWizardScreen(profileId: 'test_profile_id'),
               ),
             ),
           ),
         );
 
+        await tester.tap(find.byType(AppButton)); // intro
+        await tester.pumpAndSettle();
         await tester.tap(find.byType(AppButton));
         await tester.pumpAndSettle();
 
@@ -247,12 +267,14 @@ void main() {
               ],
               child: ShaderRenderingScope(
                 enabled: false,
-                child: ProfileWizardScreen(profileId: 'test_profile_id'),
+                child: OnboardingWizardScreen(profileId: 'test_profile_id'),
               ),
             ),
           ),
         );
 
+        await tester.tap(find.byType(AppButton)); // intro
+        await tester.pumpAndSettle();
         await tester.tap(find.byType(AppButton));
         await tester.pumpAndSettle();
 
@@ -261,5 +283,63 @@ void main() {
         expect(find.text('MOST NEM', skipOffstage: false), findsOneWidget);
       });
     });
+
+    for (final intent in OnboardingIntent.values) {
+      testWidgets('shows a distinct intro message for ${intent.name}',
+          (WidgetTester tester) async {
+        await mockNetworkImages(() async {
+          final Profile profile = Faker().createProfile();
+          when(() => mockProfileEditCubit.state)
+              .thenReturn(ProfileEditState.loaded(profile: profile));
+          when(() => mockProfileEditCubit.stream).thenAnswer(
+            (_) => Stream<ProfileEditState>.fromIterable([
+              ProfileEditState.loaded(profile: profile),
+            ]),
+          );
+
+          await tester.pumpWidget(
+            ProfileTestHelper.withLocalizationProvider(
+              MultiProvider(
+                providers: [
+                  Provider<Services>.value(value: mockServices),
+                  BlocProvider<ProfileEditCubit>(
+                    create: (context) => mockProfileEditCubit,
+                  ),
+                ],
+                child: ShaderRenderingScope(
+                  enabled: false,
+                  child: OnboardingWizardScreen(
+                    profileId: 'test_profile_id',
+                    intent: intent,
+                  ),
+                ),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final l10n = ProfileLocalizations.of(
+            tester.element(find.byType(OnboardingWizardScreen)),
+          );
+          final expected = switch (intent) {
+            OnboardingIntent.firstSignIn => l10n.onboardingWelcomeDescription,
+            OnboardingIntent.completeProfile => l10n.profileWizardDescription,
+          };
+          expect(find.text(expected), findsOneWidget);
+          // Only the profile-button entry can be dismissed.
+          expect(
+            find.byType(CustomBackButton),
+            intent == OnboardingIntent.completeProfile
+                ? findsOneWidget
+                : findsNothing,
+          );
+          expect(find.byType(CustomAppBar), 
+            intent == OnboardingIntent.completeProfile
+                ? findsOneWidget
+                : findsNothing,
+          );
+        });
+      });
+    }
   });
 }

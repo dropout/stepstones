@@ -211,7 +211,11 @@ class AuthCubit extends Cubit<AuthState> with LoggerMixin implements AuthStateCu
 
   void _handleSuccessfulSigninRedirect(String userId, bool isFirstSignin) {
     if (isFirstSignin) {
-      profileNavigator.navigateToProfileWizard(userId, type: .replace);
+      profileNavigator.navigateToOnboarding(
+        userId,
+        intent: .firstSignIn,
+        type: .replace,
+      );
     } else {
       profileNavigator.navigateToProfile(userId, type: .replace);
 

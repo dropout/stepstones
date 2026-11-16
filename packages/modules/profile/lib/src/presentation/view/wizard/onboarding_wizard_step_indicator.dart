@@ -3,19 +3,21 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'package:core/core.dart';
 import 'package:profile/l10n/profile_localizations.dart';
-import 'package:profile/src/presentation/viewmodel/profile_wizard_cubit.dart';
+import 'package:profile/src/presentation/viewmodel/onboarding_wizard_cubit.dart';
 
-class const ProfileWizardStepIndicator({
-  required final ProfileWizardStep step,
+class const OnboardingWizardStepIndicator({
+  required final OnboardingWizardStep step,
   super.key,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final count = ProfileWizardStep.values.length;
+    // The intro is not a counted step.
+    final count = OnboardingWizardStep.values.length - 1;
+    final index = (step.index - 1).clamp(0, count - 1);
     return Column(
       children: [
         AnimatedSmoothIndicator(
-          activeIndex: step.index,
+          activeIndex: index,
           count: count,
           effect: WormEffect(
             activeDotColor: Colors.black,
@@ -27,7 +29,7 @@ class const ProfileWizardStepIndicator({
         Gap.xs(),
         Text(
           ProfileLocalizations.of(context)
-              .profileWizardStepLabel(step.index + 1, count),
+              .profileWizardStepLabel(index + 1, count),
           style: Theme.of(context).textTheme.labelMedium,
         ),
       ],

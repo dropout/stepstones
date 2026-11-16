@@ -8,20 +8,25 @@ import 'package:profile/l10n/profile_localizations.dart';
 import 'package:core/core.dart';
 import 'package:profile/src/presentation/view/profile_basics_fields.dart';
 import 'package:profile/src/presentation/view/profile_location_field.dart';
-import 'package:profile/src/presentation/view/wizard/profile_wizard_step_indicator.dart';
-import 'package:profile/src/presentation/viewmodel/profile_wizard_cubit.dart';
+import 'package:profile/src/presentation/view/wizard/onboarding_wizard_step_indicator.dart';
+import 'package:profile/src/presentation/viewmodel/onboarding_wizard_cubit.dart';
 import 'package:profile/src/public/view/location_pitch.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:profile/src/public/model/profile.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
 
-class const ProfileWizardScreen({required final String profileId, super.key})
-    extends StatefulWidget {
+class const OnboardingWizardScreen({
+  required final String profileId,
+  final OnboardingIntent intent = OnboardingIntent.firstSignIn,
+  // Lets previews and tests start on any step.
+  final OnboardingWizardStep initialStep = OnboardingWizardStep.intro,
+  super.key,
+}) extends StatefulWidget {
   @override
-  State<ProfileWizardScreen> createState() => _ProfileWizardScreenState();
+  State<OnboardingWizardScreen> createState() => _OnboardingWizardScreenState();
 }
 
-class _ProfileWizardScreenState extends State<ProfileWizardScreen>
+class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     with DefaultScreenSetupHelpersMixin {
   final GlobalKey<FormBuilderState> _basicsFormKey =
       GlobalKey<FormBuilderState>();
@@ -31,25 +36,36 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
   void _onSubmit(
     BuildContext context,
     Profile profile,
-    ProfileWizardStep step,
+    OnboardingWizardStep step,
   ) {
     final formKey = switch (step) {
+      // The intro has nothing to save.
+      .intro => null,
       .basics => _basicsFormKey,
       .location => _locationFormKey,
     };
+    if (formKey == null) {
+      context.logEvent(
+        name: 'onboarding_intro_continued',
+        parameters: {'intent': widget.intent.name},
+      );
+      context.hapticsTap();
+      context.read<OnboardingWizardCubit>().next();
+      return;
+    }
     final formState = formKey.currentState;
     if (formState == null || !formState.saveAndValidate()) {
       context.services.hapticsService.error();
       return;
     }
 
-    final wizardCubit = context.read<ProfileWizardCubit>();
+    final wizardCubit = context.read<OnboardingWizardCubit>();
     wizardCubit.setSaving(ProcessingState.processing);
     context.read<ProfileEditCubit>().updateProfile(
       profile: profile,
       formData: formState.value,
       // Basics make the profile usable; location stays optional.
-      completeProfile: step == ProfileWizardStep.basics,
+      completeProfile: step == OnboardingWizardStep.basics,
       onComplete: (updatedProfile) {
         context.services.hapticsService.success();
         context.logEvent(
@@ -57,6 +73,8 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
           parameters: {'step': step.name},
         );
         switch (step) {
+          case .intro:
+            break;
           case .basics:
             wizardCubit.next();
           case .location:
@@ -96,21 +114,24 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileWizardCubit>(
-      create: (_) => ProfileWizardCubit(),
+    return BlocProvider<OnboardingWizardCubit>(
+      create: (_) => OnboardingWizardCubit(initialStep: widget.initialStep),
       child: SmartBlocProvider<ProfileEditCubit, ProfileEditState>(
         create: (context) =>
             GetIt.I<ProfileEditCubit>()..loadProfile(widget.profileId),
         builder: (context, state) {
           return switch (state) {
             ProfileEditLoadingState() => DefaultScreenSetup(
-              title: ProfileLocalizations.of(context).profileWizardTitle,
+              enableTitleSliver: false,
+              enableAppBarTitle: false,
+              enableAppBar: _showBackButton,
+              enableBackButton: _showBackButton,
               scrollPhysics: const NeverScrollableScrollPhysics(),
               slivers: [buildLoadingSliver(context)],
             ),
             ProfileEditErrorState() => DefaultScreenSetup(
-              title: ProfileLocalizations.of(context).profileWizardTitle,
               enableTitleSliver: false,
+              enableAppBarTitle: false,
               backgroundColor: Theme.of(context).colorScheme.error,
               appBarBackgroundColor: Theme.of(context).colorScheme.error,
               backButton: CustomBackButton.light(),
@@ -119,12 +140,15 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
               slivers: [buildErrorSliver(context)],
             ),
             ProfileEditLoadedState() =>
-              BlocBuilder<ProfileWizardCubit, ProfileWizardState>(
+              BlocBuilder<OnboardingWizardCubit, OnboardingWizardState>(
                 builder: (context, wizardState) =>
                     _buildLoaded(context, state.profile, wizardState),
               ),
             _ => DefaultScreenSetup(
-              title: ProfileLocalizations.of(context).editProfile,
+              enableTitleSliver: false,
+              enableAppBarTitle: false,
+              enableAppBar: _showBackButton,
+              enableBackButton: _showBackButton,
               scrollPhysics: const NeverScrollableScrollPhysics(),
             ),
           };
@@ -136,11 +160,14 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
   Widget _buildLoaded(
     BuildContext context,
     Profile profile,
-    ProfileWizardState wizardState,
+    OnboardingWizardState wizardState,
   ) {
     final step = wizardState.step;
     return DefaultScreenSetup(
-      title: ProfileLocalizations.of(context).profileWizardTitle,
+      enableTitleSliver: false,
+      enableAppBarTitle: false,
+      enableAppBar: _showBackButton,
+      enableBackButton: _showBackButton,
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
@@ -150,11 +177,14 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: ProfileWizardStepIndicator(step: step)),
-                Gap.large(),
+                if (step != .intro) ...[
+                  Center(child: OnboardingWizardStepIndicator(step: step)),
+                  Gap.large(),
+                ],
                 AnimatedSwitcher(
                   duration: Durations.medium1,
                   child: switch (step) {
+                    .intro => _buildIntro(context),
                     .basics => FormBuilder(
                       key: _basicsFormKey,
                       child: ProfileBasicsFields(
@@ -191,7 +221,7 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
               child: Center(
                 child: switch (step) {
                   // Sign out stays available in case the user cannot continue.
-                  .basics => _textButton(
+                  .intro || .basics => _textButton(
                     context,
                     ProfileLocalizations.of(context).signOut,
                     () => _onSignOut(context),
@@ -217,7 +247,38 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
           ),
         ),
       ),
-      
+    );
+  }
+
+  // Only the profile-button entry can be dismissed; first sign-in cannot.
+  bool get _showBackButton => widget.intent == OnboardingIntent.completeProfile;
+
+  String _introTitle(ProfileLocalizations l10n) => switch (widget.intent) {
+    .firstSignIn => l10n.onboardingWelcomeTitle,
+    .completeProfile => l10n.profileWizardTitle,
+  };
+
+  Widget _buildIntro(BuildContext context) {
+    final l10n = ProfileLocalizations.of(context);
+    final description = switch (widget.intent) {
+      .firstSignIn => l10n.onboardingWelcomeDescription,
+      .completeProfile => l10n.profileWizardDescription,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _introTitle(l10n),
+          style: Theme.of(context).textTheme.headlineLarge
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Gap.medium(),
+        Text(
+          description,
+          key: const Key('onboarding_wizard_intro_message'),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ],
     );
   }
 
@@ -234,11 +295,11 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen>
   Widget _buildActionButton(
     BuildContext context,
     Profile profile,
-    ProfileWizardState wizardState,
+    OnboardingWizardState wizardState,
   ) {
     final l10n = ProfileLocalizations.of(context);
     final text = switch (wizardState.step) {
-      .basics => l10n.profileWizardContinue,
+      .intro || .basics => l10n.profileWizardContinue,
       .location => l10n.profileWizardFinish,
     }.toUpperCase();
 

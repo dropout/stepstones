@@ -52,7 +52,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       )
                     : const SizedBox.shrink(),
                 Gap.large(),
-                titleWidget ?? buildTitle(context, titleText),
+                Expanded(
+                  child: titleWidget ?? buildTitle(context, titleText),
+                ),
               ],
             ),
             trailing: Row(

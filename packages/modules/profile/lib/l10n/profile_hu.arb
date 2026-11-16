@@ -8,6 +8,8 @@
   "profileFirstnameLabel": "Keresztnév (kötelező)",
   "profileLastnameLabel": "Vezetéknév (kötelező)",
   "profileLocationLabel": "Város",
+  "onboardingWelcomeTitle": "Köszönjük, hogy regisztráltál!",
+  "onboardingWelcomeDescription": "Állítsuk be a profilodat, hogy a legtöbbet hozhasd ki az alkalmazásból. Egy pillanat az egész.",
   "profileWizardTitle": "Véglegesítsd a profilodat!",
   "profileWizardDescription": "Add meg a nevedet és profil fotódat a profil befejezéséhez és az alkalmazás teljes potenciáljának feloldásához.",
   "profileSettings": "Beállítások",

@@ -269,7 +269,7 @@ void main() {
         completed: false,
       );
 
-      final location = ProfileWizardRoute(profileId: profile.id).location;
+      final location = OnboardingRoute(profileId: profile.id).location;
 
       when(
         () => mockAuthBloc.state,
@@ -277,8 +277,12 @@ void main() {
       when(
         () => mockProfileCubit.state,
       ).thenReturn(ProfileState.loaded(profile: profile));
-      when(() => mockProfileNavigator.navigateToProfileWizard(userId))
-          .thenAnswer((_) async {});
+      when(
+        () => mockProfileNavigator.navigateToOnboarding(
+          userId,
+          intent: OnboardingIntent.completeProfile,
+        ),
+      ).thenAnswer((_) async {});
 
       final GoRouter goRouter = GoRouter(
         routes: [
@@ -316,7 +320,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      verify(() => mockProfileNavigator.navigateToProfileWizard(userId)).called(1);
+      verify(
+        () => mockProfileNavigator.navigateToOnboarding(
+          userId,
+          intent: OnboardingIntent.completeProfile,
+        ),
+      ).called(1);
       verify(() => mockHapticsService.tap()).called(1);
       expect(find.byType(SizedBox), findsOneWidget);
     });

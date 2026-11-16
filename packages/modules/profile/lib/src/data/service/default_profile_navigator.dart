@@ -19,8 +19,12 @@ class DefaultProfileNavigator extends ProfileNavigator {
     navigateTo(ProfileSettingsRoute(profileId: profileId), type: type);
   
   @override
-  Future<void> navigateToProfileWizard(String profileId, {NavigationType type = NavigationType.push}) async =>
-    navigateTo(ProfileWizardRoute(profileId: profileId), type: type);
+  Future<void> navigateToOnboarding(
+    String profileId, {
+    OnboardingIntent intent = .firstSignIn,
+    NavigationType type = NavigationType.push,
+  }) =>
+    navigateTo(OnboardingRoute(profileId: profileId, intent: intent), type: type);
 
   @override
   Future<void> navigateToProfileDelete(String profileId, {NavigationType type = .push}) async =>

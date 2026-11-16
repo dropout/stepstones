@@ -20,7 +20,10 @@ class const ProfileButton({
     if (profile.completed) {
       context.services.profileNavigator.navigateToProfile(profile.id);
     } else {
-      context.services.profileNavigator.navigateToProfileWizard(profile.id);
+      context.services.profileNavigator.navigateToOnboarding(
+        profile.id,
+        intent: .completeProfile,
+      );
     }
     context.hapticsTap();
   }

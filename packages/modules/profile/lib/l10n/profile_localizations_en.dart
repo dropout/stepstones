@@ -34,6 +34,13 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
   String get profileLocationLabel => 'City';
 
   @override
+  String get onboardingWelcomeTitle => 'Thanks for signing up!';
+
+  @override
+  String get onboardingWelcomeDescription =>
+      'Let\'s set up your profile to make out the most of the app. It only takes a moment.';
+
+  @override
   String get profileWizardTitle => 'Complete your profile!';
 
   @override

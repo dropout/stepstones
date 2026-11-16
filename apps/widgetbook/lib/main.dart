@@ -11,7 +11,7 @@ import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
 import 'package:core/core.dart';
 import 'package:stepstones_widgetbook/addons/background_addon.dart';
-import 'package:stepstones_widgetbook/use_case/profile/profile_wizard_screen_use_case.dart';
+import 'package:stepstones_widgetbook/use_case/profile/onboarding_wizard_screen_use_case.dart';
 import 'package:timer/timer.dart';
 
 import 'main.directories.g.dart';
@@ -19,7 +19,7 @@ import 'main.directories.g.dart';
 final ShaderService shaderService = DefaultShaderService();
 
 void main() async {
-  configureProfileWizardUseCase();
+  configureOnboardingWizardUseCase();
 
   await shaderService.loadShader(Assets.shaderLinearGradientMask);
   await shaderService.loadShader(Assets.shaderGradientFlow);

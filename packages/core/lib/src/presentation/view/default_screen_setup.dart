@@ -16,12 +16,16 @@ import 'package:core/src/presentation/design_spec.dart';
 /// This widget is designed to be flexible and customizable, allowing you
 /// to easily create new screens with a consistent look and feel across the app.
 class const DefaultScreenSetup({
-  required final String title,
+  // Seeds the background pattern; leave empty for a fixed background.
+  final String title = '',
   final List<Widget> slivers = const [],
   final Widget? backButton,
   final Widget? overlay,
   final bool enableAppBarSliver = false,
   final bool enableTitleSliver = true,
+  final bool enableAppBar = true,
+  final bool enableAppBarTitle = true,
+  final bool enableBackButton = true,
   final bool enableScaffolding = true,
   final bool enableTitleScrollEffect = true,
   final Color? titleColor,
@@ -144,7 +148,9 @@ class _DefaultScreenSetupState extends State<DefaultScreenSetup>
   Widget buildScaffolding(BuildContext context, Widget body) {
     if (widget.enableScaffolding) {
       final double topInset = MediaQuery.of(context).viewPadding.top;
-      final double appBarHeightWithTopPadding = math.max(DesignSpec.paddingXl, topInset) + 56.0;
+      final double appBarHeightWithTopPadding = widget.enableAppBar
+          ? math.max(DesignSpec.paddingXl, topInset) + 56.0
+          : topInset + DesignSpec.paddingXl;
       const double fadeLength = 10.0;
 
       // Seed based on title so that the background
@@ -153,15 +159,19 @@ class _DefaultScreenSetupState extends State<DefaultScreenSetup>
 
       return Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: CustomAppBar(
-          titleWidget: buildTitleEffectAppBarTitle(
-            context,
-            widget.title,
-            titleOpacity: appBarTitleOpacity,
-            enableTitleSliver: widget.enableTitleSliver,
-          ),
-          leading: CustomBackButton(),
-        ),
+        appBar: widget.enableAppBar
+            ? CustomAppBar(
+                titleWidget: widget.enableAppBarTitle
+                    ? buildTitleEffectAppBarTitle(
+                        context,
+                        widget.title,
+                        titleOpacity: appBarTitleOpacity,
+                        enableTitleSliver: widget.enableTitleSliver,
+                      )
+                    : null,
+                leading: widget.enableBackButton ? CustomBackButton() : null,
+              )
+            : null,
         body: widget.appBarBackgroundColor != null
             ? Container(
                 color: widget.appBarBackgroundColor,
@@ -305,6 +315,8 @@ mixin DefaultScreenSetupHelpersMixin {
         opacity: opacity,
         child: Text(
           titleText,
+          maxLines: 1,
+          overflow: .ellipsis,          
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 26,

@@ -149,6 +149,18 @@ abstract class ProfileLocalizations {
   /// **'City'**
   String get profileLocationLabel;
 
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for signing up!'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s set up your profile to make out the most of the app. It only takes a moment.'**
+  String get onboardingWelcomeDescription;
+
   /// No description provided for @profileWizardTitle.
   ///
   /// In en, this message translates to:

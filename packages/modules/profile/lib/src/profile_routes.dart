@@ -5,23 +5,27 @@ import 'package:get_it/get_it.dart';
 import 'package:core/core.dart';
 import 'package:profile/src/presentation/view/screen/profile_settings_screen.dart';
 import 'package:profile/src/presentation/view/screen/profile_screen.dart';
-import 'package:profile/src/presentation/view/screen/profile_wizard_screen.dart';
+import 'package:profile/src/presentation/view/screen/onboarding_wizard_screen.dart';
 import 'package:profile/src/presentation/view/screen/profile_edit_screen.dart';
 import 'package:profile/src/presentation/view/screen/delete_profile_screen.dart';
 
 part 'profile_routes.g.dart';
 
-@TypedGoRoute<ProfileWizardRoute>(
-  path: '/profileWizard/:profileId',
-  name: 'PROFILE_WIZARD',
+@TypedGoRoute<OnboardingRoute>(
+  path: '/onboarding/:profileId',
+  name: 'ONBOARDING',
 )
-class ProfileWizardRoute extends GoRouteData
-    with AuthRedirectHook, $ProfileWizardRoute {
+class OnboardingRoute extends GoRouteData
+    with AuthRedirectHook, $OnboardingRoute {
   final String profileId;
-  const ProfileWizardRoute({required this.profileId});
+  final OnboardingIntent intent;
+  const OnboardingRoute({
+    required this.profileId,
+    this.intent = OnboardingIntent.firstSignIn,
+  });
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      ProfileWizardScreen(profileId: profileId);
+      OnboardingWizardScreen(profileId: profileId, intent: intent);
   @override
   String? redirect(BuildContext context, GoRouterState state) =>
       authRedirectHook(context, state);
@@ -93,7 +97,7 @@ class ProfileSettingsRoute extends GoRouteData
 
 /// Will be used to register the profile module's routes with the app's router.
 final List<RouteBase> $profileRoutes = [
-  $profileWizardRoute,
+  $onboardingRoute,
   $profileRoute,
   $profileEditRoute,
   $profileDeleteRoute,

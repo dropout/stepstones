@@ -8,6 +8,8 @@
   "profileFirstnameLabel": "Firstname (required)",
   "profileLastnameLabel": "Lastname (required)",
   "profileLocationLabel": "City",
+  "onboardingWelcomeTitle": "Thanks for signing up!",
+  "onboardingWelcomeDescription": "Let's set up your profile to make out the most of the app. It only takes a moment.",
   "profileWizardTitle": "Complete your profile!",
   "profileWizardDescription": "Add your name and profile photo to complete the profile and unlock the full potential of the application.",
   "profileSettings": "Settings",
