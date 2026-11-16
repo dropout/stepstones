@@ -9,10 +9,12 @@ import 'package:profile/src/public/model/profile.dart';
 class ProfileLocationField extends StatelessWidget {
   final Profile profile;
   final GlobalKey<FormBuilderState> formStateKey;
+  final bool showInfoCard;
 
   const ProfileLocationField({
     required this.profile,
     required this.formStateKey,
+    this.showInfoCard = true,
     super.key,
   });
 
@@ -23,6 +25,7 @@ class ProfileLocationField extends StatelessWidget {
       label: ProfileLocalizations.of(context).profileLocationLabel,
       key: const Key('profile_edit_form_location_input'),
       initialValue: profile.location,
+      showInfoCard: showInfoCard,
       onChanged: (_) => formStateKey.currentState?.fields['location']?.validate(),
     );
   }

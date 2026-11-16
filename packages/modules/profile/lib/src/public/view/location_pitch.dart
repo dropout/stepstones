@@ -3,8 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:core/core.dart';
 import 'package:profile/l10n/profile_localizations.dart';
 
-/// Explains why adding a city is worthwhile; shared by the wizard
-/// and the post-session prompt so the pitch stays consistent.
+/// Explains why adding a city is worthwhile.
 class const LocationPitch({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

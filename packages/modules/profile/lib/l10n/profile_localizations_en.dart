@@ -48,10 +48,11 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
       'It seems like your profile information have not been verified yet.\n\nCan you help us and check if everything we received about you is correct?\n\nIt takes less than a minute.';
 
   @override
-  String get profileBasicsTitle => 'Let\'s complete your profile!';
+  String get profileBasicsTitle => 'Let\'s do the basic information!';
 
   @override
-  String get profileBasicsDescription => 'Add your name and a profile photo so others can recognize you.';
+  String get profileBasicsDescription =>
+      'Please check if your name is correct. You can also choose a profile photo if you like.';
 
   @override
   String get profileSettings => 'Settings';
@@ -66,10 +67,12 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
   String get deleteProfileScreenTitle => 'Delete profile!';
 
   @override
-  String get deleteProfileScreenText => 'To delete your profile, you need to sign in again for security reasons.';
+  String get deleteProfileScreenText =>
+      'To delete your profile, you need to sign in again for security reasons.';
 
   @override
-  String get deleteProfileScreenSuccessTitle => 'Your profile\nhas been deleted!';
+  String get deleteProfileScreenSuccessTitle =>
+      'Your profile\nhas been deleted!';
 
   @override
   String get deleteProfileScreenOkayButtonText => 'Okay';
@@ -156,7 +159,8 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
   }
 
   @override
-  String get statsNextMilestoneCompletedText => 'Congratulations for reaching a new milestone!';
+  String get statsNextMilestoneCompletedText =>
+      'Congratulations for reaching a new milestone!';
 
   @override
   String sessionsPlural(num count) {
@@ -228,54 +232,64 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
       'Clears all cached audio and lyrics files for chants. This will free up storage space, but you will need to re-download the files if you want to play them again.';
 
   @override
-  String get healthConnect_initializingTitle_ios => 'Save completed sessions to\nApple Health';
+  String get healthConnect_initializingTitle_ios =>
+      'Save completed sessions to\nApple Health';
 
   @override
-  String get healthConnect_initializingText_ios => 'Checking service availability...';
+  String get healthConnect_initializingText_ios =>
+      'Checking service availability...';
 
   @override
-  String get healthConnect_initializingTitle_android => 'Save completed sessions to\nGoogle Health Connect';
+  String get healthConnect_initializingTitle_android =>
+      'Save completed sessions to\nGoogle Health Connect';
 
   @override
-  String get healthConnect_initializingText_android => 'Checking service availability...';
+  String get healthConnect_initializingText_android =>
+      'Checking service availability...';
 
   @override
-  String get healthConnect_serviceNotAvailableTitle_ios => 'Save completed sessions to\nApple Health';
+  String get healthConnect_serviceNotAvailableTitle_ios =>
+      'Save completed sessions to\nApple Health';
 
   @override
   String get healthConnect_serviceNotAvailableText_ios =>
       'Apple Health Connect service is not available on this device. Please check if the service is installed and enabled.';
 
   @override
-  String get healthConnect_serviceNotAvailableTitle_android => 'Save completed sessions to\nGoogle Health Connect';
+  String get healthConnect_serviceNotAvailableTitle_android =>
+      'Save completed sessions to\nGoogle Health Connect';
 
   @override
   String get healthConnect_serviceNotAvailableText_android =>
       'Google Health Connect service is not available on this device. Please check if you have the latest updates installed.';
 
   @override
-  String get healthConnect_readyTitle_ios => 'Save completed sessions to\nApple Health';
+  String get healthConnect_readyTitle_ios =>
+      'Save completed sessions to\nApple Health';
 
   @override
   String get healthConnect_readyText_ios =>
       'Sync the time you\'ve spent meditating in the application to Apple Health and keep your health data centralized.';
 
   @override
-  String get healthConnect_readyTitle_android => 'Save completed sessions to\nGoogle Health';
+  String get healthConnect_readyTitle_android =>
+      'Save completed sessions to\nGoogle Health';
 
   @override
   String get healthConnect_readyText_android =>
       'Keep the time you\'ve spent meditating in the application in sync with Google Health Connect.';
 
   @override
-  String get healthConnect_unnecessaryTitle_ios => 'Save completed sessions to\nApple Health';
+  String get healthConnect_unnecessaryTitle_ios =>
+      'Save completed sessions to\nApple Health';
 
   @override
   String get healthConnect_unnecessaryText_ios =>
       'Keep the time you\'ve spent meditating in sync with Apple Health. To manage permissions, go to Settings > Apps > Health > Data Access & Devices.';
 
   @override
-  String get healthConnect_unnecessaryTitle_android => 'Save completed sessions to\nGoogle Health Connect';
+  String get healthConnect_unnecessaryTitle_android =>
+      'Save completed sessions to\nGoogle Health Connect';
 
   @override
   String get healthConnect_unnecessaryText_android =>
@@ -285,6 +299,9 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
   String profileWizardStepLabel(int current, int total) {
     return 'Step $current of $total';
   }
+
+  @override
+  String get profileWizardCheck => 'Check';
 
   @override
   String get profileWizardContinue => 'Continue';
@@ -300,7 +317,7 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
 
   @override
   String get locationPitchBody =>
-      'Add your city and the list after each session shows the people closest to you first. Only your city is used, never your exact position.';
+      'Add your city and the app will show nearby practitioners who you have practiced with.\n\nThe application only uses your input, never location services on your device.\n\nYou can change or remove it anytime.';
 
   @override
   String get locationPromptAction => 'Add my city';

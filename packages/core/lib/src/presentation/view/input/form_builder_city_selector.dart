@@ -26,8 +26,12 @@ enum CitySelectorProcessingState {
 class FormBuilderCitySelector extends FormBuilderField<Location?> {
   final String? label;
 
+  /// Shows the explanation when no city is selected.
+  final bool showInfoCard;
+
   FormBuilderCitySelector({
     this.label,
+    this.showInfoCard = true,
     // From Super
     AutovalidateMode super.autovalidateMode = AutovalidateMode.disabled,
     super.enabled,
@@ -47,6 +51,7 @@ class FormBuilderCitySelector extends FormBuilderField<Location?> {
              placeholderText: field.context.coreL10n.locationInputPlaceholder,
              initialLocation: field.value,
              onChanged: (location) => field.didChange(location),
+             showInfoCard: showInfoCard,
            );
          },
        );
@@ -63,6 +68,7 @@ class const CitySelectorInput({
   final Location? initialLocation,
   final void Function(Location? location)? onChanged,
   final String? placeholderText,
+  final bool showInfoCard = true,
   super.key,
 }) extends StatefulWidget {
   @override
@@ -116,8 +122,10 @@ class _CitySelectorInputState extends State<CitySelectorInput> {
           readOnly: true,
           onTap: () => showCitySelectorSheet(context),
         ),
-        Gap.medium(),
-        buildMapArea(context),
+        if (hasLocation || widget.showInfoCard) ...[
+          Gap.medium(),
+          buildMapArea(context),
+        ],
         DesignSpec.bottomActionSpacingWidget,
       ],
     );

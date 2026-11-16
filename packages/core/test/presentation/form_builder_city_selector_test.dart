@@ -7,6 +7,7 @@ import 'package:core/src/service/functions_service.dart';
 import 'package:core/src/testing/mock_definitions.dart';
 import 'package:core/src/util/services.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_localizations/flutter_localizations.dart' hide GlobalMaterialLocalizations;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -46,6 +47,38 @@ void main() {
     await tester.enterText(find.byType(TextField), query);
     await tester.pump(const Duration(milliseconds: 301));
   }
+
+  testWidgets('can hide the optional location information card', (tester) async {
+    Widget selector({bool? showInfoCard}) => MaterialApp(
+      locale: const Locale('en'),
+      localizationsDelegates: const [
+        CoreLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: FormBuilder(
+            child: showInfoCard == null
+                ? FormBuilderCitySelector(name: 'location')
+                : FormBuilderCitySelector(
+                    name: 'location',
+                    showInfoCard: showInfoCard,
+                  ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(selector());
+    expect(find.text('Why set a location?'), findsOneWidget);
+    await tester.pumpWidget(selector(showInfoCard: false));
+    expect(find.text('Why set a location?'), findsNothing);
+    expect(find.byType(TextField), findsOneWidget);
+    await tester.pumpWidget(selector(showInfoCard: true));
+    expect(find.text('Why set a location?'), findsOneWidget);
+  });
 
   testWidgets('shows failure and allows a later search', (tester) async {
     when(() => functions.citySearch(queryString: 'Bud')).thenAnswer((_) async => throw Exception('unavailable'));

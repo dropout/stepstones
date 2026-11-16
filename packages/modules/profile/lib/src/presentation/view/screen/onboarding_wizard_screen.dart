@@ -10,7 +10,6 @@ import 'package:profile/src/presentation/view/profile_basics_fields.dart';
 import 'package:profile/src/presentation/view/profile_location_field.dart';
 import 'package:profile/src/presentation/view/wizard/onboarding_wizard_step_indicator.dart';
 import 'package:profile/src/presentation/viewmodel/onboarding_wizard_cubit.dart';
-import 'package:profile/src/public/view/location_pitch.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:profile/src/public/model/profile.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
@@ -28,16 +27,20 @@ class const OnboardingWizardScreen({
 
 class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     with DefaultScreenSetupHelpersMixin {
-  final GlobalKey<FormBuilderState> _basicsFormKey =
+  GlobalKey<FormBuilderState> _basicsFormKey =
       GlobalKey<FormBuilderState>();
-  final GlobalKey<FormBuilderState> _locationFormKey =
+  GlobalKey<FormBuilderState> _locationFormKey =
       GlobalKey<FormBuilderState>();
+  Map<String, dynamic>? _basicsDraft;
+  Map<String, dynamic>? _locationDraft;
 
   void _onSubmit(
     BuildContext context,
     Profile profile,
     OnboardingWizardStep step,
   ) {
+    final wizardCubit = context.read<OnboardingWizardCubit>();
+    if (wizardCubit.state.saving == ProcessingState.processing) return;
     final formKey = switch (step) {
       // The intro has nothing to save.
       .intro => null,
@@ -50,7 +53,8 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
         parameters: {'intent': widget.intent.name},
       );
       context.hapticsTap();
-      context.read<OnboardingWizardCubit>().next();
+      FocusManager.instance.primaryFocus?.unfocus();
+      wizardCubit.next();
       return;
     }
     final formState = formKey.currentState;
@@ -59,7 +63,6 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
       return;
     }
 
-    final wizardCubit = context.read<OnboardingWizardCubit>();
     wizardCubit.setSaving(ProcessingState.processing);
     context.read<ProfileEditCubit>().updateProfile(
       profile: profile,
@@ -67,6 +70,7 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
       // Basics make the profile usable; location stays optional.
       completeProfile: step == OnboardingWizardStep.basics,
       onComplete: (updatedProfile) {
+        if (!context.mounted) return;
         context.services.hapticsService.success();
         context.logEvent(
           name: 'profile_wizard_step_completed',
@@ -76,17 +80,56 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
           case .intro:
             break;
           case .basics:
+            FocusManager.instance.primaryFocus?.unfocus();
+            _preserveStep(context, step);
             wizardCubit.next();
           case .location:
             _finish(context, updatedProfile);
         }
       },
       onError: (e, stack) {
+        if (!context.mounted) return;
         wizardCubit.setSaving(ProcessingState.idle);
         context.services.hapticsService.error();
       },
     );
     context.services.hapticsService.tap();
+  }
+
+  void _preserveStep(BuildContext context, OnboardingWizardStep step) {
+    switch (step) {
+      case .intro:
+        break;
+      case .basics:
+        final form = _basicsFormKey.currentState;
+        if (form != null) {
+          _basicsDraft = form.instantValue;
+          if (form.isDirty) {
+            context.read<OnboardingWizardCubit>().invalidateBasics();
+          }
+        }
+        _basicsFormKey = GlobalKey<FormBuilderState>();
+      case .location:
+        _locationDraft = _locationFormKey.currentState?.instantValue;
+        _locationFormKey = GlobalKey<FormBuilderState>();
+    }
+  }
+
+  void _onSelectStep(
+    BuildContext context,
+    OnboardingWizardStep currentStep,
+    OnboardingWizardStep selectedStep,
+  ) {
+    final cubit = context.read<OnboardingWizardCubit>();
+    if (cubit.state.saving == ProcessingState.processing ||
+        selectedStep == currentStep ||
+        (selectedStep == .location && !cubit.canOpenLocation)) {
+      return;
+    }
+    _preserveStep(context, currentStep);
+    FocusManager.instance.primaryFocus?.unfocus();
+    context.hapticsTap();
+    cubit.goTo(selectedStep);
   }
 
   void _onSkipLocation(BuildContext context, Profile profile) {
@@ -163,6 +206,7 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     OnboardingWizardState wizardState,
   ) {
     final step = wizardState.step;
+    final wizardCubit = context.read<OnboardingWizardCubit>();
     return DefaultScreenSetup(
       enableTitleSliver: false,
       enableAppBarTitle: false,
@@ -177,30 +221,24 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (step != .intro) ...[
-                  Center(child: OnboardingWizardStepIndicator(step: step)),
-                  Gap.large(),
-                ],
                 AnimatedSwitcher(
                   duration: Durations.medium1,
-                  child: switch (step) {
-                    .intro => _buildIntro(context),
-                    .basics => _buildBasics(context, profile),
-                    .location => FormBuilder(
-                      key: _locationFormKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const LocationPitch(),
-                          Gap.large(),
-                          ProfileLocationField(
-                            profile: profile,
-                            formStateKey: _locationFormKey,
-                          ),
-                        ],
-                      ),
-                    ),
-                  },
+                  layoutBuilder: (currentChild, previousChildren) => Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      for (final child in previousChildren)
+                        IgnorePointer(child: ExcludeSemantics(child: child)),
+                      ?currentChild,
+                    ],
+                  ),
+                  child: KeyedSubtree(
+                    key: ValueKey(step),
+                    child: switch (step) {
+                      .intro => _buildIntro(context),
+                      .basics => _buildBasics(context, profile, wizardState),
+                      .location => _buildLocation(context, profile, wizardState),
+                    },
+                  ),
                 ),
                 Gap.medium(),
               ],
@@ -230,6 +268,13 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
         //     ),
         //   ),
         // ),
+        SliverPadding(
+          padding: EdgeInsets.only(
+            bottom: DesignSpec.bottomActionSpacing +
+                OnboardingWizardStepIndicator.touchTargetSize +
+                MediaQuery.viewPaddingOf(context).bottom,
+          ),
+        ),
       ],
       overlay: SafeArea(
         top: false,
@@ -237,7 +282,20 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
           alignment: const Alignment(0.0, 1.0),
           child: Padding(
             padding: const EdgeInsets.only(bottom: DesignSpec.paddingLg),
-            child: _buildActionButton(context, profile, wizardState),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                OnboardingWizardStepIndicator(
+                  step: step,
+                  locationEnabled: wizardCubit.canOpenLocation,
+                  onSelected: wizardState.saving == ProcessingState.processing
+                      ? null
+                      : (selectedStep) =>
+                            _onSelectStep(context, step, selectedStep),
+                ),
+                _buildActionButton(context, profile, wizardState),
+              ],
+            ),
           ),
         ),
       ),
@@ -279,13 +337,28 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     );
   }
 
-  Widget _buildBasics(BuildContext context, Profile profile) {
+  Widget _buildBasics(
+    BuildContext context,
+    Profile profile,
+    OnboardingWizardState wizardState,
+  ) {
     final l10n = ProfileLocalizations.of(context);
     return FormBuilder(
       key: _basicsFormKey,
+      enabled: wizardState.saving != ProcessingState.processing,
+      initialValue: _basicsDraft ?? const {},
+      onChanged: () {
+        final cubit = context.read<OnboardingWizardCubit>();
+        if (cubit.canOpenLocation &&
+            (_basicsFormKey.currentState?.isDirty ?? false)) {
+          cubit.invalidateBasics();
+          setState(() {});
+        }
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Gap.large(),
           Text(
             l10n.profileBasicsTitle,
             style: Theme.of(context).textTheme.headlineLarge
@@ -301,8 +374,56 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
           ),
           Gap.large(),
           ProfileBasicsFields(
-            profile: profile,
+            profile: _basicsDraft == null
+                ? profile
+                : profile.copyWith(
+                    firstName: _basicsDraft!['firstName'] as String? ??
+                        profile.firstName,
+                    lastName: _basicsDraft!['lastName'] as String? ??
+                        profile.lastName,
+                  ),
             formStateKey: _basicsFormKey,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocation(
+    BuildContext context,
+    Profile profile,
+    OnboardingWizardState wizardState,
+  ) {
+    final l10n = ProfileLocalizations.of(context);
+    return FormBuilder(
+      key: _locationFormKey,
+      enabled: wizardState.saving != ProcessingState.processing,
+      initialValue: _locationDraft ?? const {},
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Gap.large(),
+          Text(
+            l10n.locationPitchTitle,
+            style: Theme.of(context).textTheme.headlineLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          Gap.medium(),
+          Text(
+            l10n.locationPitchBody,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontWeight: .w500,
+            ),
+          ),
+          Gap.large(),
+          ProfileLocationField(
+            profile: _locationDraft == null
+                ? profile
+                : profile.copyWith(
+                    location: _locationDraft!['location'] as Location?,
+                  ),
+            formStateKey: _locationFormKey,
+            showInfoCard: false,
           ),
         ],
       ),
@@ -326,7 +447,8 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
   ) {
     final l10n = ProfileLocalizations.of(context);
     final text = switch (wizardState.step) {
-      .intro || .basics => l10n.profileWizardContinue,
+      .intro => l10n.profileWizardCheck,
+      .basics => l10n.profileWizardContinue,
       .location => l10n.profileWizardFinish,
     }.toUpperCase();
 

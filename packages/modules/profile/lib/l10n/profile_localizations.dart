@@ -62,15 +62,20 @@ import 'profile_localizations_hu.dart';
 /// be consistent with the languages listed in the ProfileLocalizations.supportedLocales
 /// property.
 abstract class ProfileLocalizations {
-  ProfileLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  ProfileLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
   static ProfileLocalizations of(BuildContext context) {
-    return Localizations.of<ProfileLocalizations>(context, ProfileLocalizations)!;
+    return Localizations.of<ProfileLocalizations>(
+      context,
+      ProfileLocalizations,
+    )!;
   }
 
-  static const LocalizationsDelegate<ProfileLocalizations> delegate = _ProfileLocalizationsDelegate();
+  static const LocalizationsDelegate<ProfileLocalizations> delegate =
+      _ProfileLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,15 +87,19 @@ abstract class ProfileLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('hu')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('hu'),
+  ];
 
   /// No description provided for @profile.
   ///
@@ -167,13 +176,13 @@ abstract class ProfileLocalizations {
   /// No description provided for @profileBasicsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Let\'s complete your profile!'**
+  /// **'Let\'s do the basic information!'**
   String get profileBasicsTitle;
 
   /// No description provided for @profileBasicsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Add your name and a profile photo so others can recognize you.'**
+  /// **'Please check if your name is correct. You can also choose a profile photo if you like.'**
   String get profileBasicsDescription;
 
   /// No description provided for @profileSettings.
@@ -500,6 +509,12 @@ abstract class ProfileLocalizations {
   /// **'Step {current} of {total}'**
   String profileWizardStepLabel(int current, int total);
 
+  /// No description provided for @profileWizardCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get profileWizardCheck;
+
   /// No description provided for @profileWizardContinue.
   ///
   /// In en, this message translates to:
@@ -527,7 +542,7 @@ abstract class ProfileLocalizations {
   /// No description provided for @locationPitchBody.
   ///
   /// In en, this message translates to:
-  /// **'Add your city and the list after each session shows the people closest to you first. Only your city is used, never your exact position.'**
+  /// **'Add your city and the app will show nearby practitioners who you have practiced with.\n\nThe application only uses your input, never location services on your device.\n\nYou can change or remove it anytime.'**
   String get locationPitchBody;
 
   /// No description provided for @locationPromptAction.
@@ -537,16 +552,20 @@ abstract class ProfileLocalizations {
   String get locationPromptAction;
 }
 
-class _ProfileLocalizationsDelegate extends LocalizationsDelegate<ProfileLocalizations> {
+class _ProfileLocalizationsDelegate
+    extends LocalizationsDelegate<ProfileLocalizations> {
   const _ProfileLocalizationsDelegate();
 
   @override
   Future<ProfileLocalizations> load(Locale locale) {
-    return SynchronousFuture<ProfileLocalizations>(lookupProfileLocalizations(locale));
+    return SynchronousFuture<ProfileLocalizations>(
+      lookupProfileLocalizations(locale),
+    );
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'hu'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'hu'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_ProfileLocalizationsDelegate old) => false;

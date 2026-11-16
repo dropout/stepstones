@@ -68,6 +68,7 @@
   "healthConnect_unnecessaryTitle_android": "Befejezett ülések mentése a\nGoogle Health-be",
   "healthConnect_unnecessaryText_android": "A Google Health Connect szolgáltatás már engedélyezve van, így a meditációra fordított időt már elmenthetjük a Google Health Connect-be.",
   "profileWizardStepLabel": "{current}. lépés / {total}",
+  "profileWizardCheck": "Ellenőrzés",
   "profileWizardContinue": "Tovább",
   "profileWizardFinish": "Befejezés",
   "profileWizardSkip": "Most nem",

@@ -19,18 +19,35 @@ abstract class OnboardingWizardState with _$OnboardingWizardState {
 class OnboardingWizardCubit extends Cubit<OnboardingWizardState> {
   OnboardingWizardCubit({
     OnboardingWizardStep initialStep = OnboardingWizardStep.intro,
-  }) : super(OnboardingWizardState(step: initialStep));
+  }) : _basicsCompleted = initialStep == OnboardingWizardStep.location,
+       super(OnboardingWizardState(step: initialStep));
+
+  bool _basicsCompleted;
+
+  bool get canOpenLocation => _basicsCompleted;
+
+  void invalidateBasics() => _basicsCompleted = false;
 
   void setSaving(ProcessingState saving) =>
       emit(state.copyWith(saving: saving));
 
-  void next() => emit(
-    state.copyWith(
-      step: switch (state.step) {
-        .intro => OnboardingWizardStep.basics,
-        .basics || .location => OnboardingWizardStep.location,
-      },
-      saving: ProcessingState.idle,
-    ),
-  );
+  void goTo(OnboardingWizardStep step) {
+    if (state.saving == ProcessingState.processing ||
+        step == state.step ||
+        (step == OnboardingWizardStep.location && !_basicsCompleted)) {
+      return;
+    }
+    emit(state.copyWith(step: step));
+  }
+
+  void next() {
+    final step = switch (state.step) {
+      .intro => OnboardingWizardStep.basics,
+      .basics || .location => OnboardingWizardStep.location,
+    };
+    if (state.step == OnboardingWizardStep.basics) {
+      _basicsCompleted = true;
+    }
+    emit(state.copyWith(step: step, saving: ProcessingState.idle));
+  }
 }

@@ -67,7 +67,8 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
   String get deleteProfileScreenTitle => 'Profil törlése!';
 
   @override
-  String get deleteProfileScreenText => 'A profilod törléséhez biztonsági okokból újra be kell jelentkezned.';
+  String get deleteProfileScreenText =>
+      'A profilod törléséhez biztonsági okokból újra be kell jelentkezned.';
 
   @override
   String get deleteProfileScreenSuccessTitle => 'A profilod\ntörölve lett!';
@@ -157,7 +158,8 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
   }
 
   @override
-  String get statsNextMilestoneCompletedText => 'Gratulálunk az új mérföldkőhöz!';
+  String get statsNextMilestoneCompletedText =>
+      'Gratulálunk az új mérföldkőhöz!';
 
   @override
   String sessionsPlural(num count) {
@@ -229,54 +231,64 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
       'Törli az összes gyorsítótárban tárolt hang- és dalszövegfájlt a mantrákhoz. Ez felszabadítja a tárhelyet, de újra le kell töltened a fájlokat, ha újra szeretnéd lejátszani őket.';
 
   @override
-  String get healthConnect_initializingTitle_ios => 'Befejezett ülések mentése az\nApple Health-be';
+  String get healthConnect_initializingTitle_ios =>
+      'Befejezett ülések mentése az\nApple Health-be';
 
   @override
-  String get healthConnect_initializingText_ios => 'Szolgáltatás elérhetőségének ellenőrzése...';
+  String get healthConnect_initializingText_ios =>
+      'Szolgáltatás elérhetőségének ellenőrzése...';
 
   @override
-  String get healthConnect_initializingTitle_android => 'Befejezett ülések mentése a\nGoogle Health-be';
+  String get healthConnect_initializingTitle_android =>
+      'Befejezett ülések mentése a\nGoogle Health-be';
 
   @override
-  String get healthConnect_initializingText_android => 'Szolgáltatás elérhetőségének ellenőrzése...';
+  String get healthConnect_initializingText_android =>
+      'Szolgáltatás elérhetőségének ellenőrzése...';
 
   @override
-  String get healthConnect_serviceNotAvailableTitle_ios => 'Befejezett ülések mentése az\nApple Health-be';
+  String get healthConnect_serviceNotAvailableTitle_ios =>
+      'Befejezett ülések mentése az\nApple Health-be';
 
   @override
   String get healthConnect_serviceNotAvailableText_ios =>
       'Az Apple Health szolgáltatás nem elérhető ezen az eszközön. Kérlek ellenőrizd, hogy a szolgáltatás telepítve és engedélyezve van-e.';
 
   @override
-  String get healthConnect_serviceNotAvailableTitle_android => 'Befejezett ülések mentése a\nGoogle Health-be';
+  String get healthConnect_serviceNotAvailableTitle_android =>
+      'Befejezett ülések mentése a\nGoogle Health-be';
 
   @override
   String get healthConnect_serviceNotAvailableText_android =>
       'A Google Health Connect szolgáltatás nem elérhető ezen az eszközön. Kérlek ellenőrizd, hogy a szolgáltatás telepítve és engedélyezve van-e.';
 
   @override
-  String get healthConnect_readyTitle_ios => 'Befejezett ülések mentése az\nApple Health-be';
+  String get healthConnect_readyTitle_ios =>
+      'Befejezett ülések mentése az\nApple Health-be';
 
   @override
   String get healthConnect_readyText_ios =>
       'Engedélyezd az Apple Health szolgáltatást, hogy a meditációra fordított időt elmenthessük és ezáltal egy helyen tarthatod az egészségügyi adataidat.';
 
   @override
-  String get healthConnect_readyTitle_android => 'Befejezett ülések mentése a\nGoogle Health-be';
+  String get healthConnect_readyTitle_android =>
+      'Befejezett ülések mentése a\nGoogle Health-be';
 
   @override
   String get healthConnect_readyText_android =>
       'Engedélyezd a Google Health Connect szolgáltatást, hogy a meditációra fordított időt elmenthessük és ezáltal egy helyen tarthatod az egészségügyi adataidat.';
 
   @override
-  String get healthConnect_unnecessaryTitle_ios => 'Befejezett ülések mentése az\nApple Health-be';
+  String get healthConnect_unnecessaryTitle_ios =>
+      'Befejezett ülések mentése az\nApple Health-be';
 
   @override
   String get healthConnect_unnecessaryText_ios =>
       'Az Apple Health szolgáltatás már engedélyezve van, így a meditációra fordított időt már elmenthetjük az Apple Health-be.';
 
   @override
-  String get healthConnect_unnecessaryTitle_android => 'Befejezett ülések mentése a\nGoogle Health-be';
+  String get healthConnect_unnecessaryTitle_android =>
+      'Befejezett ülések mentése a\nGoogle Health-be';
 
   @override
   String get healthConnect_unnecessaryText_android =>
@@ -286,6 +298,9 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
   String profileWizardStepLabel(int current, int total) {
     return '$current. lépés / $total';
   }
+
+  @override
+  String get profileWizardCheck => 'Ellenőrzés';
 
   @override
   String get profileWizardContinue => 'Tovább';

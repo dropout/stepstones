@@ -12,8 +12,8 @@
   "onboardingWelcomeDescription": "Let's set up your profile to make out the most of the app. It only takes a moment.",
   "profileWizardTitle": "Just a moment!",
   "profileWizardDescription": "It seems like your profile information have not been verified yet.\n\nCan you help us and check if everything we received about you is correct?\n\nIt takes less than a minute.",
-  "profileBasicsTitle": "Let's complete your profile!",
-  "profileBasicsDescription": "Add your name and a profile photo so others can recognize you.",
+  "profileBasicsTitle": "Let's do the basic information!",
+  "profileBasicsDescription": "Please check if your name is correct. You can also choose a profile photo if you like.",
   "profileSettings": "Settings",
   "profileStats": "Statistics",
   "signOut": "Signout",
@@ -69,10 +69,11 @@
   "healthConnect_unnecessaryText_android": "Keep the time you've spent meditating in the application in sync with Google Health Connect. To manage permissions, go to Settings > Security & Privacy > Privacy > Health Connect.",
   "profileWizardStepLabel": "Step {current} of {total}",
   "@profileWizardStepLabel": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "profileWizardCheck": "Check",
   "profileWizardContinue": "Continue",
   "profileWizardFinish": "Finish",
   "profileWizardSkip": "Not now",
   "locationPitchTitle": "See who is practising near you",
-  "locationPitchBody": "Add your city and the list after each session shows the people closest to you first. Only your city is used, never your exact position.",
+  "locationPitchBody": "Add your city and the app will show nearby practitioners who you have practiced with.\n\nThe application only uses your input, never location services on your device.\n\nYou can change or remove it anytime.",
   "locationPromptAction": "Add my city"
 }
