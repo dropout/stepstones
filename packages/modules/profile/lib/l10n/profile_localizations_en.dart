@@ -37,8 +37,23 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
   String get onboardingWelcomeTitle => 'Thanks for signing up!';
 
   @override
-  String get onboardingWelcomeDescription =>
-      'Let\'s set up your profile to make out the most of the app. It only takes a moment.';
+  String get onboardingWelcomeDescription => 'With your account, now you can:';
+
+  @override
+  String get onboardingBenefitChanting =>
+      'Explore the chanting library, and start chanting right away.';
+
+  @override
+  String get onboardingBenefitPresence =>
+      'See who you practise with using optional Presence feature.';
+
+  @override
+  String get onboardingBenefitStats =>
+      'Follow your practice with helpful statistics.';
+
+  @override
+  String get onboardingCheckProfilePrompt =>
+      'First, please check that your profile details are correct.';
 
   @override
   String get profileWizardTitle => 'Just a moment!';

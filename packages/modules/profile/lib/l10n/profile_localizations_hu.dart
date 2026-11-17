@@ -38,7 +38,22 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
 
   @override
   String get onboardingWelcomeDescription =>
-      'Állítsuk be a profilodat, hogy a legtöbbet hozhasd ki az alkalmazásból. Egy pillanat az egész.';
+      'Fiókoddal az alábbi lehetőségek állnak rendelkezésedre:';
+
+  @override
+  String get onboardingBenefitChanting => 'Fedezd fel az énekek könyvtárát.';
+
+  @override
+  String get onboardingBenefitPresence =>
+      'Lásd, kikkel gyakorolsz együtt az opcionális Jelenlét funkcióval.';
+
+  @override
+  String get onboardingBenefitStats =>
+      'Kövesd a gyakorlásodat hasznos statisztikákkal.';
+
+  @override
+  String get onboardingCheckProfilePrompt =>
+      'Először kérlek, ellenőrizd, hogy helyesek-e a profilod adatai.';
 
   @override
   String get profileWizardTitle => 'Véglegesítsd a profilodat!';

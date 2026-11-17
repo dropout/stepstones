@@ -158,8 +158,32 @@ abstract class ProfileLocalizations {
   /// No description provided for @onboardingWelcomeDescription.
   ///
   /// In en, this message translates to:
-  /// **'Let\'s set up your profile to make out the most of the app. It only takes a moment.'**
+  /// **'With your account, now you can:'**
   String get onboardingWelcomeDescription;
+
+  /// No description provided for @onboardingBenefitChanting.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the chanting library, and start chanting right away.'**
+  String get onboardingBenefitChanting;
+
+  /// No description provided for @onboardingBenefitPresence.
+  ///
+  /// In en, this message translates to:
+  /// **'See who you practise with using optional Presence feature.'**
+  String get onboardingBenefitPresence;
+
+  /// No description provided for @onboardingBenefitStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your practice with helpful statistics.'**
+  String get onboardingBenefitStats;
+
+  /// No description provided for @onboardingCheckProfilePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'First, please check that your profile details are correct.'**
+  String get onboardingCheckProfilePrompt;
 
   /// No description provided for @profileWizardTitle.
   ///

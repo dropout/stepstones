@@ -527,9 +527,17 @@ void main() {
       });
     });
 
-    for (final intent in OnboardingIntent.values) {
-      testWidgets('shows a distinct intro message for ${intent.name}',
+    for (final (intent, locale) in [
+      for (final intent in OnboardingIntent.values)
+        for (final locale in [const Locale('en'), const Locale('hu')])
+          (intent, locale),
+    ]) {
+      testWidgets('shows the ${intent.name} intro in ${locale.languageCode}',
           (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(360, 600);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
         await mockNetworkImages(() async {
           final Profile profile = Faker().createProfile();
           when(() => mockProfileEditCubit.state)
@@ -557,9 +565,7 @@ void main() {
                   ),
                 ),
               ),
-              locale: intent == OnboardingIntent.firstSignIn
-                  ? const Locale('en')
-                  : const Locale('hu'),
+              locale: locale,
             ),
           );
           await tester.pumpAndSettle();
@@ -572,8 +578,48 @@ void main() {
             OnboardingIntent.completeProfile => l10n.profileWizardDescription,
           };
           expect(find.text(expected), findsOneWidget);
+          final benefits = [
+            l10n.onboardingBenefitChanting,
+            l10n.onboardingBenefitPresence,
+            l10n.onboardingBenefitStats,
+          ];
+          for (final benefit in benefits) {
+            expect(
+              find.text(benefit),
+              intent == OnboardingIntent.firstSignIn
+                  ? findsOneWidget
+                  : findsNothing,
+            );
+          }
           expect(
-            find.text(intent == OnboardingIntent.firstSignIn
+            find.text(l10n.onboardingCheckProfilePrompt),
+            intent == OnboardingIntent.firstSignIn
+                ? findsOneWidget
+                : findsNothing,
+          );
+          if (intent == OnboardingIntent.firstSignIn) {
+            expect(
+              tester
+                  .getTopLeft(find.text(l10n.onboardingCheckProfilePrompt))
+                  .dy,
+              greaterThan(tester.getBottomLeft(find.text(benefits.last)).dy),
+            );
+            await tester.drag(
+              find.byKey(const Key('default_screen_setup_custom_scroll_view')),
+              const Offset(0, -500),
+            );
+            await tester.pumpAndSettle();
+            expect(
+              tester
+                  .getBottomLeft(find.text(l10n.onboardingCheckProfilePrompt))
+                  .dy,
+              lessThan(
+                tester.getTopLeft(find.byType(OnboardingWizardStepIndicator)).dy,
+              ),
+            );
+          }
+          expect(
+            find.text(locale.languageCode == 'en'
                 ? 'CHECK'
                 : 'ELLENŐRZÉS'),
             findsOneWidget,

@@ -316,6 +316,9 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
       .firstSignIn => l10n.onboardingWelcomeDescription,
       .completeProfile => l10n.profileWizardDescription,
     };
+    final bodyStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+      fontWeight: .w500,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -329,10 +332,28 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
         Text(
           description,
           key: const Key('onboarding_wizard_intro_message'),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: .w500,
-          ),
+          style: bodyStyle,
         ),
+        if (widget.intent == OnboardingIntent.firstSignIn) ...[
+          Gap.medium(),
+          for (final benefit in [
+            l10n.onboardingBenefitChanting,
+            l10n.onboardingBenefitPresence,
+            l10n.onboardingBenefitStats,
+          ]) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ExcludeSemantics(child: Text('\u2022', style: bodyStyle)),
+                Gap.small(),
+                Expanded(child: Text(benefit, style: bodyStyle)),
+              ],
+            ),
+            Gap.small(),
+          ],
+          Gap.small(),
+          Text(l10n.onboardingCheckProfilePrompt, style: bodyStyle),
+        ],
       ],
     );
   }
