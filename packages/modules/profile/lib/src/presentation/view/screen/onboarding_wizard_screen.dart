@@ -12,7 +12,6 @@ import 'package:profile/src/presentation/view/wizard/onboarding_wizard_step_indi
 import 'package:profile/src/presentation/viewmodel/onboarding_wizard_cubit.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:profile/src/public/model/profile.dart';
-import 'package:profile/src/public/viewmodel/profile_cubit.dart';
 
 class const OnboardingWizardScreen({
   required final String profileId,
@@ -132,11 +131,6 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     cubit.goTo(selectedStep);
   }
 
-  void _onSkipLocation(BuildContext context, Profile profile) {
-    context.logEvent(name: 'profile_wizard_location_skipped');
-    context.hapticsTap();
-    _finish(context, profile);
-  }
 
   void _finish(BuildContext context, Profile profile) {
     context.services.profileNavigator.navigateToProfile(
@@ -145,15 +139,6 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     );
   }
 
-  void _onSignOut(BuildContext context) {
-    showAppDialog(
-      context,
-      SignoutDialog(
-        onSignOut: () async => context.read<ProfileCubit>().clearData(),
-      ),
-    );
-    context.hapticsTap();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -451,15 +436,6 @@ class _OnboardingWizardScreenState extends State<OnboardingWizardScreen>
     );
   }
 
-  Widget _textButton(BuildContext context, String text, VoidCallback onTap) =>
-      TextButton(
-        onPressed: onTap,
-        child: Text(
-          text.toUpperCase(),
-          style: Theme.of(context).textTheme.labelLarge!
-              .copyWith(fontWeight: FontWeight.bold),
-        ),
-      );
 
   Widget _buildActionButton(
     BuildContext context,
