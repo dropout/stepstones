@@ -12,19 +12,14 @@ import 'package:home/src/public/viewmodel/home_screen_cubit.dart';
 import 'today.dart';
 
 /// Custom AppBar for the Home Screen to address layout and widget placement needs.
-/// It decorates the standard [CustomAppBar] with specific 
+/// It decorates the standard [CustomAppBar] with specific
 /// leading and trailing widgets for the Home Screen.
 class const HomeScreenAppbar({
   required final HomeScreenState homeScreenState,
   required final double topInset,
   super.key,
 }) extends StatelessWidget implements PreferredSizeWidget {
-
-
-  void _onSessionTypeChange(
-    BuildContext context,
-    HomeScreenViewState sessionType,
-  ) {
+  void _onSessionTypeChange(BuildContext context, HomeScreenViewState sessionType) {
     context.read<HomeScreenCubit>().setSessionType(sessionType);
   }
 
@@ -37,26 +32,19 @@ class const HomeScreenAppbar({
           trailing: [
             TrailingSlot(
               child: SessionTypeToggle(
-                activeMode: homeScreenState.sessionType, 
+                activeMode: homeScreenState.sessionType,
                 onModeChanged: (HomeScreenViewState value) => _onSessionTypeChange(context, value),
-              )
-            ),
-            TrailingSlot(
-              child: ProfileButton(
-                key: Key('home_screen_appbar_profile_button'),
               ),
             ),
+            TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button'))),
           ],
         );
       },
       no: CustomAppBar(
         leading: Today(key: ValueKey(DateTime.now().toDayId())),
         trailing: [
-          TrailingSlot(
-            child: ProfileButton(
-              key: Key('home_screen_appbar_profile_button'),
-            ),
-          ),
+          TrailingSlot(child: SessionTypeToggle(activeMode: HomeScreenViewState.sitting, onModeChanged: null)),
+          TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button'))),
         ],
       ),
     );

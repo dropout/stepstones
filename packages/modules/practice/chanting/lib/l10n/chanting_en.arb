@@ -3,6 +3,7 @@
   "minutesPluralWithNumber": "{count, plural, =0{{count} minute} =1{{count} minute} =2{{count} minutes} few{{count} minutes} many{{count} minutes} other{{count} minutes}}",
   "statsTotal": "Total",
   "chantingTitle": "Chanting",
+  "chantingSignInRequired": "Please sign in to access the chanting feature.",
   "chantingAddChantSheetTitle": "Add Chant",
   "chantingAddChantSheetEmptyState": "No chants available.",
   "chantingAddChantListItemAddAction": "Add to playlist",

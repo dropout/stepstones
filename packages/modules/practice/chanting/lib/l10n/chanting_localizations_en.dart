@@ -31,6 +31,10 @@ class ChantingLocalizationsEn extends ChantingLocalizations {
   String get chantingTitle => 'Chanting';
 
   @override
+  String get chantingSignInRequired =>
+      'Please sign in to access the chanting feature.';
+
+  @override
   String get chantingAddChantSheetTitle => 'Add Chant';
 
   @override

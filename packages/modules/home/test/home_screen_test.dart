@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:mocktail/mocktail.dart';
@@ -18,7 +19,6 @@ import 'package:home/src/public/viewmodel/home_screen_cubit.dart';
 
 import 'home_mock_definitions.dart';
 import 'home_test_helper.dart';
-
 
 void main() {
   group('HomeScreen', () {
@@ -55,25 +55,17 @@ void main() {
 
       when(() => mockAuthBloc.state).thenReturn(const AuthState.signedOut());
       when(() => mockProfileCubit.state).thenReturn(ProfileState.initial());
-      when(
-        () => mockServices.crashlyticsService,
-      ).thenReturn(mockCrashlyticsService);
+      when(() => mockServices.crashlyticsService).thenReturn(mockCrashlyticsService);
 
       when(() => mockServices.shaderService).thenReturn(shaderService);
       when(() => mockServices.overlayService).thenReturn(mockOverlayService);
       when(() => mockServices.hapticsService).thenReturn(mockHapticsService);
 
-      GetIt.I.registerFactory<HomeScreenCubit>(
-        () => HomeScreenCubit(crashlyticsService: mockCrashlyticsService),
-      );
+      GetIt.I.registerFactory<HomeScreenCubit>(() => HomeScreenCubit(crashlyticsService: mockCrashlyticsService));
 
-      GetIt.I.registerFactory<TimerSettingsCubit>(
-        () => mockTimerSettingsCubit,
-      );
+      GetIt.I.registerFactory<TimerSettingsCubit>(() => mockTimerSettingsCubit);
 
-      GetIt.I.registerFactory<ChantingSettingsCubit>(
-        () => mockChantingSettingsCubit,
-      );
+      GetIt.I.registerFactory<ChantingSettingsCubit>(() => mockChantingSettingsCubit);
     });
 
     tearDown(() {
@@ -93,15 +85,17 @@ void main() {
             MultiBlocProvider(
               providers: [
                 BlocProvider<AuthStateCubit>(create: (context) => mockAuthBloc),
-                BlocProvider<ProfileCubit>(
-                  create: (context) => mockProfileCubit,
-                ),
+                BlocProvider<ProfileCubit>(create: (context) => mockProfileCubit),
               ],
-              child: ShaderRenderingScope(
-                enabled: false , 
-                child: const HomeScreen()
-              )
+              child: Overlay(
+                initialEntries: [
+                  OverlayEntry(
+                    builder: (_) => ShaderRenderingScope(enabled: false, child: const HomeScreen()),
+                  ),
+                ],
+              ),
             ),
+            locale: const Locale('en'),
           ),
         ),
       );
@@ -113,13 +107,39 @@ void main() {
       expect(find.byType(HomeScreenAppbar), findsOneWidget);
       expect(find.byType(TimerSettingsView), findsOneWidget);
       expect(find.byType(TimerSettingsHistoryButton), findsNothing);
+      expect(find.byType(SessionTypeToggle), findsOneWidget);
+
+      const message = 'Sign in to access the chanting feature.';
+      await tester.tap(find.byType(SessionTypeToggle));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(message), findsOneWidget);
+      expect(find.byType(ChantingSettingsView), findsNothing);
+
+      await tester.tap(find.byType(SessionTypeToggle));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(message), findsNothing);
+
+      await tester.tap(find.byType(SessionTypeToggle));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(message), findsOneWidget);
+      await tester.tapAt(const Offset(10, 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(message), findsNothing);
+
+      await tester.tap(find.byType(SessionTypeToggle));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(message), findsOneWidget);
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.text(message), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(message), findsNothing);
+      expect(find.byType(TimerSettingsView), findsOneWidget);
     });
 
     testWidgets('can display timer settings when signed in', (tester) async {
       setTestViewport(tester);
-      when(() => mockAuthBloc.state).thenReturn(
-        AuthState.signedIn(userId: 'userid'),
-      );
+      when(() => mockAuthBloc.state).thenReturn(AuthState.signedIn(userId: 'userid'));
       when(() => mockTimerSettingsCubit.state).thenReturn(TimerSettingsState(timerSettings: TimerSettings()));
 
       await tester.pumpWidget(
@@ -129,14 +149,9 @@ void main() {
             MultiBlocProvider(
               providers: [
                 BlocProvider<AuthStateCubit>(create: (context) => mockAuthBloc),
-                BlocProvider<ProfileCubit>(
-                  create: (context) => mockProfileCubit,
-                ),
+                BlocProvider<ProfileCubit>(create: (context) => mockProfileCubit),
               ],
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: const HomeScreen()
-              ),
+              child: ShaderRenderingScope(enabled: false, child: const HomeScreen()),
             ),
           ),
         ),
@@ -152,17 +167,10 @@ void main() {
 
     testWidgets('can display chanting settings when signed in', (tester) async {
       setTestViewport(tester);
-      when(() => mockAuthBloc.state).thenReturn(
-        AuthState.signedIn(userId: 'userid'),
-      );
+      when(() => mockAuthBloc.state).thenReturn(AuthState.signedIn(userId: 'userid'));
       when(() => mockTimerSettingsCubit.state).thenReturn(TimerSettingsState(timerSettings: TimerSettings()));
-      when(() => mockChantingSettingsCubit.state).thenReturn(
-        ChantingSettingsState(
-          availableChants: [],
-          isLoading: false,
-          playlist: [],
-        )
-      );
+      when(() => mockChantingSettingsCubit.state)
+          .thenReturn(ChantingSettingsState(availableChants: [], isLoading: false, playlist: []));
 
       when(() => mockChantingSettingsCubit.loadAvailableChants()).thenAnswer((_) async {});
 
@@ -173,14 +181,9 @@ void main() {
             MultiBlocProvider(
               providers: [
                 BlocProvider<AuthStateCubit>(create: (context) => mockAuthBloc),
-                BlocProvider<ProfileCubit>(
-                  create: (context) => mockProfileCubit,
-                ),
+                BlocProvider<ProfileCubit>(create: (context) => mockProfileCubit),
               ],
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: const HomeScreen(),
-              ),
+              child: ShaderRenderingScope(enabled: false, child: const HomeScreen()),
             ),
           ),
         ),
@@ -193,6 +196,5 @@ void main() {
 
       expect(find.byType(ChantingSettingsView), findsOneWidget);
     });
-    
   });
 }

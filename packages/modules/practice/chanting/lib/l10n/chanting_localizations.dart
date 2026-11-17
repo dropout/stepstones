@@ -119,6 +119,12 @@ abstract class ChantingLocalizations {
   /// **'Chanting'**
   String get chantingTitle;
 
+  /// No description provided for @chantingSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to access the chanting feature.'**
+  String get chantingSignInRequired;
+
   /// No description provided for @chantingAddChantSheetTitle.
   ///
   /// In en, this message translates to:

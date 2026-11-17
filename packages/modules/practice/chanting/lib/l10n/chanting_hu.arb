@@ -3,6 +3,7 @@
   "minutesPluralWithNumber": "{count, plural, =0{{count} perc} =1{{count} perc} =2{{count} perc} few{{count} perc} many{{count} perc} other{{count} perc}}",
   "statsTotal": "Összesen",
   "chantingTitle": "Éneklés",
+  "chantingSignInRequired": "Jelentkezz be az éneklés funkció használatához.",
   "chantingAddChantSheetTitle": "Hozzáadás",
   "chantingAddChantSheetEmptyState": "Nincs elérhető ének.",
   "chantingAddChantListItemAddAction": "Hozzáadás",

@@ -31,6 +31,10 @@ class ChantingLocalizationsHu extends ChantingLocalizations {
   String get chantingTitle => 'Éneklés';
 
   @override
+  String get chantingSignInRequired =>
+      'Jelentkezz be az éneklés funkció használatához.';
+
+  @override
   String get chantingAddChantSheetTitle => 'Hozzáadás';
 
   @override
