@@ -47,15 +47,10 @@ class const ProfileButton({
           ),
           child: SizedBox.square(
             child: Center(
-              child: Text(
-                '?',
-                key: const Key('profile_button_signed_out_icon'),
-                style: TextStyle(
-                  fontSize: 36.0,
-                  color: AppColors.backgroundPaperLight,
-                  fontWeight: FontWeight.bold,
-                  height: 1.0,
-                ),
+              child: Icon(
+                Icons.person_rounded,
+                size: 32.0,
+                color: AppColors.backgroundPaperLight,
               ),
             ),
           ),
