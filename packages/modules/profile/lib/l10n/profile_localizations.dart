@@ -182,7 +182,7 @@ abstract class ProfileLocalizations {
   /// No description provided for @onboardingCheckProfilePrompt.
   ///
   /// In en, this message translates to:
-  /// **'First, please check that your profile details are correct.'**
+  /// **'First, please help us check that your profile details are correct.'**
   String get onboardingCheckProfilePrompt;
 
   /// No description provided for @profileWizardTitle.
@@ -200,13 +200,13 @@ abstract class ProfileLocalizations {
   /// No description provided for @profileBasicsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Let\'s do the basic information!'**
+  /// **'Let\'s see your basic information first!'**
   String get profileBasicsTitle;
 
   /// No description provided for @profileBasicsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Please check if your name is correct. You can also choose a profile photo if you like.'**
+  /// **'Please check if got your name right. You can also choose a profile photo if you like.'**
   String get profileBasicsDescription;
 
   /// No description provided for @profileSettings.
@@ -556,6 +556,30 @@ abstract class ProfileLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get profileWizardSkip;
+
+  /// No description provided for @onboardingFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what you see'**
+  String get onboardingFeaturesTitle;
+
+  /// No description provided for @onboardingFeaturesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Two optional features shape your practice in the app. You can change them anytime in Settings.'**
+  String get onboardingFeaturesDescription;
+
+  /// No description provided for @onboardingStatsExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics show your practice time, consecutive days and stepstones. Follow your progress and keep your practice steady.'**
+  String get onboardingStatsExplanation;
+
+  /// No description provided for @onboardingPresenceExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Presence shows who else is practising at the same time as you. Enjoy the support of others taking effort in the practice while also providing it.'**
+  String get onboardingPresenceExplanation;
 
   /// No description provided for @locationPitchTitle.
   ///

@@ -77,6 +77,10 @@
   "profileWizardContinue": "Continue",
   "profileWizardFinish": "Finish",
   "profileWizardSkip": "Not now",
+  "onboardingFeaturesTitle": "Choose what you see",
+  "onboardingFeaturesDescription": "Two optional features shape your practice in the app. You can change them anytime in Settings.",
+  "onboardingStatsExplanation": "Statistics show your practice time, consecutive days and stepstones. Follow your progress and keep your practice steady.",
+  "onboardingPresenceExplanation": "Presence shows who else is practising at the same time as you. Enjoy the support of others taking effort in the practice while also providing it.",
   "locationPitchTitle": "See who is practising near you",
   "locationPitchBody": "Add your city and the app will show nearby practitioners who you have practiced with.\n\nThe application only uses your input, never location services on your device.\n\nYou can change or remove it anytime.",
   "locationPromptAction": "Add my city"

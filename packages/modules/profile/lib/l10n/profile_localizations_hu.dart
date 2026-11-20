@@ -38,10 +38,11 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
 
   @override
   String get onboardingWelcomeDescription =>
-      'Fiókoddal az alábbi lehetőségek állnak rendelkezésedre:';
+      'Fiókoddal most rendeklezésre áll: ';
 
   @override
-  String get onboardingBenefitChanting => 'Fedezd fel az énekek könyvtárát.';
+  String get onboardingBenefitChanting =>
+      'Fedezd fel az énekek könyvtárát, és kezdj el énekelni.';
 
   @override
   String get onboardingBenefitPresence =>
@@ -53,7 +54,7 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
 
   @override
   String get onboardingCheckProfilePrompt =>
-      'Először kérlek, ellenőrizd, hogy helyesek-e a profilod adatai.';
+      'Először kérlek, segíts nekünk ellenőrizni, hogy helyesek-e a profilod adatai.';
 
   @override
   String get profileWizardTitle => 'Véglegesítsd a profilodat!';
@@ -325,6 +326,21 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
 
   @override
   String get profileWizardSkip => 'Most nem';
+
+  @override
+  String get onboardingFeaturesTitle => 'Válaszd ki, mit szeretnél látni';
+
+  @override
+  String get onboardingFeaturesDescription =>
+      'Két opcionális funkció alakítja a gyakorlásodat az alkalmazásban. Bármikor módosíthatod őket a Beállításokban.';
+
+  @override
+  String get onboardingStatsExplanation =>
+      'A statisztikák mutatják a gyakorlással töltött időt, az egymást követő napokat és a lépőköveket. Kövesd a fejlődésedet és tartsd egyenletesen a gyakorlásod mértékét.';
+
+  @override
+  String get onboardingPresenceExplanation =>
+      'A Jelenlét megmutatja, kik gyakorolnak veled egy időben. Élvezd mások gyakorlásba fektetett erőfeszítésének támogató erejét, amihez egyben a te jelenléted is hozzájárul.';
 
   @override
   String get locationPitchTitle => 'Nézd meg, ki gyakorol a közeledben';

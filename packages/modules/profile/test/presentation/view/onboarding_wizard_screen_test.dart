@@ -8,17 +8,20 @@ import 'package:profile/src/data/datasource/faker_profile_extension.dart';
 import 'package:profile/src/presentation/view/form_builder_profile_image_picker.dart';
 import 'package:profile/src/presentation/view/profile_basics_fields.dart';
 import 'package:profile/src/presentation/view/profile_location_field.dart';
+import 'package:profile/src/presentation/view/wizard/onboarding_features_step.dart';
 import 'package:profile/src/presentation/view/wizard/onboarding_wizard_step_indicator.dart';
 import 'package:profile/src/presentation/view/screen/onboarding_wizard_screen.dart';
 
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter/widgets.dart'
     show AnimatedSwitcher, EditableText, Key, Locale, Offset, Overlay, OverlayEntry, Size, Text;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mocktail_image_network/mocktail_image_network.dart';
 import 'package:profile/src/public/model/profile.dart';
+import 'package:profile/src/public/model/profile_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -38,20 +41,16 @@ void main() {
     });
 
     setUp(() {
-      GetIt.I.registerFactory<ProfileEditCubit>(
-        () => mockProfileEditCubit,
-      );
+      GetIt.I.registerFactory<ProfileEditCubit>(() => mockProfileEditCubit);
 
       mockProfileEditCubit = MockProfileEditCubit();
       mockCrashlyticsService = MockCrashlyticsService();
       mockHapticsService = MockHapticsService();
       mockServices = MockServices();
 
-      when(() => mockServices.crashlyticsService)
-          .thenReturn(mockCrashlyticsService);
+      when(() => mockServices.crashlyticsService).thenReturn(mockCrashlyticsService);
       when(() => mockServices.hapticsService).thenReturn(mockHapticsService);
-      when(() => mockServices.analyticsService)
-          .thenReturn(MockAnalyticsService());
+      when(() => mockServices.analyticsService).thenReturn(MockAnalyticsService());
       when(() => mockHapticsService.tap()).thenReturn(null);
       when(() => mockHapticsService.success()).thenReturn(null);
       when(() => mockHapticsService.error()).thenReturn(null);
@@ -62,45 +61,32 @@ void main() {
     });
 
     testWidgets('will load profile on init', (WidgetTester tester) async {
-      when(() => mockProfileEditCubit.state)
-          .thenReturn(ProfileEditState.initial());
-      when(() => mockProfileEditCubit.stream).thenAnswer(
-        (_) =>
-            Stream<ProfileEditState>.fromIterable([ProfileEditState.initial()]),
-      );
+      when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.initial());
+      when(() => mockProfileEditCubit.stream)
+          .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.initial()]));
 
       await tester.pumpWidget(
         ProfileTestHelper.withLocalizationProvider(
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: ShaderRenderingScope(
-              enabled: false,
-              child: OnboardingWizardScreen(profileId: 'test_profile_id')
-            ),
+            child: ShaderRenderingScope(enabled: false, child: OnboardingWizardScreen(profileId: 'test_profile_id')),
           ),
         ),
       );
 
-      verify(() => mockProfileEditCubit.loadProfile('test_profile_id'))
-          .called(1);
+      verify(() => mockProfileEditCubit.loadProfile('test_profile_id')).called(1);
     });
 
     testWidgets('can display a loading state', (WidgetTester tester) async {
-      when(() => mockProfileEditCubit.state)
-          .thenReturn(ProfileEditState.loading());
-      when(() => mockProfileEditCubit.stream).thenAnswer(
-        (_) =>
-            Stream<ProfileEditState>.fromIterable([ProfileEditState.loading()]),
-      );
+      when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.loading());
+      when(() => mockProfileEditCubit.stream)
+          .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.loading()]));
 
       await tester.pumpWidget(
         ProfileTestHelper.withLocalizationProvider(
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: ShaderRenderingScope(
-              enabled: false,
-              child: OnboardingWizardScreen(profileId: 'test_profile_id'),
-            ),
+            child: ShaderRenderingScope(enabled: false, child: OnboardingWizardScreen(profileId: 'test_profile_id')),
           ),
         ),
       );
@@ -108,21 +94,15 @@ void main() {
     });
 
     testWidgets('can display an error state', (WidgetTester tester) async {
-      when(() => mockProfileEditCubit.state)
-          .thenReturn(ProfileEditState.error());
-      when(() => mockProfileEditCubit.stream).thenAnswer(
-        (_) =>
-            Stream<ProfileEditState>.fromIterable([ProfileEditState.error()]),
-      );
+      when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.error());
+      when(() => mockProfileEditCubit.stream)
+          .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.error()]));
 
       await tester.pumpWidget(
         ProfileTestHelper.withLocalizationProvider(
           BlocProvider<ProfileEditCubit>(
             create: (context) => mockProfileEditCubit,
-            child: ShaderRenderingScope(
-              enabled: false,
-              child: OnboardingWizardScreen(profileId: 'test_profile_id'),
-            ),
+            child: ShaderRenderingScope(enabled: false, child: OnboardingWizardScreen(profileId: 'test_profile_id')),
           ),
         ),
       );
@@ -135,78 +115,53 @@ void main() {
       await mockNetworkImages(() async {
         final Profile profile = Faker().createProfile();
 
-        when(() => mockProfileEditCubit.state)
-            .thenReturn(ProfileEditState.loaded(profile: profile));
-        when(() => mockProfileEditCubit.stream).thenAnswer(
-          (_) => Stream<ProfileEditState>.fromIterable([
-            ProfileEditState.loaded(profile: profile),
-          ]),
-        );
+        when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.loaded(profile: profile));
+        when(() => mockProfileEditCubit.stream)
+            .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.loaded(profile: profile)]));
 
         await tester.pumpWidget(
           ProfileTestHelper.withLocalizationProvider(
             MultiProvider(
               providers: [
                 Provider<Services>.value(value: mockServices),
-                BlocProvider<ProfileEditCubit>(
-                  create: (context) => mockProfileEditCubit,
-                ),
+                BlocProvider<ProfileEditCubit>(create: (context) => mockProfileEditCubit),
               ],
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: OnboardingWizardScreen(
-                  profileId: 'test_profile_id',
-                ),
-              ),
+              child: ShaderRenderingScope(enabled: false, child: OnboardingWizardScreen(profileId: 'test_profile_id')),
             ),
           ),
         );
 
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('onboarding_wizard_intro_message')),
-            findsOneWidget);
+        expect(find.byKey(const Key('onboarding_wizard_intro_message')), findsOneWidget);
         expect(find.byType(ProfileBasicsFields), findsNothing);
         expect(find.byType(OnboardingWizardStepIndicator), findsOneWidget);
-        final indicator = tester.widget<AnimatedSmoothIndicator>(
-          find.byType(AnimatedSmoothIndicator),
-        );
-        expect(indicator.count, 3);
+        final indicator = tester.widget<AnimatedSmoothIndicator>(find.byType(AnimatedSmoothIndicator));
+        expect(indicator.count, 4);
         expect(indicator.activeIndex, 0);
         expect(find.byType(AnimatedSwitcher), findsWidgets);
         expect(
           tester.getBottomLeft(find.byType(OnboardingWizardStepIndicator)).dy,
           lessThanOrEqualTo(tester.getTopLeft(find.byType(AppButton)).dy),
         );
-        for (final step in ['intro', 'basics', 'location']) {
-          expect(
-            find.byKey(Key('onboarding_wizard_step_$step')),
-            findsOneWidget,
-          );
+        for (final step in ['intro', 'basics', 'features', 'location']) {
+          expect(find.byKey(Key('onboarding_wizard_step_$step')), findsOneWidget);
         }
         expect(find.text('ELLENŐRZÉS'), findsOneWidget);
 
         await tester.tap(find.byType(AppButton));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 30));
-        expect(find.byKey(const Key('onboarding_wizard_intro_message')),
-            findsOneWidget);
+        expect(find.byKey(const Key('onboarding_wizard_intro_message')), findsOneWidget);
         expect(find.byType(ProfileBasicsFields), findsOneWidget);
-        expect(
-          tester.widget<AnimatedSmoothIndicator>(
-            find.byType(AnimatedSmoothIndicator),
-          ).activeIndex,
-          1,
-        );
+        expect(tester.widget<AnimatedSmoothIndicator>(find.byType(AnimatedSmoothIndicator)).activeIndex, 1);
         await tester.pumpAndSettle();
 
         expect(find.byType(ProfileBasicsFields), findsOneWidget);
         expect(find.byType(ProfileLocationField), findsNothing);
         expect(find.byType(OnboardingWizardStepIndicator), findsOneWidget);
-        final l10n = ProfileLocalizations.of(
-          tester.element(find.byType(OnboardingWizardScreen)),
-        );
-        expect(find.text(l10n.profileWizardStepLabel(2, 3)), findsNothing);
+        final l10n = ProfileLocalizations.of(tester.element(find.byType(OnboardingWizardScreen)));
+        expect(find.text(l10n.profileWizardStepLabel(2, 4)), findsNothing);
         expect(find.text(l10n.profileBasicsTitle), findsOneWidget);
         expect(find.text(l10n.profileBasicsDescription), findsOneWidget);
         expect(find.byType(AppButton), findsOneWidget);
@@ -214,8 +169,7 @@ void main() {
       });
     });
 
-    testWidgets('indicator navigation preserves edits and requires saving basics',
-        (WidgetTester tester) async {
+    testWidgets('indicator navigation preserves edits and requires saving basics', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(360, 600);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -224,13 +178,9 @@ void main() {
         final profile = Faker().createProfile();
         void Function(Profile)? completeSave;
         void Function(Object?, StackTrace)? failSave;
-        when(() => mockProfileEditCubit.state)
-            .thenReturn(ProfileEditState.loaded(profile: profile));
-        when(() => mockProfileEditCubit.stream).thenAnswer(
-          (_) => Stream<ProfileEditState>.fromIterable([
-            ProfileEditState.loaded(profile: profile),
-          ]),
-        );
+        when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.loaded(profile: profile));
+        when(() => mockProfileEditCubit.stream)
+            .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.loaded(profile: profile)]));
         when(
           () => mockProfileEditCubit.updateProfile(
             profile: any(named: 'profile'),
@@ -240,10 +190,18 @@ void main() {
             completeProfile: any(named: 'completeProfile'),
           ),
         ).thenAnswer((invocation) {
-          completeSave =
-              invocation.namedArguments[#onComplete] as void Function(Profile);
-          failSave = invocation.namedArguments[#onError]
-              as void Function(Object?, StackTrace);
+          completeSave = invocation.namedArguments[#onComplete] as void Function(Profile);
+          failSave = invocation.namedArguments[#onError] as void Function(Object?, StackTrace);
+        });
+        when(
+          () => mockProfileEditCubit.updateProfileSettings(
+            profile: any(named: 'profile'),
+            settingsFormData: any(named: 'settingsFormData'),
+            onComplete: any(named: 'onComplete'),
+            onError: any(named: 'onError'),
+          ),
+        ).thenAnswer((invocation) {
+          (invocation.namedArguments[#onComplete] as void Function(ProfileSettings))(profile.settings);
         });
 
         await tester.pumpWidget(
@@ -254,9 +212,7 @@ void main() {
                   builder: (_) => MultiProvider(
                     providers: [
                       Provider<Services>.value(value: mockServices),
-                      BlocProvider<ProfileEditCubit>(
-                        create: (context) => mockProfileEditCubit,
-                      ),
+                      BlocProvider<ProfileEditCubit>(create: (context) => mockProfileEditCubit),
                     ],
                     child: ShaderRenderingScope(
                       enabled: false,
@@ -272,24 +228,18 @@ void main() {
 
         final intro = find.byKey(const Key('onboarding_wizard_step_intro'));
         final basics = find.byKey(const Key('onboarding_wizard_step_basics'));
-        final location =
-            find.byKey(const Key('onboarding_wizard_step_location'));
+        final location = find.byKey(const Key('onboarding_wizard_step_location'));
         await tester.tap(location);
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('onboarding_wizard_intro_message')),
-            findsOneWidget);
+        expect(find.byKey(const Key('onboarding_wizard_intro_message')), findsOneWidget);
         expect(find.byType(ProfileBasicsFields), findsNothing);
         await tester.tap(basics);
         await tester.pumpAndSettle();
         expect(find.byType(ProfileBasicsFields), findsOneWidget);
         expect(find.byType(ProfileLocationField), findsNothing);
-        final l10n = ProfileLocalizations.of(
-          tester.element(find.byType(OnboardingWizardScreen)),
-        );
-        final headlineStyle =
-            tester.widget<Text>(find.text(l10n.profileBasicsTitle)).style;
-        final descriptionStyle =
-            tester.widget<Text>(find.text(l10n.profileBasicsDescription)).style;
+        final l10n = ProfileLocalizations.of(tester.element(find.byType(OnboardingWizardScreen)));
+        final headlineStyle = tester.widget<Text>(find.text(l10n.profileBasicsTitle)).style;
+        final descriptionStyle = tester.widget<Text>(find.text(l10n.profileBasicsDescription)).style;
 
         await tester.tap(intro);
         await tester.pump(const Duration(milliseconds: 20));
@@ -297,10 +247,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byType(ProfileBasicsFields), findsOneWidget);
 
-        await tester.drag(
-          find.byKey(const Key('default_screen_setup_custom_scroll_view')),
-          const Offset(0, -500),
-        );
+        await tester.drag(find.byKey(const Key('default_screen_setup_custom_scroll_view')), const Offset(0, -500));
         await tester.pumpAndSettle();
         final firstName = find.descendant(
           of: find.byKey(const Key('profile_edit_form_first_name_input')),
@@ -308,9 +255,7 @@ void main() {
         );
         expect(
           tester.getBottomLeft(firstName).dy,
-          lessThan(
-            tester.getTopLeft(find.byType(OnboardingWizardStepIndicator)).dy,
-          ),
+          lessThan(tester.getTopLeft(find.byType(OnboardingWizardStepIndicator)).dy),
         );
         await tester.ensureVisible(firstName);
         await tester.enterText(firstName, '');
@@ -323,9 +268,9 @@ void main() {
         await tester.enterText(firstName, 'Alice');
         tester.testTextInput.hide();
         final imageData = Uint8List.fromList([1, 2, 3]);
-        tester.state<FormBuilderImagePickerState>(
-          find.byKey(const Key('profile_edit_form_image_picker')),
-        ).didChange(imageData);
+        tester
+            .state<FormBuilderImagePickerState>(find.byKey(const Key('profile_edit_form_image_picker')))
+            .didChange(imageData);
         await tester.pump();
         await tester.tap(intro);
         await tester.pumpAndSettle();
@@ -333,9 +278,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.widget<EditableText>(firstName).controller.text, 'Alice');
         expect(
-          tester.state<FormBuilderImagePickerState>(
-            find.byKey(const Key('profile_edit_form_image_picker')),
-          ).value,
+          tester.state<FormBuilderImagePickerState>(find.byKey(const Key('profile_edit_form_image_picker'))).value,
           imageData,
         );
 
@@ -345,15 +288,17 @@ void main() {
         await tester.tap(find.byType(AppButton));
         await tester.pumpAndSettle();
         expect(completeSave, isNotNull);
-        final savedData = verify(
-          () => mockProfileEditCubit.updateProfile(
-            profile: profile,
-            formData: captureAny(named: 'formData'),
-            onComplete: any(named: 'onComplete'),
-            onError: any(named: 'onError'),
-            completeProfile: true,
-          ),
-        ).captured.single as Map<String, dynamic>;
+        final savedData =
+            verify(
+                  () => mockProfileEditCubit.updateProfile(
+                    profile: profile,
+                    formData: captureAny(named: 'formData'),
+                    onComplete: any(named: 'onComplete'),
+                    onError: any(named: 'onError'),
+                    completeProfile: true,
+                  ),
+                ).captured.single
+                as Map<String, dynamic>;
         expect(savedData['firstName'], 'Alice');
         expect(savedData['imageData'], imageData);
         expect(find.byType(ProfileLocationField), findsNothing);
@@ -368,33 +313,25 @@ void main() {
         expect(find.byType(ProfileLocationField), findsNothing);
         completeSave!(profile);
         await tester.pumpAndSettle();
+        expect(find.byType(OnboardingFeaturesStep), findsOneWidget);
+        await tester.tap(location);
+        await tester.pumpAndSettle();
+        expect(find.byType(ProfileLocationField), findsNothing);
+        await tester.tap(find.byType(AppButton));
+        await tester.pumpAndSettle();
         expect(find.byType(ProfileLocationField), findsOneWidget);
-        expect(
-          tester.widget<Text>(find.text(l10n.locationPitchTitle)).style,
-          headlineStyle,
-        );
-        expect(
-          tester.widget<Text>(find.text(l10n.locationPitchBody)).style,
-          descriptionStyle,
-        );
-        final coreL10n = CoreLocalizations.of(
-          tester.element(find.byType(OnboardingWizardScreen)),
-        );
+        expect(tester.widget<Text>(find.text(l10n.locationPitchTitle)).style, headlineStyle);
+        expect(tester.widget<Text>(find.text(l10n.locationPitchBody)).style, descriptionStyle);
+        final coreL10n = CoreLocalizations.of(tester.element(find.byType(OnboardingWizardScreen)));
         expect(find.text(coreL10n.locationInputRationaleTitle), findsNothing);
-        const city = Location(
-          name: 'Budapest',
-          latLng: LatLng(latitude: 47.5, longitude: 19.0),
-          geoHash: 'u2m',
-        );
-        final cityField =
-            find.byKey(const Key('profile_edit_form_location_input'));
+        const city = Location(name: 'Budapest', latLng: LatLng(latitude: 47.5, longitude: 19.0), geoHash: 'u2m');
+        final cityField = find.byKey(const Key('profile_edit_form_location_input'));
         tester.state<FormBuilderCitySelectorState>(cityField).didChange(city);
         await tester.pump();
         expect(find.byType(AppMap), findsOneWidget);
         await tester.tap(intro);
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('onboarding_wizard_intro_message')),
-            findsOneWidget);
+        expect(find.byKey(const Key('onboarding_wizard_intro_message')), findsOneWidget);
         await tester.tap(location);
         await tester.pumpAndSettle();
         expect(find.byType(ProfileLocationField), findsOneWidget);
@@ -410,8 +347,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(location);
         await tester.pumpAndSettle();
-        expect(find.byKey(const Key('onboarding_wizard_intro_message')),
-            findsOneWidget);
+        expect(find.byKey(const Key('onboarding_wizard_intro_message')), findsOneWidget);
         await tester.tap(basics);
         await tester.pumpAndSettle();
         expect(tester.widget<EditableText>(firstName).controller.text, 'Bob');
@@ -422,27 +358,18 @@ void main() {
       await mockNetworkImages(() async {
         final Profile profile = Faker().createProfile();
 
-        when(() => mockProfileEditCubit.state)
-            .thenReturn(ProfileEditState.loaded(profile: profile));
-        when(() => mockProfileEditCubit.stream).thenAnswer(
-          (_) => Stream<ProfileEditState>.fromIterable([
-            ProfileEditState.loaded(profile: profile),
-          ]),
-        );
+        when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.loaded(profile: profile));
+        when(() => mockProfileEditCubit.stream)
+            .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.loaded(profile: profile)]));
 
         await tester.pumpWidget(
           ProfileTestHelper.withLocalizationProvider(
             MultiProvider(
               providers: [
                 Provider<Services>.value(value: mockServices),
-                BlocProvider<ProfileEditCubit>(
-                  create: (context) => mockProfileEditCubit,
-                ),
+                BlocProvider<ProfileEditCubit>(create: (context) => mockProfileEditCubit),
               ],
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: OnboardingWizardScreen(profileId: 'test_profile_id'),
-              ),
+              child: ShaderRenderingScope(enabled: false, child: OnboardingWizardScreen(profileId: 'test_profile_id')),
             ),
           ),
         );
@@ -456,113 +383,193 @@ void main() {
           () => mockProfileEditCubit.updateProfile(
             profile: profile,
             formData: any(named: 'formData'),
-            onComplete: any(
-              named: 'onComplete',
-              that: isA<Function(Profile)>(),
-            ),
-            onError: any(
-              named: 'onError',
-              that: isA<Function(Object?, StackTrace)>(),
-            ),
+            onComplete: any(named: 'onComplete', that: isA<Function(Profile)>()),
+            onError: any(named: 'onError', that: isA<Function(Object?, StackTrace)>()),
             completeProfile: true,
           ),
         ).called(1);
       });
     });
 
-    testWidgets('moves to the optional location step after basics are saved',
-        (WidgetTester tester) async {
+    Future<void> pumpWizardThroughBasics(WidgetTester tester, Profile profile) async {
+      when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.loaded(profile: profile));
+      when(() => mockProfileEditCubit.stream)
+          .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.loaded(profile: profile)]));
+      when(
+        () => mockProfileEditCubit.updateProfile(
+          profile: any(named: 'profile'),
+          formData: any(named: 'formData'),
+          onComplete: any(named: 'onComplete'),
+          onError: any(named: 'onError'),
+          completeProfile: any(named: 'completeProfile'),
+        ),
+      ).thenAnswer((invocation) {
+        (invocation.namedArguments[#onComplete] as void Function(Profile))(profile);
+      });
+      when(
+        () => mockProfileEditCubit.updateProfileSettings(
+          profile: any(named: 'profile'),
+          settingsFormData: any(named: 'settingsFormData'),
+          onComplete: any(named: 'onComplete'),
+          onError: any(named: 'onError'),
+        ),
+      ).thenAnswer((invocation) {
+        (invocation.namedArguments[#onComplete] as void Function(ProfileSettings))(profile.settings);
+      });
+
+      await tester.pumpWidget(
+        ProfileTestHelper.withLocalizationProvider(
+          MultiProvider(
+            providers: [
+              Provider<Services>.value(value: mockServices),
+              BlocProvider<ProfileEditCubit>(create: (context) => mockProfileEditCubit),
+            ],
+            child: ShaderRenderingScope(enabled: false, child: OnboardingWizardScreen(profileId: 'test_profile_id')),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(AppButton)); // intro
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(AppButton)); // basics
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> setSwitch(WidgetTester tester, String key, bool value) async {
+      tester
+          .state<FormBuilderFieldState<FormBuilderField<bool>, bool>>(
+            find.byWidgetPredicate((w) => w is FormBuilderField<bool> && w.name == key),
+          )
+          .didChange(value);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('shows the features step after basics are saved', (WidgetTester tester) async {
       await mockNetworkImages(() async {
-        final Profile profile = Faker().createProfile();
-
-        when(() => mockProfileEditCubit.state)
-            .thenReturn(ProfileEditState.loaded(profile: profile));
-        when(() => mockProfileEditCubit.stream).thenAnswer(
-          (_) => Stream<ProfileEditState>.fromIterable([
-            ProfileEditState.loaded(profile: profile),
-          ]),
+        final profile = Faker().createProfile().copyWith(
+          settings: const ProfileSettings(showStats: false, usePresenceFeature: true),
         );
-        when(
-          () => mockProfileEditCubit.updateProfile(
-            profile: any(named: 'profile'),
-            formData: any(named: 'formData'),
-            onComplete: any(named: 'onComplete'),
-            onError: any(named: 'onError'),
-            completeProfile: any(named: 'completeProfile'),
-          ),
-        ).thenAnswer((invocation) {
-          final onComplete = invocation.namedArguments[#onComplete]
-              as void Function(Profile);
-          onComplete(profile);
-        });
-        when(() => mockServices.analyticsService)
-            .thenReturn(MockAnalyticsService());
-        when(() => mockHapticsService.success()).thenReturn(null);
-        when(() => mockHapticsService.tap()).thenReturn(null);
+        await pumpWizardThroughBasics(tester, profile);
 
-        await tester.pumpWidget(
-          ProfileTestHelper.withLocalizationProvider(
-            MultiProvider(
-              providers: [
-                Provider<Services>.value(value: mockServices),
-                BlocProvider<ProfileEditCubit>(
-                  create: (context) => mockProfileEditCubit,
-                ),
-              ],
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: OnboardingWizardScreen(profileId: 'test_profile_id'),
-              ),
-            ),
-          ),
-        );
+        expect(find.byType(OnboardingFeaturesStep), findsOneWidget);
+        expect(find.byKey(const Key('onboarding_wizard_features_message')), findsOneWidget);
+        final l10n = ProfileLocalizations.of(tester.element(find.byType(OnboardingWizardScreen)));
+        for (final text in [
+          l10n.onboardingFeaturesTitle,
+          l10n.showStatsOnFinishScreenTitle,
+          l10n.onboardingStatsExplanation,
+          l10n.usePresenceFeatureTitle,
+          l10n.onboardingPresenceExplanation,
+        ]) {
+          expect(find.text(text), findsOneWidget);
+        }
+        bool switchValue(String key) => tester
+            .widget<FormBuilderField<bool>>(find.byWidgetPredicate((w) => w is FormBuilderField<bool> && w.name == key))
+            .initialValue!;
+        expect(switchValue(ProfileSettings.showStatsKey), isFalse);
+        expect(switchValue(ProfileSettings.usePresenceFeatureKey), isTrue);
+        expect(tester.widget<AnimatedSmoothIndicator>(find.byType(AnimatedSmoothIndicator)).activeIndex, 2);
+        expect(find.text('TOVÁBB'), findsOneWidget);
+      });
+    });
 
-        await tester.tap(find.byType(AppButton)); // intro
-        await tester.pumpAndSettle();
+    testWidgets('saves the settings and moves to location with presence on', (WidgetTester tester) async {
+      await mockNetworkImages(() async {
+        final profile = Faker().createProfile().copyWith(settings: const ProfileSettings());
+        await pumpWizardThroughBasics(tester, profile);
+
+        await setSwitch(tester, ProfileSettings.showStatsKey, false);
         await tester.tap(find.byType(AppButton));
         await tester.pumpAndSettle();
 
+        final saved =
+            verify(
+                  () => mockProfileEditCubit.updateProfileSettings(
+                    profile: profile,
+                    settingsFormData: captureAny(named: 'settingsFormData'),
+                    onComplete: any(named: 'onComplete'),
+                    onError: any(named: 'onError'),
+                  ),
+                ).captured.single
+                as Map<String, dynamic>;
+        expect(saved[ProfileSettings.showStatsKey], isFalse);
+        expect(saved[ProfileSettings.usePresenceFeatureKey], isTrue);
         expect(find.byType(ProfileLocationField), findsOneWidget);
         expect(find.text('BEFEJEZÉS'), findsOneWidget);
       });
     });
 
+    testWidgets('finishes on the features step with presence off', (WidgetTester tester) async {
+      await mockNetworkImages(() async {
+        final profileNavigator = MockProfileNavigator();
+        when(() => mockServices.profileNavigator).thenReturn(profileNavigator);
+        when(() => profileNavigator.navigateToProfile(any(), type: .replace)).thenAnswer((_) async {});
+        final profile = Faker().createProfile().copyWith(settings: const ProfileSettings());
+        await pumpWizardThroughBasics(tester, profile);
+
+        await setSwitch(tester, ProfileSettings.usePresenceFeatureKey, false);
+        expect(find.text('BEFEJEZÉS'), findsOneWidget);
+        await tester.tap(find.byType(AppButton));
+        await tester.pumpAndSettle();
+
+        final saved =
+            verify(
+                  () => mockProfileEditCubit.updateProfileSettings(
+                    profile: profile,
+                    settingsFormData: captureAny(named: 'settingsFormData'),
+                    onComplete: any(named: 'onComplete'),
+                    onError: any(named: 'onError'),
+                  ),
+                ).captured.single
+                as Map<String, dynamic>;
+        expect(saved[ProfileSettings.usePresenceFeatureKey], isFalse);
+        verify(() => profileNavigator.navigateToProfile(profile.id, type: .replace)).called(1);
+        expect(find.byType(ProfileLocationField), findsNothing);
+      });
+    });
+
+    testWidgets('changing saved features locks location again', (WidgetTester tester) async {
+      await mockNetworkImages(() async {
+        final profile = Faker().createProfile().copyWith(settings: const ProfileSettings());
+        await pumpWizardThroughBasics(tester, profile);
+        await tester.tap(find.byType(AppButton)); // features
+        await tester.pumpAndSettle();
+        expect(find.byType(ProfileLocationField), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('onboarding_wizard_step_features')));
+        await tester.pumpAndSettle();
+        await setSwitch(tester, ProfileSettings.showStatsKey, false);
+        await tester.tap(find.byKey(const Key('onboarding_wizard_step_location')));
+        await tester.pumpAndSettle();
+        expect(find.byType(OnboardingFeaturesStep), findsOneWidget);
+      });
+    });
+
     for (final (intent, locale) in [
       for (final intent in OnboardingIntent.values)
-        for (final locale in [const Locale('en'), const Locale('hu')])
-          (intent, locale),
+        for (final locale in [const Locale('en'), const Locale('hu')]) (intent, locale),
     ]) {
-      testWidgets('shows the ${intent.name} intro in ${locale.languageCode}',
-          (WidgetTester tester) async {
+      testWidgets('shows the ${intent.name} intro in ${locale.languageCode}', (WidgetTester tester) async {
         tester.view.physicalSize = const Size(360, 600);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         await mockNetworkImages(() async {
           final Profile profile = Faker().createProfile();
-          when(() => mockProfileEditCubit.state)
-              .thenReturn(ProfileEditState.loaded(profile: profile));
-          when(() => mockProfileEditCubit.stream).thenAnswer(
-            (_) => Stream<ProfileEditState>.fromIterable([
-              ProfileEditState.loaded(profile: profile),
-            ]),
-          );
+          when(() => mockProfileEditCubit.state).thenReturn(ProfileEditState.loaded(profile: profile));
+          when(() => mockProfileEditCubit.stream)
+              .thenAnswer((_) => Stream<ProfileEditState>.fromIterable([ProfileEditState.loaded(profile: profile)]));
 
           await tester.pumpWidget(
             ProfileTestHelper.withLocalizationProvider(
               MultiProvider(
                 providers: [
                   Provider<Services>.value(value: mockServices),
-                  BlocProvider<ProfileEditCubit>(
-                    create: (context) => mockProfileEditCubit,
-                  ),
+                  BlocProvider<ProfileEditCubit>(create: (context) => mockProfileEditCubit),
                 ],
                 child: ShaderRenderingScope(
                   enabled: false,
-                  child: OnboardingWizardScreen(
-                    profileId: 'test_profile_id',
-                    intent: intent,
-                  ),
+                  child: OnboardingWizardScreen(profileId: 'test_profile_id', intent: intent),
                 ),
               ),
               locale: locale,
@@ -570,9 +577,7 @@ void main() {
           );
           await tester.pumpAndSettle();
 
-          final l10n = ProfileLocalizations.of(
-            tester.element(find.byType(OnboardingWizardScreen)),
-          );
+          final l10n = ProfileLocalizations.of(tester.element(find.byType(OnboardingWizardScreen)));
           final expected = switch (intent) {
             OnboardingIntent.firstSignIn => l10n.onboardingWelcomeDescription,
             OnboardingIntent.completeProfile => l10n.profileWizardDescription,
@@ -584,58 +589,31 @@ void main() {
             l10n.onboardingBenefitStats,
           ];
           for (final benefit in benefits) {
-            expect(
-              find.text(benefit),
-              intent == OnboardingIntent.firstSignIn
-                  ? findsOneWidget
-                  : findsNothing,
-            );
+            expect(find.text(benefit), intent == OnboardingIntent.firstSignIn ? findsOneWidget : findsNothing);
           }
           expect(
             find.text(l10n.onboardingCheckProfilePrompt),
-            intent == OnboardingIntent.firstSignIn
-                ? findsOneWidget
-                : findsNothing,
+            intent == OnboardingIntent.firstSignIn ? findsOneWidget : findsNothing,
           );
           if (intent == OnboardingIntent.firstSignIn) {
             expect(
-              tester
-                  .getTopLeft(find.text(l10n.onboardingCheckProfilePrompt))
-                  .dy,
+              tester.getTopLeft(find.text(l10n.onboardingCheckProfilePrompt)).dy,
               greaterThan(tester.getBottomLeft(find.text(benefits.last)).dy),
             );
-            await tester.drag(
-              find.byKey(const Key('default_screen_setup_custom_scroll_view')),
-              const Offset(0, -500),
-            );
+            await tester.drag(find.byKey(const Key('default_screen_setup_custom_scroll_view')), const Offset(0, -500));
             await tester.pumpAndSettle();
             expect(
-              tester
-                  .getBottomLeft(find.text(l10n.onboardingCheckProfilePrompt))
-                  .dy,
-              lessThan(
-                tester.getTopLeft(find.byType(OnboardingWizardStepIndicator)).dy,
-              ),
+              tester.getBottomLeft(find.text(l10n.onboardingCheckProfilePrompt)).dy,
+              lessThan(tester.getTopLeft(find.byType(OnboardingWizardStepIndicator)).dy),
             );
           }
-          expect(
-            find.text(locale.languageCode == 'en'
-                ? 'CHECK'
-                : 'ELLENŐRZÉS'),
-            findsOneWidget,
-          );
+          expect(find.text(locale.languageCode == 'en' ? 'CHECK' : 'ELLENŐRZÉS'), findsOneWidget);
           // Only the profile-button entry can be dismissed.
           expect(
             find.byType(CustomBackButton),
-            intent == OnboardingIntent.completeProfile
-                ? findsOneWidget
-                : findsNothing,
+            intent == OnboardingIntent.completeProfile ? findsOneWidget : findsNothing,
           );
-          expect(find.byType(CustomAppBar), 
-            intent == OnboardingIntent.completeProfile
-                ? findsOneWidget
-                : findsNothing,
-          );
+          expect(find.byType(CustomAppBar), intent == OnboardingIntent.completeProfile ? findsOneWidget : findsNothing);
         });
       });
     }

@@ -53,7 +53,7 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
 
   @override
   String get onboardingCheckProfilePrompt =>
-      'First, please check that your profile details are correct.';
+      'First, please help us check that your profile details are correct.';
 
   @override
   String get profileWizardTitle => 'Just a moment!';
@@ -63,11 +63,11 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
       'It seems like your profile information have not been verified yet.\n\nCan you help us and check if everything we received about you is correct?\n\nIt takes less than a minute.';
 
   @override
-  String get profileBasicsTitle => 'Let\'s do the basic information!';
+  String get profileBasicsTitle => 'Let\'s see your basic information first!';
 
   @override
   String get profileBasicsDescription =>
-      'Please check if your name is correct. You can also choose a profile photo if you like.';
+      'Please check if got your name right. You can also choose a profile photo if you like.';
 
   @override
   String get profileSettings => 'Settings';
@@ -326,6 +326,21 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
 
   @override
   String get profileWizardSkip => 'Not now';
+
+  @override
+  String get onboardingFeaturesTitle => 'Choose what you see';
+
+  @override
+  String get onboardingFeaturesDescription =>
+      'Two optional features shape your practice in the app. You can change them anytime in Settings.';
+
+  @override
+  String get onboardingStatsExplanation =>
+      'Statistics show your practice time, consecutive days and stepstones. Follow your progress and keep your practice steady.';
+
+  @override
+  String get onboardingPresenceExplanation =>
+      'Presence shows who else is practising at the same time as you. Enjoy the support of others taking effort in the practice while also providing it.';
 
   @override
   String get locationPitchTitle => 'See who is practising near you';

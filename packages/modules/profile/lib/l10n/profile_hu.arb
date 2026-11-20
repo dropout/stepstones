@@ -76,6 +76,10 @@
   "profileWizardContinue": "Tovább",
   "profileWizardFinish": "Befejezés",
   "profileWizardSkip": "Most nem",
+  "onboardingFeaturesTitle": "Válaszd ki, mit szeretnél látni",
+  "onboardingFeaturesDescription": "Két opcionális funkció alakítja a gyakorlásodat az alkalmazásban. Bármikor módosíthatod őket a Beállításokban.",
+  "onboardingStatsExplanation": "A statisztikák mutatják a gyakorlással töltött időt, az egymást követő napokat és a lépőköveket. Kövesd a fejlődésedet és tartsd egyenletesen a gyakorlásod mértékét.",
+  "onboardingPresenceExplanation": "A Jelenlét megmutatja, kik gyakorolnak veled egy időben. Élvezd mások gyakorlásba fektetett erőfeszítésének támogató erejét, amihez egyben a te jelenléted is hozzájárul.",
   "locationPitchTitle": "Nézd meg, ki gyakorol a közeledben",
   "locationPitchBody": "Add meg a városodat, és minden ülés után előre kerülnek a hozzád legközelebb gyakorlók. Csak a városodat használjuk, a pontos helyzetedet soha.",
   "locationPromptAction": "Város megadása"

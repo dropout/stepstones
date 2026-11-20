@@ -8,7 +8,7 @@ import 'package:profile/src/presentation/viewmodel/onboarding_wizard_cubit.dart'
 class const OnboardingWizardStepIndicator({
   required final OnboardingWizardStep step,
   required final ValueChanged<OnboardingWizardStep>? onSelected,
-  required final bool locationEnabled,
+  required final bool Function(OnboardingWizardStep step) isStepEnabled,
   super.key,
 }) extends StatelessWidget {
   static const double touchTargetSize = 48;
@@ -35,27 +35,16 @@ class const OnboardingWizardStepIndicator({
               ),
             ),
           ),
-          Row(
-            children: [
-              for (final item in steps)
-                _buildTarget(context, item, steps.length),
-            ],
-          ),
+          Row(children: [for (final item in steps) _buildTarget(context, item, steps.length)]),
         ],
       ),
     );
   }
 
-  Widget _buildTarget(
-    BuildContext context,
-    OnboardingWizardStep item,
-    int count,
-  ) {
-    final enabled =
-        onSelected != null && (item != .location || locationEnabled);
+  Widget _buildTarget(BuildContext context, OnboardingWizardStep item, int count) {
+    final enabled = onSelected != null && isStepEnabled(item);
     return Semantics(
-      label: ProfileLocalizations.of(context)
-          .profileWizardStepLabel(item.index + 1, count),
+      label: ProfileLocalizations.of(context).profileWizardStepLabel(item.index + 1, count),
       button: true,
       selected: item == step,
       enabled: enabled,
@@ -63,10 +52,7 @@ class const OnboardingWizardStepIndicator({
         key: ValueKey('onboarding_wizard_step_${item.name}'),
         behavior: HitTestBehavior.opaque,
         onTap: enabled ? () => onSelected!(item) : null,
-        child: const SizedBox(
-          width: touchTargetSize,
-          height: touchTargetSize,
-        ),
+        child: const SizedBox(width: touchTargetSize, height: touchTargetSize),
       ),
     );
   }

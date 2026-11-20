@@ -11,10 +11,9 @@ void main() {
     });
 
     test('can start on a given step', () {
-      final cubit = OnboardingWizardCubit(
-        initialStep: OnboardingWizardStep.location,
-      );
+      final cubit = OnboardingWizardCubit(initialStep: OnboardingWizardStep.location);
       expect(cubit.state.step, OnboardingWizardStep.location);
+      expect(cubit.canOpen(OnboardingWizardStep.features), isTrue);
     });
 
     test('next moves from intro to basics', () {
@@ -22,23 +21,39 @@ void main() {
       expect(cubit.state.step, OnboardingWizardStep.basics);
     });
 
-    test('next moves to location and resets saving', () {
+    test('next moves from basics to features and resets saving', () {
       final cubit = OnboardingWizardCubit()
         ..next()
         ..setSaving(ProcessingState.processing);
       cubit.next();
-      expect(cubit.state.step, OnboardingWizardStep.location);
+      expect(cubit.state.step, OnboardingWizardStep.features);
       expect(cubit.state.saving, ProcessingState.idle);
     });
 
-    test('location cannot be opened until basics have been saved', () {
+    test('next moves from features to location and stays there', () {
+      final cubit = OnboardingWizardCubit()
+        ..next()
+        ..next()
+        ..next();
+      expect(cubit.state.step, OnboardingWizardStep.location);
+      cubit.next();
+      expect(cubit.state.step, OnboardingWizardStep.location);
+    });
+
+    test('later steps open only after the previous ones are saved', () {
       final cubit = OnboardingWizardCubit();
+      cubit.goTo(OnboardingWizardStep.features);
       cubit.goTo(OnboardingWizardStep.location);
       expect(cubit.state.step, OnboardingWizardStep.intro);
 
       cubit.goTo(OnboardingWizardStep.basics);
-      cubit.goTo(OnboardingWizardStep.location);
+      cubit.goTo(OnboardingWizardStep.features);
       expect(cubit.state.step, OnboardingWizardStep.basics);
+
+      cubit.next();
+      expect(cubit.state.step, OnboardingWizardStep.features);
+      cubit.goTo(OnboardingWizardStep.location);
+      expect(cubit.state.step, OnboardingWizardStep.features);
 
       cubit.next();
       cubit.goTo(OnboardingWizardStep.intro);
@@ -60,10 +75,23 @@ void main() {
         ..next()
         ..next()
         ..goTo(OnboardingWizardStep.basics)
-        ..invalidateBasics()
+        ..invalidate(OnboardingWizardStep.basics)
         ..goTo(OnboardingWizardStep.intro)
-        ..goTo(OnboardingWizardStep.location);
+        ..goTo(OnboardingWizardStep.features);
       expect(cubit.state.step, OnboardingWizardStep.intro);
+    });
+
+    test('invalidated features lock location but keep features open', () {
+      final cubit = OnboardingWizardCubit()
+        ..next()
+        ..next()
+        ..next()
+        ..goTo(OnboardingWizardStep.features)
+        ..invalidate(OnboardingWizardStep.features);
+      expect(cubit.canOpen(OnboardingWizardStep.features), isTrue);
+      expect(cubit.canOpen(OnboardingWizardStep.location), isFalse);
+      cubit.goTo(OnboardingWizardStep.location);
+      expect(cubit.state.step, OnboardingWizardStep.features);
     });
   });
 }
