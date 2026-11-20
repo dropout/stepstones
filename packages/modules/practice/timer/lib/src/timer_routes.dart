@@ -20,17 +20,18 @@ class TimerRoute extends GoRouteData with $TimerRoute {
     Duration transitionDuration = Durations.long1;
 
     return CustomTransitionPage(
+      key: state.pageKey,
       transitionDuration: transitionDuration,
       reverseTransitionDuration: transitionDuration,
-      child: TimerScreen(key: state.pageKey, timerSettings: settings),
+      child: TimerScreen(timerSettings: settings),
       transitionsBuilder: (context, animation, secondary, child) => GradientTransition(
         progress: animation,
         direction: .bottomToTop,
         sweepLength: 3.0,
-        wobble: 0.1,        
+        wobble: 0.1,
         wobbleScale: 1.0,
         grain: 0.0,
-        shader: context.services.shaderService.get(Assets.shaderGradientTransitionMask),
+        program: context.services.shaderService.program(Assets.shaderGradientTransitionMask),
         child: child,
       ),
     );

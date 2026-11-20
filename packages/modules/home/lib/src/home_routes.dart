@@ -30,19 +30,16 @@ class HomeRoute extends GoRouteData with $HomeRoute {
       transitionDuration: Durations.extralong4,
       reverseTransitionDuration: Durations.long1,
       child: const HomeScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-          GradientTransition(          
-            progress: animation,
-            direction: .bottomToTop,
-            sweepLength: 3.0,
-            wobble: 0.1,        
-            wobbleScale: 1.0,
-            grain: 0.0,            
-            shader: context.services.shaderService.get(
-              Assets.shaderGradientTransitionMask,
-            ),
-            child: child,
-          ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => GradientTransition(
+        progress: animation,
+        direction: .bottomToTop,
+        sweepLength: 3.0,
+        wobble: 0.1,
+        wobbleScale: 1.0,
+        grain: 0.0,
+        program: context.services.shaderService.program(Assets.shaderGradientTransitionMask),
+        child: child,
+      ),
     );
   }
 }

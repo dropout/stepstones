@@ -37,7 +37,7 @@ class ExponentialGradient extends StatelessWidget {
       );
     }
 
-    final shader = context.services.shaderService.get(
+    final shader = context.services.shaderService.shader(
       Assets.shaderExponentialGradient,
     );
 

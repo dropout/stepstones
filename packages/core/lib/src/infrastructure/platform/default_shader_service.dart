@@ -3,9 +3,8 @@ import 'dart:ui';
 import 'package:core/src/service/shader_service.dart';
 
 
-
 class DefaultShaderService implements ShaderService {
-
+  final Map<String, FragmentProgram> programs = {};
   final Map<String, FragmentShader> shaders = {};
 
   @override
@@ -13,18 +12,28 @@ class DefaultShaderService implements ShaderService {
     if (shaders.containsKey(assetKey)) {
       return shaders[assetKey]!;
     }
-    FragmentProgram program = await FragmentProgram.fromAsset(assetKey);
-    FragmentShader shader = program.fragmentShader();
+    final program = await FragmentProgram.fromAsset(assetKey);
+    final shader = program.fragmentShader();
+    programs[assetKey] = program;
     shaders[assetKey] = shader;
     return shader;
   }
 
   @override
-  FragmentShader get(String assetKey) {
+  FragmentShader shader(String assetKey) {
     if (shaders.containsKey(assetKey)) {
       return shaders[assetKey]!;
     } else {
       throw Exception('No shader found in cache with assetKey: $assetKey');
+    }
+  }
+
+  @override
+  FragmentProgram program(String assetKey) {
+    if (programs.containsKey(assetKey)) {
+      return programs[assetKey]!;
+    } else {
+      throw Exception('No shader program found in cache with assetKey: $assetKey');
     }
   }
 
@@ -34,7 +43,6 @@ class DefaultShaderService implements ShaderService {
       shader.dispose();
     }
     shaders.clear();
+    programs.clear();
   }
-
-
 }

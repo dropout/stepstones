@@ -258,7 +258,7 @@ void main() {
 
       when(() => mockAuthBloc.state).thenReturn(const AuthState.initial());
       when(
-        () => mockHomeNavigator.navigateToHome(gradientTransition: true),
+        () => mockHomeNavigator.navigateToHome(type: .go, gradientTransition: true),
       ).thenAnswer((_) async {});
 
       await pumpScreen(tester, session);
@@ -269,7 +269,7 @@ void main() {
       await tester.pump();
 
       verify(
-        () => mockHomeNavigator.navigateToHome(gradientTransition: true),
+        () => mockHomeNavigator.navigateToHome(type: .go, gradientTransition: true),
       ).called(1);
 
       // expect(didPop, true);

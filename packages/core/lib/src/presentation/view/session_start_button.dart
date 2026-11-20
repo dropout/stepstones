@@ -54,7 +54,7 @@ class _SessionStartButtonState extends State<SessionStartButton>
       );
     }
 
-    final shader = context.services.shaderService.get(
+    final shader = context.services.shaderService.shader(
       Assets.shaderGradientFlow,
     );
 

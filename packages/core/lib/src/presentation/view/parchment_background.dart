@@ -31,7 +31,7 @@ class ParchmentBackground extends StatelessWidget {
       return const ColoredBox(color: AppColors.backgroundPaper);
     }
 
-    final shader = context.services.shaderService.get(
+    final shader = context.services.shaderService.shader(
       Assets.shaderParchment,
     );
 

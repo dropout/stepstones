@@ -13,10 +13,7 @@ class ChantingRoute extends GoRouteData with $ChantingRoute {
   final Object $extra;
 
   const ChantingRoute({required this.$extra})
-    : assert(
-        $extra is ChantingSettings,
-        'Invalid extra data for ChantingRoute. Expected ChantingSettings.',
-      );
+    : assert($extra is ChantingSettings, 'Invalid extra data for ChantingRoute. Expected ChantingSettings.');
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
@@ -26,48 +23,18 @@ class ChantingRoute extends GoRouteData with $ChantingRoute {
     return CustomTransitionPage(
       transitionDuration: transitionDuration,
       reverseTransitionDuration: transitionDuration,
-      child: ChantingScreen(
-        chantingSettings: chantingSettings,
-        key: state.pageKey,
-      ),
+      child: ChantingScreen(chantingSettings: chantingSettings, key: state.pageKey),
       transitionsBuilder:
-          (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) {
+          (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
             return LinearGradientMaskTransition(
-              progress: CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeIn,
-              ),
-              shader: context.services.shaderService.get(
-                Assets.shaderLinearGradientMask,
-              ),
+              progress: CurvedAnimation(parent: animation, curve: Curves.easeIn),
+              program: context.services.shaderService.program(Assets.shaderLinearGradientMask),
               child: child,
             );
           },
     );
   }
 
-  // @override
-  // Widget build(BuildContext context, GoRouterState state) {
-  //   try {
-  //     final ChantingSettings chantingSettings = ($extra is ChantingSettings)
-  //         ? $extra as ChantingSettings
-  //         : throw Exception('Invalid chanting settings data');
-  //     return ChantingScreen(
-  //       chantingSettings: chantingSettings,
-  //       key: state.pageKey,
-  //     );
-  //   } catch (e) {
-  //     return AppErrorDisplay(
-  //       onButtonTap: () =>
-  //         context.services.homeNavigator.navigateToHome(type: NavigationType.go),
-  //     );
-  //   }
-  // }
 }
 
 final List<RouteBase> $chantingRoutes = [$chantingRoute];

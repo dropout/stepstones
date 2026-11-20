@@ -1,12 +1,14 @@
 import 'package:profile/profile.dart';
-import '../viewmodel/session_completed/session_completed_cubit.dart';
-import '../../public/model/session.dart';
-import '../../public/view/signed_in_completed_view.dart';
-import '../../public/view/signed_out_completed_view.dart';
+
 import 'package:core/core.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+
+import 'package:session/src/presentation/viewmodel/session_completed/session_completed_cubit.dart';
+import 'package:session/src/public/model/session.dart';
+import 'package:session/src/public/view/signed_in_completed_view.dart';
+import 'package:session/src/public/view/signed_out_completed_view.dart';
 
 class const SessionCompletedScreen({
   required final Session session, 
@@ -105,7 +107,7 @@ class const SessionCompletedScreen({
 
 class const CompletedScreenBottomArea({super.key}) extends StatelessWidget {
   void _onOkayButtonPressed(BuildContext context) {
-    context.services.homeNavigator.navigateToHome(gradientTransition: true);
+    context.services.homeNavigator.navigateToHome(type: .go, gradientTransition: true);
     context.hapticsTap();
   }
 
