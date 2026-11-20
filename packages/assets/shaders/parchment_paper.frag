@@ -22,8 +22,8 @@ const float mottle_scale = 1.0;
 const float grain_strength = 0.12;
 const float vignette = 1.0;
 const float grain_scale = 600.0;
-const vec3 paper = vec3(0.953, 0.898, 0.671);  // #EFBF04
-const vec3 dark = vec3(0.541, 0.353, 0.169);   // #8A5A2B
+const vec3 paper = vec3(0.878, 0.804, 0.584);  // #E0CD95
+const vec3 dark = vec3(0.627, 0.518, 0.184);   // #A0842F
 
 // Hash without sin(): stable across GPUs and cheap (Dave Hoskins' hash12).
 float hash12(vec2 p) {

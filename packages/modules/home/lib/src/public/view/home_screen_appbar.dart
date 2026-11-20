@@ -28,23 +28,23 @@ class const HomeScreenAppbar({
     return SignedIn(
       yes: (context, profileId) {
         return CustomAppBar(
-          leading: Today(key: ValueKey(DateTime.now().toDayId())),
+          leading: Today(key: ValueKey(DateTime.now().toDayId())).reveal(0),
           trailing: [
             TrailingSlot(
               child: SessionTypeToggle(
                 activeMode: homeScreenState.sessionType,
                 onModeChanged: (HomeScreenViewState value) => _onSessionTypeChange(context, value),
-              ),
+              ).reveal(1),
             ),
-            TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button'))),
+            TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button')).reveal(2)),
           ],
         );
       },
       no: CustomAppBar(
         leading: Today(key: ValueKey(DateTime.now().toDayId())),
         trailing: [
-          TrailingSlot(child: SessionTypeToggle(activeMode: HomeScreenViewState.sitting, onModeChanged: null)),
-          TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button'))),
+          TrailingSlot(child: SessionTypeToggle(activeMode: HomeScreenViewState.sitting, onModeChanged: null).reveal(1)),
+          TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button')).reveal(2)),
         ],
       ),
     );

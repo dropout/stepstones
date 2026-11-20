@@ -78,7 +78,10 @@ class _SessionStartButtonState extends State<SessionStartButton>
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: ShapeDecoration(shape: StadiumBorder(), color: AppColors.red),
+      decoration: ShapeDecoration(
+        shape: StadiumBorder(), 
+        color: AppColors.crimsonRed,
+      ),
       child: Stack(
         children: [
           // Background shape with gradient_flow shader
