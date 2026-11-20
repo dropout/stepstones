@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart' hide GlobalMaterialLocalizations;
+import 'package:flutter_localizations/flutter_localizations.dart'
+    hide GlobalMaterialLocalizations;
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,7 +20,6 @@ import 'package:mobile_app/l10n/app_localizations.dart';
 
 import 'app_providers.dart';
 
-
 /// The main app widget.
 /// It sets up the top-level providers and
 /// the MaterialApp with routing.
@@ -29,7 +29,7 @@ class App extends StatelessWidget {
 
   App({required this.initResult, super.key}) {
     router = GetIt.I.get<GoRouter>();
-  }    
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,14 +60,7 @@ class App extends StatelessWidget {
         }
       },
       child: MaterialApp.router(
-        builder: (BuildContext context, Widget? child) {
-          child ??= const SizedBox.shrink();
-          // Don't let os text scaling affect the app's text size
-          return MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 1.0,
-            child: child,
-          );
-        },
+        builder: _buildWithSystemOverrides,
         routerConfig: router,
         supportedLocales: const [Locale('hu', 'HU'), Locale('en', 'EN')],
         localizationsDelegates: [
@@ -83,7 +76,7 @@ class App extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           SessionLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,          
+          GlobalCupertinoLocalizations.delegate,
         ],
         theme: DesignSpec().themeData,
       ),
@@ -92,9 +85,10 @@ class App extends StatelessWidget {
 
   /// Builds a simplified maintenance mode app with
   /// a localized maintenance message.
-  Widget buildMaintenanceModeApp(BuildContext context) {    
+  Widget buildMaintenanceModeApp(BuildContext context) {
     return MaterialApp(
       color: AppColors.backgroundPaper,
+      builder: _buildWithSystemOverrides,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: Scaffold(
@@ -109,23 +103,30 @@ class App extends StatelessWidget {
               Text(
                 AppLocalizations.of(context).underMaintenanceTitle,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineSmall!
+                    .copyWith(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               Gap.small(),
               Text(
                 AppLocalizations.of(context).underMaintenanceBody,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!
+                    .copyWith(color: Colors.black, fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWithSystemOverrides(BuildContext context, Widget? child) {
+    child ??= const SizedBox.shrink();
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(boldText: false),
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.0,
+        child: child,
       ),
     );
   }
