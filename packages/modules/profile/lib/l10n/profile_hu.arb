@@ -82,5 +82,7 @@
   "onboardingPresenceExplanation": "A Jelenlét megmutatja, kik gyakorolnak veled egy időben. Élvezd mások gyakorlásba fektetett erőfeszítésének támogató erejét, amihez egyben a te jelenléted is hozzájárul.",
   "locationPitchTitle": "Nézd meg, ki gyakorol a közeledben",
   "locationPitchBody": "Add meg a városodat, és minden ülés után előre kerülnek a hozzád legközelebb gyakorlók. Csak a városodat használjuk, a pontos helyzetedet soha.",
-  "locationPromptAction": "Város megadása"
+  "locationPromptAction": "Város megadása",
+  "locationSavedTitle": "Köszönjük!",
+  "locationSavedBody": "Elmentve: {city}.\nMostantól a hozzád legközelebb gyakorlók jelennek meg elsőként a jelenlét nézetben."
 }

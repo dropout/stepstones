@@ -351,4 +351,12 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
 
   @override
   String get locationPromptAction => 'Add my city';
+
+  @override
+  String get locationSavedTitle => 'Thank you!';
+
+  @override
+  String locationSavedBody(String city) {
+    return '$city is saved.\nFrom now on, practitioners closest to you will be shown first in the presence view.';
+  }
 }

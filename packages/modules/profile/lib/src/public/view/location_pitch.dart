@@ -12,19 +12,20 @@ class const LocationPitch({super.key}) extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(Icons.location_on_outlined, color: AppColors.charcoal),
-        Gap.xs(),
         Text(
           l10n.locationPitchTitle,
-          style: textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: .bold,
             color: AppColors.charcoal,
           ),
         ),
-        Gap.xs(),
+        Gap.medium(),
         Text(
           l10n.locationPitchBody,
-          style: textTheme.bodyMedium?.copyWith(color: AppColors.charcoal),
+          style: textTheme.bodyMedium?.copyWith(
+            color: AppColors.charcoal,
+            fontWeight: .w500,
+          ),
         ),
       ],
     );

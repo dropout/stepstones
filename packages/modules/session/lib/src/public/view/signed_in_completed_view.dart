@@ -4,9 +4,9 @@ import 'package:core/core.dart';
 import 'package:profile/profile.dart';
 import 'package:social/social.dart';
 
-import '../model/update_profile_stats_result.dart';
+import 'package:session/src/public/model/update_profile_stats_result.dart';
+import 'package:session/src/public/view/session_result.dart';
 
-import 'session_result.dart';
 
 class const SignedInCompletedView({
   required final String profileId,

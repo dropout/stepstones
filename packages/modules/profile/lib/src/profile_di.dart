@@ -140,6 +140,8 @@ extension ProfileModuleDependencyInjection on GetIt {
     registerFactory<LocationPromptCubit>(
       () => LocationPromptCubit(
         preferences: GetIt.I.get<SharedPreferencesService>(),
+        updateProfileUseCase: GetIt.I.get<UpdateProfileUseCase>(),
+        crashlyticsService: GetIt.I.get<CrashlyticsService>(),
       ),
     );
 

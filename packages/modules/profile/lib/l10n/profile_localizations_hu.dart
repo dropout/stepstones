@@ -351,4 +351,12 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
 
   @override
   String get locationPromptAction => 'Város megadása';
+
+  @override
+  String get locationSavedTitle => 'Köszönjük!';
+
+  @override
+  String locationSavedBody(String city) {
+    return 'Elmentve: $city.\nMostantól a hozzád legközelebb gyakorlók jelennek meg elsőként a jelenlét nézetben.';
+  }
 }

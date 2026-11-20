@@ -598,6 +598,18 @@ abstract class ProfileLocalizations {
   /// In en, this message translates to:
   /// **'Add my city'**
   String get locationPromptAction;
+
+  /// No description provided for @locationSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you!'**
+  String get locationSavedTitle;
+
+  /// No description provided for @locationSavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{city} is saved.\nFrom now on, practitioners closest to you will be shown first in the presence view.'**
+  String locationSavedBody(String city);
 }
 
 class _ProfileLocalizationsDelegate

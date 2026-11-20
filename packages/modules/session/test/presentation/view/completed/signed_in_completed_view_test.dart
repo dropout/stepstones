@@ -27,7 +27,7 @@ void main() {
   late MockServices mockServices;
   late MockResourceResolver mockResourceResolver;
   late MockPresenceCubit mockPresenceCubit;
-  late MockSharedPreferencesService mockPreferences;
+  late MockLocationPromptCubit mockLocationPromptCubit;
 
   setUpAll(() {
     registerFallbackValue(Duration.zero);
@@ -50,9 +50,10 @@ void main() {
     ).thenAnswer((_) async {});
     GetIt.I.registerFactory<PresenceCubit>(() => mockPresenceCubit);
 
-    mockPreferences = MockSharedPreferencesService();
-    when(() => mockPreferences.get<bool>(key: any(named: 'key'))).thenAnswer((_) async => null);
-    GetIt.I.registerFactory<LocationPromptCubit>(() => LocationPromptCubit(preferences: mockPreferences));
+    mockLocationPromptCubit = MockLocationPromptCubit();
+    when(() => mockLocationPromptCubit.state).thenReturn(const LocationPromptState.prompt());
+    when(() => mockLocationPromptCubit.load()).thenAnswer((_) async {});
+    GetIt.I.registerFactory<LocationPromptCubit>(() => mockLocationPromptCubit);
 
     when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
     when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) {

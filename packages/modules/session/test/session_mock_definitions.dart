@@ -56,3 +56,7 @@ class MockHomeNavigator
 class MockSessionRepostiory 
   extends Mock 
   implements SessionRepository;
+
+class MockLocationPromptCubit 
+  extends MockCubit<LocationPromptState>
+  implements LocationPromptCubit;
