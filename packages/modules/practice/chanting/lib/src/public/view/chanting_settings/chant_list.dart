@@ -46,8 +46,7 @@ class const ChantList({
       buildDefaultDragHandles: false,
       itemCount: chants.length,
       onReorderItem: (oldIndex, newIndex) => onReorder(oldIndex, newIndex),
-      itemBuilder: (context, index) =>
-        buildPlaylistItem(context, chants[index], index),
+      itemBuilder: (context, index) => buildPlaylistItem(context, chants[index], index),
       proxyDecorator: (child, index, animation) {
         return AnimatedBuilder(
           animation: animation,
@@ -63,7 +62,7 @@ class const ChantList({
   Widget buildEmpty(BuildContext context) {
     return Column(
       mainAxisSize: .min,
-      mainAxisAlignment: MainAxisAlignment.center,        
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           ChantingLocalizations.of(context).chantingPlaylistEmptyTitle,

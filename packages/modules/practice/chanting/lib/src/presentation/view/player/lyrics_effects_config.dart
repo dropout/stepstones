@@ -88,15 +88,13 @@ class LyricsEffectsConfig {
       wormMaxDelay: wormMaxDelay ?? this.wormMaxDelay,
       fade: fade ?? this.fade,
       minOpacity: minOpacity ?? this.minOpacity,
-      opacityFalloffPerLine:
-          opacityFalloffPerLine ?? this.opacityFalloffPerLine,
+      opacityFalloffPerLine: opacityFalloffPerLine ?? this.opacityFalloffPerLine,
       scale: scale ?? this.scale,
       inactiveScale: inactiveScale ?? this.inactiveScale,
       blur: blur ?? this.blur,
       blurSigmaPerLine: blurSigmaPerLine ?? this.blurSigmaPerLine,
       maxBlurSigma: maxBlurSigma ?? this.maxBlurSigma,
-      blurWhileUserScrolling:
-          blurWhileUserScrolling ?? this.blurWhileUserScrolling,
+      blurWhileUserScrolling: blurWhileUserScrolling ?? this.blurWhileUserScrolling,
       transitionDuration: transitionDuration ?? this.transitionDuration,
     );
   }

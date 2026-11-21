@@ -73,6 +73,7 @@ void main() {
       ['ordinary', 'lyrics'],
       [r'first\nsecond', 'third'],
       ['extraordinarilylongunbrokenword'],
+      ['...'],
       <String>[],
     ];
     final state = ChantingStateEntity(playbackState: ChantPlaybackStateEntity(updateTime: DateTime(2026)));

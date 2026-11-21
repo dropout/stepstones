@@ -142,8 +142,7 @@ class _LyricsViewState extends State<LyricsView>
     if (!widget.effects.isWormScrollOn) _stopWorm();
 
     // Scroll to lines while the chant is playing.
-    if (widget.chantingState.activeLineIndex !=
-        oldWidget.chantingState.activeLineIndex) {
+    if (widget.chantingState.activeLineIndex != oldWidget.chantingState.activeLineIndex) {
       debugPrint(
         'Active line index changed: ${oldWidget.chantingState.activeLineIndex} -> ${widget.chantingState.activeLineIndex}',
       );
@@ -156,11 +155,9 @@ class _LyricsViewState extends State<LyricsView>
     }
 
     // Re-measure when the lyrics or the available width change.
-    if (widget.chantingState.lyricsDocument !=
-            oldWidget.chantingState.lyricsDocument ||
+    if (widget.chantingState.lyricsDocument != oldWidget.chantingState.lyricsDocument ||
         widget.maxWidth != oldWidget.maxWidth ||
-        (_lyricLineHeights.isEmpty &&
-            widget.chantingState.lyricsDocument?.lines.isNotEmpty == true)) {
+        (_lyricLineHeights.isEmpty && widget.chantingState.lyricsDocument?.lines.isNotEmpty == true)) {
       setState(_updateLayout);
       if (widget.maxWidth != oldWidget.maxWidth) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -219,9 +216,7 @@ class _LyricsViewState extends State<LyricsView>
     if (now.difference(_lastSeek) < _seekThrottle) return;
     _lastSeek = now;
 
-    context.read<ChantingCubit>().seekToLine(
-      _calculateActiveLineIndexFromScroll(),
-    );
+    context.read<ChantingCubit>().seekToLine(_calculateActiveLineIndexFromScroll());
   }
 
   /// Settles all lines at their final position immediately.

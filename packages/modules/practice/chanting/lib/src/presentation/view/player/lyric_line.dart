@@ -1,6 +1,7 @@
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_line_entity.dart';
 import 'package:chanting/src/domain/entity/lyrics_word_entity.dart';
+import 'package:chanting/src/presentation/view/player/lyric_pause_dots.dart';
 import 'package:chanting/src/presentation/view/player/lyric_text_style.dart';
 import 'package:chanting/src/presentation/view/player/lyric_word.dart';
 import 'package:core/core.dart';
@@ -144,8 +145,32 @@ class const LyricLine({
     return height;
   }
 
+  /// A line made only of "..." marks a pause with no chanting.
+  static bool isPauseLine(LyricsLineEntity line) => 
+    displayText(line).trim() == '...';
+
   @override
   Widget build(BuildContext context) {
+    if (isPauseLine(line)) {
+      final style = LyricTextStyle.of(context);
+      final playback = chantingState.playbackState;
+      return Padding(
+        padding: getLinePaddingForWidth(maxWidth),
+        child: LyricPauseDots(
+          line: line,
+          position: position,
+          isAdvancing: playback.playing && playback.processingState == .ready,
+          speed: playback.speed,
+          // Same inline layout as the word widgets, so the measured height still matches.
+          placeholder: Text.rich(
+            TextSpan(
+              children: _buildSpans(line, (word) => WidgetSpan(child: Text(word.text, style: style))),
+              style: style,
+            ),
+          ),
+        ),
+      );
+    }
     final textSpans = _buildSpans(
       line,
       (word) => WidgetSpan(

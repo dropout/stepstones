@@ -58,9 +58,6 @@ LyricFocusValues lyricFocusValues({
 //   return LyricFocusValues(opacity, scale, sigma);
 // }
 
-
-
-
 /// Applies fade, scale and blur to a lyric line based on its distance
 /// from the active line. Renders [child] untouched when no effect is on.
 class LyricFocus extends StatelessWidget {

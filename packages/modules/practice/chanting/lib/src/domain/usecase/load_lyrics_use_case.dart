@@ -19,15 +19,5 @@ class LoadLyricsUseCase with LoggerMixin {
         .lyricsLocalPath;
 
     return await lyricsService.loadLyrics(lyricsPath);
-
-    // User quickly pressed back button
-    // if (isClosed) return;
-
-    // emit(
-    //   state.copyWith(
-    //     lyricsLoadingState: LoadingState.loaded,
-    //     lyricsDocument: lyricsDocument,
-    //   ),
-    // );
   }
 }

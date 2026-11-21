@@ -93,7 +93,7 @@ class _LyricWordWidgetState extends State<LyricWordWidget>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) =>
-          Text(widget.word.text, style: style.copyWith(color: _currentColor)),
+        Text(widget.word.text, style: style.copyWith(color: _currentColor)),
     );
   }
 }

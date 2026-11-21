@@ -11,7 +11,8 @@ abstract interface class SoChantingAudioResourceManager {
 }
 
 class SoLoudSoChantingAudioResourceManager
-    implements SoChantingAudioResourceManager {
+  implements SoChantingAudioResourceManager {
+  
   final SoLoud soloud;
 
   AudioSource? _currentSource;

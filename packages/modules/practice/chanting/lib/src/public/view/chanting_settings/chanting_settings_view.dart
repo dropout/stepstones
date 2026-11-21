@@ -124,7 +124,7 @@ class ChantingSettingsView extends StatelessWidget {
                     .md => 40,
                     .lg => 44,
                     .xl => 48,
-                  }
+                  },
                 ),
               ).reveal(1),
               Gap.medium(),
@@ -150,14 +150,14 @@ class ChantingSettingsView extends StatelessWidget {
                   ),
                 ),
               ),
-        
+
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: DesignSpec.paddingXl),
                 child: Center(
                   child: AddChantButton(onTap: () => _triggerAddChantSheet(context, availableChants)).reveal(state.playlist.length + 2)
                 ),
               ),
-        
+
               // Total duration display
               if (state.playlist.isNotEmpty)
                 Padding(
@@ -189,7 +189,7 @@ class ChantingSettingsView extends StatelessWidget {
             ],
           ),
         );
-      }
+      },
     );
   }
 }

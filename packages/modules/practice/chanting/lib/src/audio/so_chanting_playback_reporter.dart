@@ -9,15 +9,10 @@ typedef SoChantingPeriodicTimerFactory = Timer Function(
 
 abstract interface class SoChantingPlaybackReporter {
   void start();
-
   void stop();
-
   void emitLoading();
-
   void emitStopped();
-
   void emitCompleted();
-
   void emitCurrentState();
 }
 

@@ -32,8 +32,7 @@ sealed class ChantingSettingsState with _$ChantingSettingsState {
 /// A Cubit that manages the state of the chanting settings.
 /// Enables adding new chants, removing chants, and reordering the chants
 /// in the playlist.
-class ChantingSettingsCubit extends Cubit<ChantingSettingsState>
-    with LoggerMixin {
+class ChantingSettingsCubit extends Cubit<ChantingSettingsState> with LoggerMixin {
   /// The repository for fetching available chants.
   final ChantingPublicApi chantingApi;
 
@@ -84,16 +83,12 @@ class ChantingSettingsCubit extends Cubit<ChantingSettingsState>
           );
         } catch (e) {
           // Chant not found in network data, skip
-          logger.t(
-            'Chant with ID $chantId not found in available chants, skipping',
-          );
+          logger.t('Chant with ID $chantId not found in available chants, skipping');
         }
       }
 
       emit(state.copyWith(playlist: playlist, isLoading: false));
-      logger.t(
-        'Restored playlist with ${playlist.length} chants from shared preferences',
-      );
+      logger.t('Restored playlist with ${playlist.length} chants from shared preferences');
     } catch (e, stack) {
       crashlyticsService.recordError(
         exception: e,
@@ -139,8 +134,7 @@ class ChantingSettingsCubit extends Cubit<ChantingSettingsState>
         blurHash: chant.blurHash,
       );
 
-      final updated = List<ChantPlaylistItem>.from(state.playlist)
-        ..add(chantViewModel);
+      final updated = List<ChantPlaylistItem>.from(state.playlist)..add(chantViewModel);
       emit(state.copyWith(playlist: updated));
       _savePlaylistChantIds(updated.map((c) => c.chantId).toList());
       logger.t('Successfully added chant ${chant.name} to playlist');
@@ -204,24 +198,18 @@ class ChantingSettingsCubit extends Cubit<ChantingSettingsState>
       }
 
       // Create a copy of the selected chants list to modify
-      final updatedSelectedChants = List<ChantPlaylistItem>.from(
-        state.playlist,
-      );
+      final updatedSelectedChants = List<ChantPlaylistItem>.from(state.playlist);
 
       // Remove the chant at the old index and insert it at the new index
       final movedChant = updatedSelectedChants.removeAt(safeOldIndex);
       updatedSelectedChants.insert(safeNewIndex, movedChant);
 
       // Save the updated list of playlist chant IDs to shared preferences
-      _savePlaylistChantIds(
-        updatedSelectedChants.map((c) => c.chantId).toList(),
-      );
+      _savePlaylistChantIds(updatedSelectedChants.map((c) => c.chantId).toList());
 
       emit(state.copyWith(playlist: updatedSelectedChants));
 
-      logger.t(
-        'Reordering indices: oldIndex=$safeOldIndex, newIndex=$safeNewIndex',
-      );
+      logger.t('Reordering indices: oldIndex=$safeOldIndex, newIndex=$safeNewIndex');
     } catch (e, stack) {
       crashlyticsService.recordError(
         exception: e,

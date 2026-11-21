@@ -48,8 +48,7 @@ class PlaylistSheet extends StatelessWidget {
                 ),
                 itemCount: state.playlist.length,
                 itemBuilder: (context, index) {
-                  final chantViewModel =
-                      state.playlist[index].toApi();
+                  final chantViewModel = state.playlist[index].toApi();
                   return Padding(
                     padding: const EdgeInsets.only(
                       bottom: DesignSpec.paddingSm,

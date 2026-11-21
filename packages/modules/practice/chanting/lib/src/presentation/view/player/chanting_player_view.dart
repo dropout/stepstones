@@ -25,7 +25,7 @@ class const ChantingPlayerView({
     // Only using worm effect for now
     wormDuration: Durations.extralong3,
     wormDelayPerLine: 0.05,
-    wormMaxDelay: 1.0,  
+    wormMaxDelay: 1.0,
   );
 
   @override
@@ -189,9 +189,7 @@ class _ChantingPlayerViewState extends State<ChantingPlayerView>
     final chantingState = widget.chantingState;
     final isLoading = chantingState.loadingState == .processing;
     return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: 560,
-      ),
+      constraints: BoxConstraints(maxWidth: 560),
       child: PlayerControls(
         chantingState: chantingState,
         onNextPressed:
