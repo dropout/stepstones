@@ -17,9 +17,9 @@ class PauseDotFrame {
 /// Timing and look of the pause dots animation.
 abstract final class PauseDots {
   static const int count = 3;
-  static const double enlargedScale = 1.35;
-  static const Duration outro = Duration(milliseconds: 600);
-  static const Duration enlarge = Duration(milliseconds: 400);
+  static const double enlargedScale = 1.5;
+  static const Duration outro = Duration(milliseconds: 750);
+  static const Duration enlarge = Duration(milliseconds: 750);
 
   /// Overshoots past [enlargedScale] and settles back.
   static const Curve enlargeCurve = Curves.easeOutBack;
@@ -30,7 +30,7 @@ abstract final class PauseDots {
   static const double pulsePeriodSeconds = 1.6;
 
   /// Extra scale at the peak of a pulse.
-  static const double pulseAmount = 0.1;
+  static const double pulseAmount = 0.05;
 
   /// Radius and center spacing relative to the font size.
   static const double radiusFactor = 0.2;
@@ -55,7 +55,7 @@ abstract final class PauseDots {
     if (total <= 0 || t < 0) return _still(LyricWordWidget.colorOf(.pending));
     if (t >= total) return _still(LyricWordWidget.colorOf(.sung));
 
-    final outroSpan = math.min(_seconds(outro), total * 0.15);
+    final outroSpan = math.min(_seconds(outro), total * 0.35);
     final enlargeSpan = math.min(_seconds(enlarge), total * 0.2);
     final third = (total - outroSpan - enlargeSpan) / count;
     final fadeInSpan = math.min(_seconds(LyricWordWidget.fadeDuration), third);
