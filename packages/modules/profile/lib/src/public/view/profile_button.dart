@@ -88,10 +88,16 @@ class const ProfileButton({
   }
 
   Widget buildProfileLoading(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Center(child: AppLoadingIndicator(size: size)),
+    return DecoratedBox(
+      position: DecorationPosition.background,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.black,
+      ),
+      child: SizedBox.square(
+        dimension: size,
+        child: Center(child: AppLoadingIndicator(size: size)),
+      ),
     );
   }
 
