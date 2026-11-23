@@ -8,9 +8,7 @@ import 'package:core/core.dart';
 
 import '../../auth_test_helper.dart';
 
-
 void main() {
-
   group('LoginScreen', () {
     late MockAuthStateCubit mockAuthCubit;
     late MockUrlLauncher mockUrlLauncher;
@@ -25,31 +23,22 @@ void main() {
       mockAnalyticsService = MockAnalyticsService();
       mockHapticsService = MockHapticsService();
 
-      when(() => mockServices.analyticsService)
-        .thenReturn(mockAnalyticsService);
-      when(() => mockServices.hapticsService)
-        .thenReturn(mockHapticsService);
-      when(() => mockServices.urlLauncher)
-        .thenReturn(mockUrlLauncher);
+      when(() => mockServices.analyticsService).thenReturn(mockAnalyticsService);
+      when(() => mockServices.hapticsService).thenReturn(mockHapticsService);
+      when(() => mockServices.urlLauncher).thenReturn(mockUrlLauncher);
     });
 
     group('LoginScreen states', () {
-
       testWidgets('LoginScreen can display login buttons when signed out', (WidgetTester tester) async {
-
-        when(() => mockAuthCubit.state)
-          .thenReturn(const AuthState.signedOut());
+        when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());
 
         await tester.pumpWidget(
           AuthTestHelper.withLocalizationProvider(
             BlocProvider<AuthStateCubit>(
               create: (context) => mockAuthCubit,
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: const LoginScreen()
-              )
-            )
-          )
+              child: ShaderRenderingScope(enabled: false, child: const LoginScreen()),
+            ),
+          ),
         );
 
         // Pump the widget multiple times to allow animations and async operations to complete
@@ -59,26 +48,25 @@ void main() {
 
         expect(find.text('Bejelentkezés Google-lal'), findsOneWidget);
         expect(find.text('Bejelentkezés Apple-lel'), findsOneWidget);
+        expect(find.text('Jelentkezz be, és mélyítsd a gyakorlásodat'), findsOneWidget);
+        expect(find.text('Férj hozzá az énekek könyvtárához'), findsOneWidget);
+        expect(find.text('Építs stabil gyakorlatot statisztikákkal'), findsOneWidget);
+        expect(find.text('Találj támogatást a Jelenlét funkcióval'), findsOneWidget);
 
         expect(find.textContaining('ÁSZF-et', findRichText: true), findsOneWidget);
         expect(find.textContaining('Adatvédelmi nyilatkozatot', findRichText: true), findsOneWidget);
       });
 
       testWidgets('LoginScreen can display a loading indicator', (WidgetTester tester) async {
-
-        when(() => mockAuthCubit.state)
-          .thenReturn(const AuthState.signingIn());
+        when(() => mockAuthCubit.state).thenReturn(const AuthState.signingIn());
 
         await tester.pumpWidget(
           AuthTestHelper.withLocalizationProvider(
             BlocProvider<AuthStateCubit>(
               create: (context) => mockAuthCubit,
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: const LoginScreen()
-              )
-            )
-          )
+              child: ShaderRenderingScope(enabled: false, child: const LoginScreen()),
+            ),
+          ),
         );
 
         await tester.pump();
@@ -86,40 +74,30 @@ void main() {
       });
 
       testWidgets('LoginScreen can display an error message', (WidgetTester tester) async {
-
-        when(() => mockAuthCubit.state)
-            .thenReturn(const AuthState.error());
+        when(() => mockAuthCubit.state).thenReturn(const AuthState.error());
 
         await tester.pumpWidget(
           AuthTestHelper.withLocalizationProvider(
             BlocProvider<AuthStateCubit>(
               create: (context) => mockAuthCubit,
-              child: ShaderRenderingScope(
-                enabled: false,
-                child: const LoginScreen()
-              )
-            )
-          )
+              child: ShaderRenderingScope(enabled: false, child: const LoginScreen()),
+            ),
+          ),
         );
 
         await tester.pumpAndSettle();
         expect(find.byType(AppErrorDisplay), findsOneWidget);
       });
-
     });
 
     group('LoginScreen events', () {
       testWidgets('LoginScreen has working login with Google button', (WidgetTester tester) async {
+        when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());
 
-        when(() => mockAuthCubit.state)
-          .thenReturn(const AuthState.signedOut());
+        when(() => mockUrlLauncher.launchInAppWebView(any())).thenAnswer((_) => Future.value(true));
 
-        when(() => mockUrlLauncher.launchInAppWebView(any()))
-          .thenAnswer((_) => Future.value(true));
-
-        when(() => mockAuthCubit.signinWithGoogle(
-          onComplete: any(named: 'onComplete'),
-        )).thenAnswer((_) => Future.value(null));
+        when(() => mockAuthCubit.signinWithGoogle(onComplete: any(named: 'onComplete')))
+            .thenAnswer((_) => Future.value(null));
 
         await tester.pumpWidget(
           Provider<Services>(
@@ -127,13 +105,10 @@ void main() {
             child: AuthTestHelper.withLocalizationProvider(
               BlocProvider<AuthStateCubit>(
                 create: (context) => mockAuthCubit,
-                child: ShaderRenderingScope(
-                  enabled: false, 
-                  child: LoginScreen()
-                ),
-              )
-            )
-          )
+                child: ShaderRenderingScope(enabled: false, child: LoginScreen()),
+              ),
+            ),
+          ),
         );
 
         // Pump the widget multiple times to allow animations and async operations to complete
@@ -141,30 +116,21 @@ void main() {
           await tester.pump(const Duration(milliseconds: 100));
         }
 
-        final googleButton = find.widgetWithText(
-          AppButton,
-          'Bejelentkezés Google-lal',
-        );
+        final googleButton = find.widgetWithText(AppButton, 'Bejelentkezés Google-lal');
         expect(googleButton, findsOneWidget);
 
         await tester.tap(googleButton);
 
-        verify(() => mockAuthCubit.signinWithGoogle(
-          onComplete: any(named: 'onComplete'),
-        )).called(1);
+        verify(() => mockAuthCubit.signinWithGoogle(onComplete: any(named: 'onComplete'))).called(1);
       });
 
       testWidgets('LoginScreen has working login with Apple button', (WidgetTester tester) async {
+        when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());
 
-        when(() => mockAuthCubit.state)
-          .thenReturn(const AuthState.signedOut());
+        when(() => mockUrlLauncher.launchInAppWebView(any())).thenAnswer((_) => Future.value(true));
 
-        when(() => mockUrlLauncher.launchInAppWebView(any()))
-          .thenAnswer((_) => Future.value(true));
-
-        when(() => mockAuthCubit.signinWithApple(
-          onComplete: any(named: 'onComplete'),
-        )).thenAnswer((_) => Future.value(null));
+        when(() => mockAuthCubit.signinWithApple(onComplete: any(named: 'onComplete')))
+            .thenAnswer((_) => Future.value(null));
 
         await tester.pumpWidget(
           Provider<Services>(
@@ -172,13 +138,10 @@ void main() {
             child: AuthTestHelper.withLocalizationProvider(
               BlocProvider<AuthStateCubit>(
                 create: (context) => mockAuthCubit,
-                child: ShaderRenderingScope(
-                  enabled: false,
-                  child: LoginScreen()
-                )
-              )
-            )
-          )
+                child: ShaderRenderingScope(enabled: false, child: LoginScreen()),
+              ),
+            ),
+          ),
         );
 
         // Pump the widget multiple times to allow animations and async operations to complete
@@ -186,24 +149,16 @@ void main() {
           await tester.pump(const Duration(milliseconds: 100));
         }
 
-        final appleButton = find.widgetWithText(
-          AppButton,
-          'Bejelentkezés Apple-lel',
-        );
+        final appleButton = find.widgetWithText(AppButton, 'Bejelentkezés Apple-lel');
         expect(appleButton, findsOneWidget);
         await tester.tap(appleButton);
-        verify(() => mockAuthCubit.signinWithApple(
-          onComplete: any(named: 'onComplete'),
-        )).called(1);
+        verify(() => mockAuthCubit.signinWithApple(onComplete: any(named: 'onComplete'))).called(1);
       });
 
       testWidgets('LoginScreen has working ToU button', (WidgetTester tester) async {
+        when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());
 
-        when(() => mockAuthCubit.state)
-            .thenReturn(const AuthState.signedOut());
-
-        when(() => mockUrlLauncher.launchInAppWebView(any()))
-            .thenAnswer((_) => Future.value(true));
+        when(() => mockUrlLauncher.launchInAppWebView(any())).thenAnswer((_) => Future.value(true));
 
         await tester.pumpWidget(
           Provider<Services>(
@@ -211,13 +166,10 @@ void main() {
             child: AuthTestHelper.withLocalizationProvider(
               BlocProvider<AuthStateCubit>(
                 create: (context) => mockAuthCubit,
-                child: ShaderRenderingScope(
-                  enabled: false,
-                  child: LoginScreen()
-                )
-              )
-            )
-          )
+                child: ShaderRenderingScope(enabled: false, child: LoginScreen()),
+              ),
+            ),
+          ),
         );
 
         // Pump the widget multiple times to allow animations and async operations to complete
@@ -228,11 +180,11 @@ void main() {
         final termsButton = find.textContaining('ÁSZF-et', findRichText: true);
         expect(termsButton, findsOneWidget);
 
+        await tester.ensureVisible(termsButton);
+        await tester.pump(const Duration(milliseconds: 100));
         await tester.tapOnText(find.textRange.ofSubstring('ÁSZF-et'));
         verify(() => mockUrlLauncher.launchInAppWebView(any())).called(1);
       });
     });
-
   });
-
 }

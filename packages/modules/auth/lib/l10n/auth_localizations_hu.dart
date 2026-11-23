@@ -40,6 +40,20 @@ class AuthLocalizationsHu extends AuthLocalizations {
   String get loginSigninEmailPasswordButtonText => 'Bejelentkezés';
 
   @override
+  String get loginSignupBenefitsTitle =>
+      'Jelentkezz be, és mélyítsd a gyakorlásodat';
+
+  @override
+  String get loginSignupBenefitChanting => 'Hozzáférés az énekek könyvtárához';
+
+  @override
+  String get loginSignupBenefitStats => 'Kövesd a gyakorlásod fejlődését';
+
+  @override
+  String get loginSignupBenefitPresence =>
+      'Találj támogatást közös gyakorlásban';
+
+  @override
   String get loginLegalPart1 => 'A bejelentkezéssel elfogadod az\n';
 
   @override

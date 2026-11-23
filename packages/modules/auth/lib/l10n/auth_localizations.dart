@@ -158,6 +158,30 @@ abstract class AuthLocalizations {
   /// **'Login'**
   String get loginSigninEmailPasswordButtonText;
 
+  /// No description provided for @loginSignupBenefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let us know and enjoy the benefits of:'**
+  String get loginSignupBenefitsTitle;
+
+  /// No description provided for @loginSignupBenefitChanting.
+  ///
+  /// In en, this message translates to:
+  /// **'- Accessing the chanting library'**
+  String get loginSignupBenefitChanting;
+
+  /// No description provided for @loginSignupBenefitStats.
+  ///
+  /// In en, this message translates to:
+  /// **'- Follow your practice progress'**
+  String get loginSignupBenefitStats;
+
+  /// No description provided for @loginSignupBenefitPresence.
+  ///
+  /// In en, this message translates to:
+  /// **'- Finding support in practicing together'**
+  String get loginSignupBenefitPresence;
+
   /// No description provided for @loginLegalPart1.
   ///
   /// In en, this message translates to:

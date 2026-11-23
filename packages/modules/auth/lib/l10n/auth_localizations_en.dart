@@ -40,6 +40,20 @@ class AuthLocalizationsEn extends AuthLocalizations {
   String get loginSigninEmailPasswordButtonText => 'Login';
 
   @override
+  String get loginSignupBenefitsTitle =>
+      'Let us know and enjoy the benefits of:';
+
+  @override
+  String get loginSignupBenefitChanting => '- Accessing the chanting library';
+
+  @override
+  String get loginSignupBenefitStats => '- Follow your practice progress';
+
+  @override
+  String get loginSignupBenefitPresence =>
+      '- Finding support in practicing together';
+
+  @override
   String get loginLegalPart1 => 'By logging in you accept the\n';
 
   @override
