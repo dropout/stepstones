@@ -10,6 +10,8 @@ import 'package:session/session.dart';
 import 'package:timer/timer.dart';
 import 'package:chanting/chanting.dart';
 import 'package:social/social.dart';
+// Demo recording: uncomment with the call below; never commit enabled.
+// import 'package:social/testing.dart';
 
 
 extension AppDependencyInjection on GetIt {
@@ -26,6 +28,9 @@ extension AppDependencyInjection on GetIt {
     registerChantingModuleDependencies();
     registerHomeModuleDependencies();
     registerDonateModuleDependencies();
+
+    // Demo recording: fake presence list with portrait photos.
+    // await useFakePresenceForRecording();
   }
 
 }

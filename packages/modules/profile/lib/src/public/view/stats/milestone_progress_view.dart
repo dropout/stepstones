@@ -67,6 +67,7 @@ class _MilestoneProgressViewState extends State<MilestoneProgressView> {
             mode: widget.showAnimation
                 ? MilestoneProgressViewItemMode.animate
                 : MilestoneProgressViewItemMode.completed,
+            celebrate: completedCount == targetCount,
             completedColor: completedColor,
             incompleteColor: incompleteColor,
           ),

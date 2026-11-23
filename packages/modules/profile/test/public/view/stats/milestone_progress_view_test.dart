@@ -10,6 +10,7 @@ import 'package:core/core.dart';
 import 'package:profile/src/public/view/stats/milestone_progress_view_item.dart';
 
 import '../../../profile_test_helper.dart';
+import 'particle_load_helper.dart';
 
 
 void main() {
@@ -75,42 +76,55 @@ void main() {
       expect(find.byKey(const Key('milestone_progress_view_text')), findsNothing);
     });
 
-    testWidgets('can show animation if parameter is given', (WidgetTester tester) async {
+    Future<List<MilestoneProgressViewItem>> pumpAnimated(
+      WidgetTester tester, {
+      required int completedDaysCount,
+    }) async {
       Profile profile = Faker().createProfile();
-
       profile = profile.copyWith(
         statsReport: profile.statsReport.copyWith(
           milestoneProgress: profile.statsReport.milestoneProgress.copyWith(
             targetDaysCount: 7,
-            completedDaysCount: 3
+            completedDaysCount: completedDaysCount,
           )
         )
       );
 
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          ProfileTestHelper.withLocalizationProvider(
-            MultiProvider(
-              providers: [
-                Provider<Services>.value(value: mockServices),
-              ],
-              child: MilestoneProgressView(
-                showAnimation: true,
-                statsReport: profile.statsReport,
-              )
-            ),
-          )
-        );
-        await tester.pumpAndSettle();
-      }).then((_) {
-        final items = tester.widgetList(find.byType(MilestoneProgressViewItem));
-        List<MilestoneProgressViewItem> milestoneItems = items.map((e) => e as MilestoneProgressViewItem).toList();
+      await tester.pumpWidget(
+        ProfileTestHelper.withLocalizationProvider(
+          MultiProvider(
+            providers: [
+              Provider<Services>.value(value: mockServices),
+            ],
+            child: MilestoneProgressView(
+              showAnimation: true,
+              statsReport: profile.statsReport,
+            )
+          ),
+        )
+      );
+      return tester
+          .widgetList<MilestoneProgressViewItem>(find.byType(MilestoneProgressViewItem))
+          .toList();
+    }
 
-        expect(milestoneItems.length, 7);
-        expect(milestoneItems[2].mode, MilestoneProgressViewItemMode.animate);
+    testWidgets('can show animation if parameter is given', (WidgetTester tester) async {
+      final milestoneItems = await pumpAnimated(tester, completedDaysCount: 3);
+      await tester.pumpAndSettle();
 
-      });
+      expect(milestoneItems.length, 7);
+      expect(milestoneItems[2].mode, MilestoneProgressViewItemMode.animate);
+      expect(milestoneItems.any((item) => item.celebrate), isFalse);
+    });
 
+    testWidgets('celebrates only the item that completes the milestone', (WidgetTester tester) async {
+      final milestoneItems = await pumpAnimated(tester, completedDaysCount: 7);
+      await pumpUntilParticlesLoaded(tester);
+      await tester.pumpAndSettle();
+
+      expect(milestoneItems[6].mode, MilestoneProgressViewItemMode.animate);
+      expect(milestoneItems[6].celebrate, isTrue);
+      expect(milestoneItems.where((item) => item.celebrate).length, 1);
     });
 
 

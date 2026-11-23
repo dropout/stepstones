@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "widgetbook",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd apps/widgetbook && flutter run -d web-server --web-port 8085"],
+      "port": 8085
+    }
+  ]
+}

@@ -156,6 +156,10 @@ changes (a camera, for instance).
 
 - `Fireworks`: `launch(x, y, z:, apexY:, color:)` fires a rocket (`spherical: true` bursts into a 3D sphere) that bursts into sparks at its apex. Use `.system` with a `ParticleController`.
 - `ShrinkingBurst`: shrinking, slowing dots; `emit(count:)`, `.renderer`.
+- `MixedBurst`: shrinking circles and star sprites in one system, with separate
+  physics and lifecycle configuration. Use `await MixedBurst.load()`, then
+  call `emit`, `emitStars` or `emitMixed` and connect `.system` and `.renderer`.
+  Dispose the preset when the owning widget is disposed.
 
 ## Writing custom logic
 

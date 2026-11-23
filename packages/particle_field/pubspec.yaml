@@ -29,3 +29,4 @@ flutter:
   assets:
     - assets/particle.shaderbundle
     - assets/q.png
+    - assets/star.png

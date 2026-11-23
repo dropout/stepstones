@@ -6,6 +6,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:particle_field/particle_field.dart';
 import 'package:provider/provider.dart';
 
+import 'particle_load_helper.dart';
+
 
 void main() {
 
@@ -58,27 +60,24 @@ void main() {
     });
 
     testWidgets('can show animated item state', (WidgetTester tester) async {
-
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          withAllContextProviders(
-            MultiProvider(
-              providers: [
-                Provider<Services>.value(value: mockServices),
-              ],
-              child: MilestoneProgressViewItem(
-                mode: MilestoneProgressViewItemMode.animate,
-              )
-            ),
-          )
-        );
-        await tester.pumpAndSettle();
-      }).then((_) {
-        expect(find.byKey(const Key('milestone_progress_view_item_animated')), findsOneWidget);
-        expect(find.byType(ParticleField), findsOneWidget);
-        expect(find.byType(CustomPaint), findsWidgets); // two CustomPaints, one for the circle, one for the particles
-      });
-
+      await tester.pumpWidget(
+        withAllContextProviders(
+          MultiProvider(
+            providers: [
+              Provider<Services>.value(value: mockServices),
+            ],
+            child: MilestoneProgressViewItem(
+              mode: MilestoneProgressViewItemMode.animate,
+              celebrate: true,
+            )
+          ),
+        )
+      );
+      await pumpUntilParticlesLoaded(tester);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('milestone_progress_view_item_animated')), findsOneWidget);
+      expect(find.byType(ParticleField), findsOneWidget);
+      expect(find.byType(CustomPaint), findsWidgets); // two CustomPaints, one for the circle, one for the particles
     });
 
 

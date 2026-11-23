@@ -1,7 +1,6 @@
 /// Particle system with emitters, force fields, behaviours and batched rendering.
 library;
 
-
 export 'src/core/particle_buffers.dart';
 export 'src/core/particle_system.dart';
 
@@ -31,4 +30,5 @@ export 'src/widget/particle_field.dart';
 
 export 'src/presets/fireworks.dart';
 export 'src/presets/shrinking_burst.dart';
+export 'src/presets/mixed_burst.dart';
 export 'src/presets/grid_particles.dart';

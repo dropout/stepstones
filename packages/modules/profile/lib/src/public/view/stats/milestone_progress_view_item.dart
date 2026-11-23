@@ -13,8 +13,12 @@ class MilestoneProgressViewItem extends StatefulWidget {
   final Color completedColor;
   final Color incompleteColor;
 
+  /// Fires particle bursts in [MilestoneProgressViewItemMode.animate] mode.
+  final bool celebrate;
+
   const MilestoneProgressViewItem({
     this.mode = MilestoneProgressViewItemMode.completed,
+    this.celebrate = false,
     this.completedColor = Colors.green,
     this.incompleteColor = Colors.grey,
     super.key,
@@ -35,51 +39,22 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
   late final Animation<double> _shapeAnimation;
 
   // particle system
-  late final ShrinkingBurst _fireworks;
-  late final ParticleController particleController;
-  AtlasRenderer? _renderer;
-  ui.Image? _sprite;
+  MixedBurst? _achievementBurst;
+  ParticleController? _particleController;
+  bool _isLoadingBurst = false;
+
+  // A static celebrating item swaps to the animated view once tapped.
+  bool _isReplaying = false;
   final _random = Random();
   Timer? _animationTimer;
   Timer? _burstTimer;
 
   static const _burstCount = 3;
+  static const _minBurstIntervalMs = 180;
+  static const _burstIntervalVarianceMs = 181;
 
   @override
   void initState() {
-    _fireworks = ShrinkingBurst(
-      random: _random,
-      maxParticles: 512,
-      radius: 16,
-      palette: [
-        AppColors.appWhite.toARGB32(),
-        AppColors.crimsonRed.toARGB32(),
-        Colors.blue.toARGB32(),
-        AppColors.gold.toARGB32(),      
-      ],
-    );
-    createSoftCircleImage(diameter: 16, hardness: 0.5).then((image) {
-      if (!mounted) {
-        image.dispose();
-        return;
-      }
-      setState(() {
-        _sprite = image;
-        // spriteSize is the diameter of the burst's 16px radius.
-        _renderer = AtlasRenderer(image: image, spriteSize: 6);
-      });
-    });
-    particleController = ParticleController(
-      vsync: this,
-      system: _fireworks.system,
-      autoStart: false,
-      onFrame: (system, _) {
-        if (_burstTimer == null && system.count == 0) {
-          particleController.stop();
-        }
-      },
-    );
-
     animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -106,59 +81,131 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
     super.initState();
   }
 
+  bool get _isAnimateMode =>
+      widget.mode == MilestoneProgressViewItemMode.animate;
+
+  bool get _shouldCelebrate =>
+      widget.celebrate && widget.mode != MilestoneProgressViewItemMode.incomplete;
+
+  bool get _canReplay => _isAnimateMode || _shouldCelebrate;
+
+  // Only a completed milestone needs the particle assets.
+  Future<void> _loadAchievementBurst() async {
+    if (_achievementBurst != null || _isLoadingBurst) return;
+    _isLoadingBurst = true;
+    final burst = await MixedBurst.load(
+      random: _random,
+      maxParticles: 512,      
+      radius: 8.0,
+      starSize: 18,      
+      stars: BurstConfiguration(
+        gravityY: 12.0,
+        dragCoefficient: 3.0,
+        minSpeed: 80,
+        maxSpeed: 160,
+        color: AppColors.appWhite.toARGB32(),
+      ),
+    );
+    _isLoadingBurst = false;
+    if (!mounted) {
+      burst.dispose();
+      return;
+    }
+
+    late final ParticleController controller;
+    controller = ParticleController(
+      vsync: this,
+      system: burst.system,
+      autoStart: false,
+      onFrame: (system, _) {
+        if (_burstTimer == null && system.count == 0) {
+          controller.stop();
+        }
+      },
+    );
+    setState(() {
+      _achievementBurst = burst;
+      _particleController = controller;
+    });
+  }
+
   @override
   void didUpdateWidget(covariant MilestoneProgressViewItem oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.mode == widget.mode) return;
+    if (oldWidget.mode == widget.mode &&
+        oldWidget.celebrate == widget.celebrate) {
+      return;
+    }
 
     _animationTimer?.cancel();
     _burstTimer?.cancel();
     _burstTimer = null;
-    particleController.stop();
-    particleController.clear();
+    _particleController?.stop();
+    _particleController?.clear();
     animationController.reset();
+    _isReplaying = false;
     if (widget.mode == MilestoneProgressViewItemMode.animate) {
       _scheduleAnimation();
     }
   }
 
   void _scheduleAnimation() {
+    if (_shouldCelebrate) _loadAchievementBurst();
     _animationTimer = Timer(const Duration(milliseconds: 256), _playAnimation);
   }
 
   void _playAnimation() {
     _animationTimer?.cancel();
+    if (!_canReplay) return;
+    if (!_isAnimateMode && !_isReplaying) {
+      setState(() => _isReplaying = true);
+    }
     animationController.forward(from: 0.0);
-    particleController.clear();
-    _startBursts();
+    _particleController?.clear();
+    if (_shouldCelebrate) {
+      _loadAchievementBurst();
+      _startBursts();
+    }
   }
 
-  // Schedules a few bursts at random intervals.
+  // Emits three bursts with random gaps between them.
   void _startBursts([int remaining = _burstCount]) {
     _burstTimer?.cancel();
-    if (remaining == 0) {
+    if (remaining == 0 || !mounted || !_shouldCelebrate) {
       _burstTimer = null;
       return;
     }
-    _burstTimer = Timer(Duration(milliseconds: 100 + _random.nextInt(225)), () {
-      if (!mounted) return;
-      final x = (_random.nextDouble() - 0.5) * 12;
-      // _fireworks.launch(x, 0, apexY: -(20 + _random.nextDouble() * 30));
-      _fireworks.emit(x: x, y: x, count: 48);
-      particleController.start();
-      _startBursts(remaining - 1);
-    });
+    if (_achievementBurst == null || _particleController == null) {
+      _burstTimer = Timer(
+        const Duration(milliseconds: 50),
+        () => _startBursts(remaining),
+      );
+      return;
+    }
+
+    final x = (_random.nextDouble() - 0.5) * 12;
+    final y = (_random.nextDouble() - 0.5) * 12;
+    _achievementBurst!.emitStars(x: x, y: y, count: 6);    
+    _particleController!.start();
+
+    if (remaining == 1) {
+      _burstTimer = null;
+      return;
+    }
+    final delay =
+        _minBurstIntervalMs + _random.nextInt(_burstIntervalVarianceMs);
+    _burstTimer = Timer(
+      Duration(milliseconds: delay),
+      () => _startBursts(remaining - 1),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Actual animation and particle system only built in animate mode.
-        // For performance reasons.
-        if (widget.mode == MilestoneProgressViewItemMode.animate) {
-          _playAnimation();
-        }
+        // Other items stay static and cheap.
+        if (_canReplay) _playAnimation();
       },
       child: _buildContent(),
     );
@@ -169,7 +216,7 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
       case MilestoneProgressViewItemMode.incomplete:
         return _buildIncomplete();
       case MilestoneProgressViewItemMode.completed:
-        return _buildCompleted();
+        return _isReplaying ? _buildAnimated() : _buildCompleted();
       case MilestoneProgressViewItemMode.animate:
         return _buildAnimated();
     }
@@ -216,13 +263,14 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
       fit: StackFit.expand, // re-expand to fill the parent
       children: [
         _buildIncomplete(),
-
-        ParticleField(
-          controller: particleController,
-          renderer: _renderer,
-          clip: false,
-        ),
-
+        if (_shouldCelebrate &&
+            _particleController != null &&
+            _achievementBurst != null)
+          ParticleField(
+            controller: _particleController!,
+            renderer: _achievementBurst!.renderer,
+            clip: false,
+          ),
         AnimatedBuilder(
           animation: _circleAnimation,
           builder: (BuildContext context, Widget? child) {
@@ -248,8 +296,8 @@ class _MilestoneProgressViewItemState extends State<MilestoneProgressViewItem>
     _animationTimer?.cancel();
     _burstTimer?.cancel();
     animationController.dispose();
-    particleController.dispose();
-    _sprite?.dispose();
+    _particleController?.dispose();
+    _achievementBurst?.dispose();
     super.dispose();
   }
 }

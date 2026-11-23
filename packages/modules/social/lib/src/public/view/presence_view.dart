@@ -28,18 +28,13 @@ class PresenceView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PresenceCubit, PresenceState>(
       builder: (BuildContext context, PresenceState state) {
-        switch (state) {
-          case PresenceLoadingState():
-            return Text(SocialLocalizations.of(context).loading);
-          case PresenceLoadedState():
-            return buildLoaded(context, state.presenceList);
-          case PresenceLoadingMoreState():
-            return buildLoaded(context, state.presenceList);
-          case PresenceErrorState():
-            return const Text('error');
-          default:
-            return SizedBox.shrink();
-        }
+        return switch (state) {
+          // PresenceLoadingState() => Text(SocialLocalizations.of(context).loading),
+          PresenceLoadedState() => buildLoaded(context, state.presenceList),
+          PresenceLoadingMoreState() => buildLoaded(context, state.presenceList),
+          PresenceErrorState() => const Text('error'),
+          _ => SizedBox.shrink(),
+        };
       },
     );
   }
@@ -90,7 +85,7 @@ class PresenceView extends StatelessWidget {
           case PresenceLoadingState():
             return SizedBox.shrink();
           case PresenceLoadedState():
-            return LoadMoreButton(
+            return PresenceLoadMoreButton(
               text: SocialLocalizations.of(context).loadMore,
               presenceList: presenceList,
               batchSize: batchSize,
@@ -103,7 +98,7 @@ class PresenceView extends StatelessWidget {
                 ),
             );
           case PresenceLoadingMoreState():
-            return LoadMoreButton(
+            return PresenceLoadMoreButton(
               text: SocialLocalizations.of(context).loading,
               presenceList: presenceList,
               batchSize: batchSize,
@@ -120,7 +115,7 @@ class PresenceView extends StatelessWidget {
 
 }
 
-class LoadMoreButton extends StatefulWidget {
+class PresenceLoadMoreButton extends StatefulWidget {
 
   final String? text;
   final List<Presence> presenceList;
@@ -128,7 +123,7 @@ class LoadMoreButton extends StatefulWidget {
   final int maxPageCount;
   final void Function()? onTap;
 
-  const LoadMoreButton({
+  const PresenceLoadMoreButton({
     required this.presenceList,
     required this.batchSize,
     required this.maxPageCount,
@@ -138,10 +133,10 @@ class LoadMoreButton extends StatefulWidget {
   });
 
   @override
-  State<LoadMoreButton> createState() => _LoadMoreButtonState();
+  State<PresenceLoadMoreButton> createState() => _PresenceLoadMoreButtonState();
 }
 
-class _LoadMoreButtonState extends State<LoadMoreButton> {
+class _PresenceLoadMoreButtonState extends State<PresenceLoadMoreButton> {
 
   @override
   Widget build(BuildContext context) {

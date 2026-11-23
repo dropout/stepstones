@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:social/social.dart';
-import 'package:stepstones_widgetbook/get_it_scope.dart';
+import 'package:stepstones_widgetbook/fake_presence_scope.dart';
 import 'package:widgetbook/widgetbook.dart';
 import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
@@ -9,7 +9,8 @@ import 'package:core/core.dart';
 import 'package:profile/profile.dart';
 import 'package:session/session.dart';
 
-class MockPresenceCubit extends Mock implements PresenceCubit {}
+class _MockLocationPromptCubit extends MockCubit<LocationPromptState>
+  implements LocationPromptCubit {}
 
 @widgetbook.UseCase(
   name: 'Default',
@@ -28,27 +29,34 @@ Widget buildSignedInCompletedView(BuildContext context) {
     options: SessionType.values,
     initialOption: SessionType.timer,
   );
+  final showLocationPrompt = context.knobs.boolean(
+    label: 'Show location prompt',
+    initialValue: false,
+  );
+  final presenceOptions = FakePresenceOptions.fromKnobs(context);
   final endTime = DateTime.now();
   final profile = Profile.anonymous().copyWith(
   );
 
-  return GetItScope(
-    setupDependencies: (sl) async {
-      await sl.reset();
-      final mockPresenceCubit = MockPresenceCubit();
-      final state = PresenceState.loaded(
-        presenceList: Presence.fakeList(),
-      );
-      when(() => mockPresenceCubit.stream).thenAnswer((_) => Stream.value(state));
-      when(() => mockPresenceCubit.state).thenReturn(state);
-      when(() => mockPresenceCubit.loadPresenceData(
-        ownProfileId: any(named: 'ownProfileId'),
-        limit: any(named: 'limit'),
-        windowSize: any(named: 'windowSize'),
-      )).thenAnswer((_) async {});
-      sl.registerFactory<PresenceCubit>(() => mockPresenceCubit);
+  return FakePresenceScope(
+    options: presenceOptions,
+    resetKey: showLocationPrompt,
+    registerExtraDependencies: (sl) {
+      sl.registerFactory<LocationPromptCubit>(() {
+        final cubit = _MockLocationPromptCubit();
+        whenListen(
+          cubit,
+          const Stream<LocationPromptState>.empty(),
+          initialState: showLocationPrompt
+            ? const LocationPromptState.prompt()
+            : const LocationPromptState.hidden(),
+        );
+        when(cubit.load).thenAnswer((_) async {});
+        when(cubit.dismiss).thenAnswer((_) async {});
+        return cubit;
+      });
     },
-    child: ColoredBox(
+    builder: (context) => ColoredBox(
       color: Colors.black,
       child: SignedInCompletedView(
         profileId: profile.id,

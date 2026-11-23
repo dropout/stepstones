@@ -41,3 +41,5 @@ flutter:
   uses-material-design: true
   assets:
   - assets/images/
+  - assets/images/portraits/men/
+  - assets/images/portraits/women/
