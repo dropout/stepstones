@@ -87,6 +87,10 @@ class ProfileLocalizationsHu extends ProfileLocalizations {
       'A profilod törléséhez biztonsági okokból újra be kell jelentkezned.';
 
   @override
+  String get deleteProfileScreenAccountMismatch =>
+      'Ez egy másik fiók. Azzal a fiókkal jelentkezz be, amelyiket törölni szeretnéd.';
+
+  @override
   String get deleteProfileScreenSuccessTitle => 'A profilod\ntörölve lett!';
 
   @override

@@ -53,6 +53,24 @@ class DefaultAuthPublicApi implements AuthPublicApi {
   }
 
   @override
+  Future<void> reauthenticateWithApple() async {
+    try {
+      await authRepository.reauthenticateWithAuthProvider(.apple);
+    } catch (error) {
+      throw error.toPublicFailure();
+    }
+  }
+
+  @override
+  Future<void> reauthenticateWithGoogle() async {
+    try {
+      await authRepository.reauthenticateWithAuthProvider(.google);
+    } catch (error) {
+      throw error.toPublicFailure();
+    }
+  }
+
+  @override
   Future<String> signUpWithEmailAndPassword({
     required String email,
     required String password,

@@ -86,6 +86,10 @@ class ProfileLocalizationsEn extends ProfileLocalizations {
       'To delete your profile, you need to sign in again for security reasons.';
 
   @override
+  String get deleteProfileScreenAccountMismatch =>
+      'That is a different account. Sign in with the account you want to delete.';
+
+  @override
   String get deleteProfileScreenSuccessTitle =>
       'Your profile\nhas been deleted!';
 

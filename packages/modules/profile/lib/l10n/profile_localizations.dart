@@ -239,6 +239,12 @@ abstract class ProfileLocalizations {
   /// **'To delete your profile, you need to sign in again for security reasons.'**
   String get deleteProfileScreenText;
 
+  /// No description provided for @deleteProfileScreenAccountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'That is a different account. Sign in with the account you want to delete.'**
+  String get deleteProfileScreenAccountMismatch;
+
   /// No description provided for @deleteProfileScreenSuccessTitle.
   ///
   /// In en, this message translates to:

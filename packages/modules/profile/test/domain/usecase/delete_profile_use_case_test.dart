@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:profile/src/domain/service/profile_auth_port.dart';
 import 'package:profile/src/domain/usecase/delete_profile_use_case.dart';
 
 import '../../profile_mock_definitions.dart';
@@ -12,6 +13,8 @@ void main() {
   late DeleteProfileUseCase useCase;
   late MockProfileRepository profileRepository;
   late MockStorageRepository storageRepository;
+
+  setUpAll(() => registerFallbackValue(ReauthProvider.google));
 
   setUp(() {
     authService = MockProfileAuthPort();
@@ -62,6 +65,65 @@ void main() {
 
       expect(() => useCase.execute(), throwsA(same(exception)));
       verifyNever(() => authService.deleteUser());
+    });
+
+    test('returns notSignedIn without deleting when nobody is signed in', () async {
+      when(() => authService.getAuthenticatedUserId()).thenAnswer((_) async => null);
+
+      final result = await useCase.execute(reauthenticateWith: ReauthProvider.google);
+
+      expect(result, DeleteProfileResult.notSignedIn);
+      verifyNever(() => authService.reauthenticate(any()));
+      verifyNever(() => authService.deleteUser());
+    });
+  });
+
+  group('DeleteProfileUseCase.execute with reauthentication', () {
+    setUp(() {
+      when(() => authService.getAuthenticatedUserId()).thenAnswer((_) async => 'user123');
+      when(() => authService.deleteUser()).thenAnswer((_) async {});
+      when(() => profileRepository.delete(any())).thenAnswer((_) async {});
+      when(() => storageRepository.deleteProfileFolder(any())).thenAnswer((_) async {});
+    });
+
+    test('reauthenticates before deleting the account and data', () async {
+      when(() => authService.reauthenticate(any())).thenAnswer((_) async {});
+
+      final result = await useCase.execute(reauthenticateWith: ReauthProvider.apple);
+
+      expect(result, DeleteProfileResult.completed);
+      verifyInOrder([
+        () => authService.reauthenticate(ReauthProvider.apple),
+        () => authService.deleteUser(),
+        () => profileRepository.delete('user123'),
+        () => storageRepository.deleteProfileFolder('user123'),
+      ]);
+    });
+
+    test('deletes nothing when the user confirms with a different account', () async {
+      when(() => authService.reauthenticate(any())).thenThrow(const ReauthenticationAccountMismatch());
+
+      final result = await useCase.execute(reauthenticateWith: ReauthProvider.google);
+
+      expect(result, DeleteProfileResult.accountMismatch);
+      verifyNever(() => authService.deleteUser());
+      verifyNever(() => profileRepository.delete(any()));
+      verifyNever(() => storageRepository.deleteProfileFolder(any()));
+    });
+
+    test('deletes nothing when the user cancels reauthentication', () async {
+      when(() => authService.reauthenticate(any())).thenThrow(const ReauthenticationCancelled());
+
+      final result = await useCase.execute(reauthenticateWith: ReauthProvider.google);
+
+      expect(result, DeleteProfileResult.reauthenticationCancelled);
+      verifyNever(() => authService.deleteUser());
+    });
+
+    test('does not reauthenticate when no provider is given', () async {
+      await useCase.execute();
+
+      verifyNever(() => authService.reauthenticate(any()));
     });
   });
 }

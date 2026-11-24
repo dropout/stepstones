@@ -23,6 +23,7 @@
   "signOut": "Signout",
   "deleteProfileScreenTitle": "Delete profile!",
   "deleteProfileScreenText": "To delete your profile, you need to sign in again for security reasons.",
+  "deleteProfileScreenAccountMismatch": "That is a different account. Sign in with the account you want to delete.",
   "deleteProfileScreenSuccessTitle": "Your profile\nhas been deleted!",
   "deleteProfileScreenOkayButtonText": "Okay",
   "milestones": "Milestones",

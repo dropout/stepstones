@@ -25,6 +25,22 @@ class SignInWithEmailAndPasswordFailure implements Exception {
   String toString() => 'SignInWithEmailAndPasswordFailure: $msg';
 }
 
+// Reauthentication
+class ReauthenticationFailure implements Exception {
+  final String msg;
+  const ReauthenticationFailure(this.msg);
+  @override
+  String toString() => 'ReauthenticationFailure: $msg';
+}
+
+/// The user reauthenticated with a different account than the signed-in one.
+class ReauthenticationUserMismatch implements Exception {
+  final String msg;
+  const ReauthenticationUserMismatch(this.msg);
+  @override
+  String toString() => 'ReauthenticationUserMismatch: $msg';
+}
+
 // Specific exception to handle case when user cancels
 // the signin process
 class SignInCancelled implements Exception {

@@ -54,6 +54,11 @@ class DefaultAuthRepository with LoggerMixin implements AuthRepository {
     );
   }
 
+  /// Confirms the signed-in user's identity; no sign-in guard since the user does not change.
+  @override
+  Future<void> reauthenticateWithAuthProvider(SigninAuthProviderType signinMethodType) =>
+      authDataProvider.reauthenticateWithAuthProvider(signinMethodType.toData());
+
   @override
   Future<UserEntity> signupWithEmailAndPassword({
     required String email,

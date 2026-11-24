@@ -12,6 +12,8 @@ abstract class AuthRepository {
     SigninAuthProviderType signinMethodType
   );
 
+  Future<void> reauthenticateWithAuthProvider(SigninAuthProviderType signinMethodType);
+
   Future<UserEntity> signupWithEmailAndPassword({
     required String email,
     required String password,

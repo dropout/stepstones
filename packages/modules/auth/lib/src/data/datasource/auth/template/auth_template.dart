@@ -6,6 +6,7 @@ import 'package:auth/src/data/datasource/auth/enum/auth_provider_type.dart';
 import 'apple_auth_template.dart';
 import 'google_auth_template.dart';
 
+/// Template interface for authentication providers.
 abstract class AuthProviderTemplate {
 
   factory AuthProviderTemplate(
@@ -19,6 +20,12 @@ abstract class AuthProviderTemplate {
     }
   }
 
+  /// Signs in the user with the specified authentication provider. 
+  /// Returns a [SigninResult] containing the signed-in user's information 
+  /// and whether it is the user's first sign-in.
   Future<SigninResult> signIn();
+
+  /// Confirms the signed-in user's identity without switching accounts.
+  Future<void> reauthenticate();
 
 }

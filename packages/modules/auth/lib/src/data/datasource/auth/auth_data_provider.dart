@@ -19,6 +19,9 @@ abstract interface class AuthDataProvider {
   /// authentication provider type (e.g. Google, Apple)
   Future<SigninResult> signInWithAuthProvider(AuthProviderType authProviderType);
 
+  /// Confirms the signed-in user's identity with the specified provider, without switching accounts.
+  Future<void> reauthenticateWithAuthProvider(AuthProviderType authProviderType);
+
   /// Performs sign-up with email and password
   Future<AuthUser> signUpWithEmailAndPassword({
     required String email,

@@ -4,7 +4,12 @@ import 'package:profile/src/domain/service/profile_auth_port.dart';
 
 enum DeleteProfileResult {
 	completed,
+	/// Firebase needs a recent sign-in before deleting the account.
 	authRequired,
+	reauthenticationCancelled,
+	/// The user confirmed with a different account, so nothing was deleted.
+	accountMismatch,
+	notSignedIn,
 }
 
 class DeleteProfileUseCase with LoggerMixin {
@@ -18,7 +23,8 @@ class DeleteProfileUseCase with LoggerMixin {
 		required this.storageRepository,
 	});
 
-	Future<DeleteProfileResult> execute() async {
+	/// Deletes the signed-in user's account and data, confirming their identity first when [reauthenticateWith] is set.
+	Future<DeleteProfileResult> execute({ReauthProvider? reauthenticateWith}) async {
 		try {
 			logger.t('Attempting to delete user account');
       final userId = await authPort.getAuthenticatedUserId();
@@ -26,8 +32,20 @@ class DeleteProfileUseCase with LoggerMixin {
       // First check if the user is authenticated before proceeding with deletion
       if (userId == null) {
         logger.t('User is not authenticated. Cannot delete profile.');
-        return DeleteProfileResult.authRequired;
-      } else {      
+        return DeleteProfileResult.notSignedIn;
+      } else {
+        if (reauthenticateWith != null) {
+          try {
+            await authPort.reauthenticate(reauthenticateWith);
+          } on ReauthenticationCancelled {
+            return DeleteProfileResult.reauthenticationCancelled;
+          } on ReauthenticationAccountMismatch {
+            logger.t('Reauthenticated with a different account. Not deleting.');
+            return DeleteProfileResult.accountMismatch;
+          }
+        }
+
+
         // Attempt to delete the user account
         // May throw an exception if the user needs to re-authenticate
         await authPort.deleteUser();

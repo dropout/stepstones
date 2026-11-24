@@ -21,6 +21,9 @@ extension AuthPublicFailureMapper on Object {
         (this as SignInWithEmailAndPasswordFailure).msg,
       );
     }
+    if (this is ReauthenticationUserMismatch) {
+      return AuthPublicReauthenticationUserMismatch((this as ReauthenticationUserMismatch).msg);
+    }
     return AuthPublicUnknownFailure(toString());
   }
 }

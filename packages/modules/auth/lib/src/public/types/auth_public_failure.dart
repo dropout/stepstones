@@ -22,6 +22,10 @@ final class AuthPublicSignInWithEmailAndPasswordFailure extends AuthPublicFailur
   const AuthPublicSignInWithEmailAndPasswordFailure(super.message);
 }
 
+final class AuthPublicReauthenticationUserMismatch extends AuthPublicFailure {
+  const AuthPublicReauthenticationUserMismatch(super.message);
+}
+
 final class AuthPublicUnknownFailure extends AuthPublicFailure {
   const AuthPublicUnknownFailure(super.message);
 }

@@ -23,6 +23,7 @@
   "signOut": "Kijelentkezés",
   "deleteProfileScreenTitle": "Profil törlése!",
   "deleteProfileScreenText": "A profilod törléséhez biztonsági okokból újra be kell jelentkezned.",
+  "deleteProfileScreenAccountMismatch": "Ez egy másik fiók. Azzal a fiókkal jelentkezz be, amelyiket törölni szeretnéd.",
   "deleteProfileScreenSuccessTitle": "A profilod\ntörölve lett!",
   "deleteProfileScreenOkayButtonText": "Rendben",
   "milestones": "Mérföldkövek",

@@ -4,6 +4,7 @@ import 'package:auth/src/data/datasource/auth/model/signin_result.dart';
 import 'package:auth/src/data/datasource/auth/util/is_first_signin.dart';
 import 'package:auth/src/data/datasource/auth/exception.dart';
 import 'package:auth/src/data/datasource/auth/util/convert_user.dart';
+import 'package:auth/src/data/datasource/auth/util/reauthenticate_user.dart';
 
 import 'package:firebase_provider/firebase_provider.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -22,7 +23,39 @@ class GoogleAuthTemplate implements AuthProviderTemplate {
 
   @override
   Future<SigninResult> signIn() async {
+    final credential = await _obtainCredential();
 
+    firebase_auth.UserCredential userCredential =
+      await _firebaseAuth.signInWithCredential(credential);
+
+    late final AuthUser user;
+    if (userCredential.user == null) {
+      throw const SignInWithGoogleFailure(
+        'Sign in with Google failed: No user returned',
+      );
+    } else {
+      user = userCredential.user!.toAuthUser();
+    }
+
+    SigninResult signinResult = SigninResult(
+      user: user,
+      isFirstSignIn: isFirstSignin(user, userCredential.additionalUserInfo),
+    );
+
+    return signinResult;
+  }
+
+  @override
+  Future<void> reauthenticate() async {
+    final currentUser = _firebaseAuth.currentUser;
+    if (currentUser == null) {
+      throw const ReauthenticationFailure('Reauthentication with Google failed: No signed-in user');
+    }
+    final credential = await _obtainCredential();
+    await reauthenticateUser(currentUser, credential);
+  }
+
+  Future<firebase_auth.AuthCredential> _obtainCredential() async {
     // GoogleSignIn needs to be initialized only once
     if (!_initialized) {
       await _googleSignIn.initialize();
@@ -47,29 +80,9 @@ class GoogleAuthTemplate implements AuthProviderTemplate {
     }
 
     final googleAuth = googleUser.authentication;
-    firebase_auth.AuthCredential credential = firebase_auth.
-      GoogleAuthProvider.credential(
+    return firebase_auth.GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
     );
-
-    firebase_auth.UserCredential userCredential =
-      await _firebaseAuth.signInWithCredential(credential);
-
-    late final AuthUser user;
-    if (userCredential.user == null) {
-      throw const SignInWithGoogleFailure(
-        'Sign in with Google failed: No user returned',
-      );
-    } else {
-      user = userCredential.user!.toAuthUser();
-    }
-
-    SigninResult signinResult = SigninResult(
-      user: user,
-      isFirstSignIn: isFirstSignin(user, userCredential.additionalUserInfo),
-    );
-
-    return signinResult;
   }
 
 }

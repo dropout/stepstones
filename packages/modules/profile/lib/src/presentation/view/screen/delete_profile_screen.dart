@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:profile/src/domain/service/profile_auth_port.dart';
 import 'package:profile/src/presentation/viewmodel/delete_profile_cubit.dart';
 import 'package:profile/l10n/profile_localizations.dart';
 import 'package:auth/l10n/auth_localizations.dart';
@@ -31,33 +32,14 @@ class DeleteProfileScreen extends StatelessWidget {
 class DeleteProfileScreenContent extends StatelessWidget {
   const DeleteProfileScreenContent({super.key});
 
-  void _signInWithGoogle(BuildContext context) {
-    context.read<AuthStateCubit>().signinWithGoogle(
-      onComplete: (userId, _) => _onSigninCompleted(context, userId),
-    );
-    context.services.analyticsService.logEvent(
-      name: 'login_with_google_button_pressed',
-    );
-  }
-
-  void _signInWithApple(BuildContext context) {
-    context.read<AuthStateCubit>().signinWithApple(
-      onComplete: (userId, _) => _onSigninCompleted(context, userId),
-    );
-    context.services.analyticsService.logEvent(
-      name: 'login_with_apple_button_pressed',
-    );
-  }
-
-  void _onSigninCompleted(BuildContext context, String userId) {
-    BlocProvider.of<DeleteProfileCubit>(context).deleteProfile();
+  void _reauthenticate(BuildContext context, ReauthProvider provider, String eventName) {
+    context.read<DeleteProfileCubit>().reauthenticateAndDelete(provider);
+    context.services.analyticsService.logEvent(name: eventName);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthStateCubit, AuthState>(
-      builder: (context, authState) {
-        return BlocBuilder<DeleteProfileCubit, DeleteProfileState>(
+    return BlocBuilder<DeleteProfileCubit, DeleteProfileState>(
           builder: (context, deleteProfileState) {
             bool showBackButton = false;
             Widget body = Container();
@@ -75,12 +57,8 @@ class DeleteProfileScreenContent extends StatelessWidget {
             }
 
             if (deleteProfileState is DeleteProfileAuthRequiredState) {
-              if (authState is AuthStateSigningIn) {
-                body = const AppLoadingDisplay();
-              } else {
-                showBackButton = true;
-                body = buildReauthScreen(context);
-              }
+              showBackButton = true;
+              body = buildReauthScreen(context, accountMismatch: deleteProfileState.accountMismatch);
             }
 
             if (deleteProfileState is DeleteProfileCompletedState) {
@@ -98,11 +76,9 @@ class DeleteProfileScreenContent extends StatelessWidget {
             );
           },
         );
-      },
-    );
   }
 
-  Widget buildReauthScreen(BuildContext context) {
+  Widget buildReauthScreen(BuildContext context, {bool accountMismatch = false}) {
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -126,6 +102,15 @@ class DeleteProfileScreenContent extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
+                if (accountMismatch) ...[
+                  const SizedBox(height: DesignSpec.spacingSm),
+                  Text(
+                    ProfileLocalizations.of(context).deleteProfileScreenAccountMismatch,
+                    key: const Key('delete_profile_account_mismatch'),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ],
                 const SizedBox(height: DesignSpec.spacingXl),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +119,7 @@ class DeleteProfileScreenContent extends StatelessWidget {
                       text: AuthLocalizations.of(context).loginSigninGoogle,
                       bColor: Colors.black,
                       fColor: Colors.white,
-                      onTap: () => _signInWithGoogle(context),
+                      onTap: () => _reauthenticate(context, .google, 'login_with_google_button_pressed'),
                     ),
                     if (Platform.isIOS)
                       const SizedBox(height: DesignSpec.spacingSm),
@@ -143,7 +128,7 @@ class DeleteProfileScreenContent extends StatelessWidget {
                         text: AuthLocalizations.of(context).loginSigninApple,
                         bColor: Colors.black,
                         fColor: Colors.white,
-                        onTap: () => _signInWithApple(context),
+                        onTap: () => _reauthenticate(context, .apple, 'login_with_apple_button_pressed'),
                       ),
                   ],
                 ),

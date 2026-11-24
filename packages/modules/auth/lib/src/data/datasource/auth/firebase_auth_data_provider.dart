@@ -46,6 +46,10 @@ class FirebaseAuthDataProvider implements AuthDataProvider {
   }
 
   @override
+  Future<void> reauthenticateWithAuthProvider(AuthProviderType authProviderType) =>
+      AuthProviderTemplate(_auth, authProviderType).reauthenticate();
+
+  @override
   Future<AuthUser> signUpWithEmailAndPassword({
     required String email,
     required String password,

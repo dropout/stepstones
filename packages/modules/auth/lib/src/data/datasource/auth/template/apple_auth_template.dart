@@ -10,6 +10,7 @@ import 'package:auth/src/data/datasource/auth/model/signin_result.dart';
 import 'package:auth/src/data/datasource/auth/util/is_first_signin.dart';
 import 'package:auth/src/data/datasource/auth/exception.dart';
 import 'package:auth/src/data/datasource/auth/util/convert_user.dart';
+import 'package:auth/src/data/datasource/auth/util/reauthenticate_user.dart';
 
 import 'auth_template.dart';
 
@@ -39,7 +40,50 @@ class AppleAuthTemplate implements AuthProviderTemplate {
 
   @override
   Future<SigninResult> signIn() async {
+    final (:credential, :appleCredential) = await _obtainCredential();
 
+    // Sign in the user with Firebase. If the nonce we generated earlier does
+    // not match the nonce in `appleCredential.identityToken`, sign in will fail.
+    firebase_auth.UserCredential userCredential =
+      await _firebaseAuth.signInWithCredential(credential);
+
+    // Apple only provides this data the first time the user signs in.
+    // Firebase does not store the users name when signing in with Apple.
+    // The user needs to be updated manually with this data.
+    // Also no profile image is provided
+    firebase_auth.User? fbUser = userCredential.user;
+    if (fbUser == null) {
+      throw const SignInWithAppleFailure(
+        'Sign in with Apple failed: No user returned',
+      );
+    } else {
+      fbUser = await updateDisplayName(fbUser, appleCredential);
+    }
+
+    // Our domain user model
+    AuthUser user = fbUser.toAuthUser();
+
+    return SigninResult(
+      user: user,
+      // additionalUserInfo: userCredential.additionalUserInfo,
+      isFirstSignIn: isFirstSignin(user, userCredential.additionalUserInfo),
+    );
+  }
+
+  @override
+  Future<void> reauthenticate() async {
+    final currentUser = _firebaseAuth.currentUser;
+    if (currentUser == null) {
+      throw const ReauthenticationFailure('Reauthentication with Apple failed: No signed-in user');
+    }
+    final (:credential, appleCredential: _) = await _obtainCredential();
+    await reauthenticateUser(currentUser, credential);
+  }
+
+  Future<({
+    firebase_auth.OAuthCredential credential, 
+    AuthorizationCredentialAppleID appleCredential,
+  })> _obtainCredential() async {
     // To prevent replay attacks with the appleCredential returned from Apple, we
     // include a nonce in the appleCredential request. When signing in with
     // Firebase, the nonce in the id token returned by Apple, is expected to
@@ -71,33 +115,7 @@ class AppleAuthTemplate implements AuthProviderTemplate {
       rawNonce: rawNonce,
       accessToken: appleCredential.authorizationCode,
     );
-
-    // Sign in the user with Firebase. If the nonce we generated earlier does
-    // not match the nonce in `appleCredential.identityToken`, sign in will fail.
-    firebase_auth.UserCredential userCredential =
-      await _firebaseAuth.signInWithCredential(credential);
-
-    // Apple only provides this data the first time the user signs in.
-    // Firebase does not store the users name when signing in with Apple.
-    // The user needs to be updated manually with this data.
-    // Also no profile image is provided
-    firebase_auth.User? fbUser = userCredential.user;
-    if (fbUser == null) {
-      throw const SignInWithAppleFailure(
-        'Sign in with Apple failed: No user returned',
-      );
-    } else {
-      fbUser = await updateDisplayName(fbUser, appleCredential);
-    }
-
-    // Our domain user model
-    AuthUser user = fbUser.toAuthUser();
-
-    return SigninResult(
-      user: user,
-      // additionalUserInfo: userCredential.additionalUserInfo,
-      isFirstSignIn: isFirstSignin(user, userCredential.additionalUserInfo),
-    );
+    return (credential: credential, appleCredential: appleCredential);
   }
 
   Future<firebase_auth.User> updateDisplayName(

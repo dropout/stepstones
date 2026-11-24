@@ -13,5 +13,21 @@ class DefaultProfileAuthPort implements ProfileAuthPort {
   }
 
   @override
+  Future<void> reauthenticate(ReauthProvider provider) async {
+    try {
+      switch (provider) {
+        case ReauthProvider.google:
+          await authApi.reauthenticateWithGoogle();
+        case ReauthProvider.apple:
+          await authApi.reauthenticateWithApple();
+      }
+    } on AuthPublicSignInCancelled {
+      throw const ReauthenticationCancelled();
+    } on AuthPublicReauthenticationUserMismatch {
+      throw const ReauthenticationAccountMismatch();
+    }
+  }
+
+  @override
   Future<void> deleteUser() => authApi.deleteUser();
 }
