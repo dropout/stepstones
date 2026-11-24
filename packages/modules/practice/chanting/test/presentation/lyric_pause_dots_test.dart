@@ -25,15 +25,23 @@ void main() {
     ],
   );
 
-  // 10s line: outro 600ms, enlarge 400ms, thirds of 3s each.
+  // 10s is long enough that the outro and enlarge spans aren't capped by the line length.
+  const lineLength = Duration(seconds: 10);
   final pause = line(['...']);
+  final third = (lineLength - PauseDots.outro - PauseDots.enlarge) ~/ PauseDots.count;
+  // The last dot finishes enlarging exactly when the outro begins.
+  final beforeOutro = lineLength - PauseDots.outro;
+
   // Pulse off by default so scale checks see only the fill and enlarge steps.
-  List<PauseDotFrame> at(int ms, {double pulseTime = 0, bool pulsing = false}) => PauseDots.frames(
-    line: pause,
-    position: Duration(milliseconds: ms),
-    pulseTime: pulseTime,
-    pulsing: pulsing,
-  );
+  List<PauseDotFrame> at(Duration sinceStart, {double pulseTime = 0, bool pulsing = false}) =>
+      PauseDots.frames(line: pause, position: pause.start + sinceStart, pulseTime: pulseTime, pulsing: pulsing);
+
+  // Derived sample times don't land on exact fractions, so compare channels loosely.
+  Matcher colorCloseTo(Color expected) => isA<Color>()
+      .having((c) => c.a, 'a', closeTo(expected.a, 1e-3))
+      .having((c) => c.r, 'r', closeTo(expected.r, 1e-3))
+      .having((c) => c.g, 'g', closeTo(expected.g, 1e-3))
+      .having((c) => c.b, 'b', closeTo(expected.b, 1e-3));
 
   final pending = LyricWordWidget.colorOf(.pending);
   final white = LyricWordWidget.colorOf(.active);
@@ -57,8 +65,8 @@ void main() {
   group('frames', () {
     test('pending and passed lines are still, small and grey', () {
       for (final (frames, color) in [
-        (at(9000, pulseTime: 0.8, pulsing: true), pending),
-        (at(20000, pulseTime: 0.8, pulsing: true), sung),
+        (at(const Duration(seconds: -1), pulseTime: 0.8, pulsing: true), pending),
+        (at(lineLength, pulseTime: 0.8, pulsing: true), sung),
       ]) {
         for (final f in frames) {
           expect(f.color, color);
@@ -69,40 +77,40 @@ void main() {
 
     test('dots are white once the line is active', () {
       // The first dot starts filling immediately, so only the waiting dots are pure white.
-      final frames = at(10300);
+      final frames = at(const Duration(milliseconds: 300));
       expect(frames[1].color, white);
       expect(frames[2].color, white);
     });
 
     test('each dot fills to gold over its own third, then enlarges', () {
-      final mid = at(11500);
-      expect(mid[0].color, Color.lerp(white, gold, 0.5));
+      final mid = at(third ~/ 2);
+      expect(mid[0].color, colorCloseTo(Color.lerp(white, gold, 0.5)!));
       expect(mid[1].color, white);
       expect(mid[0].scale, 1);
 
-      final afterFirst = at(13500);
+      // Between the first dot's enlarge finishing and the second dot's fill ending.
+      final afterFirst = at(third + PauseDots.enlarge + (third - PauseDots.enlarge) ~/ 2);
       expect(afterFirst[0].color, gold);
       expect(afterFirst[0].scale, closeTo(PauseDots.enlargedScale, 1e-4));
       expect(afterFirst[1].color, isNot(gold));
       expect(afterFirst[1].scale, 1);
 
-      final beforeOutro = at(19400);
-      for (final f in beforeOutro) {
+      for (final f in at(beforeOutro)) {
         expect(f.color, gold);
         expect(f.scale, closeTo(PauseDots.enlargedScale, 1e-4));
       }
     });
 
     test('outro shrinks dots back toward the sung look', () {
-      final late = at(19990, pulseTime: 0.8, pulsing: true);
+      final late = at(lineLength - const Duration(milliseconds: 10), pulseTime: 0.8, pulsing: true);
       for (final f in late) {
         expect(f.scale, lessThan(1.01));
       }
     });
 
     test('dots pulse slightly out of phase while active, not without motion', () {
-      final still = at(19400);
-      final pulsing = at(19400, pulseTime: 0.8, pulsing: true);
+      final still = at(beforeOutro);
+      final pulsing = at(beforeOutro, pulseTime: 0.8, pulsing: true);
       for (var i = 0; i < PauseDots.count; i++) {
         expect(pulsing[i].scale, greaterThan(still[i].scale));
         expect(pulsing[i].scale, lessThanOrEqualTo(PauseDots.maxScale + 1e-9));
