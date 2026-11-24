@@ -38,6 +38,23 @@ class _RenderUnculledSliverVariedExtentList
     required super.itemExtentBuilder,
   });
 
+  /// Returns the exact extent; the default averages the built children, which
+  /// can end a fast fling short of the real end.
+  @override
+  double estimateMaxScrollOffset(
+    SliverConstraints constraints, {
+    int? firstIndex,
+    int? lastIndex,
+    double? leadingScrollOffset,
+    double? trailingScrollOffset,
+  }) {
+    var extent = 0.0;
+    for (var i = 0; i < childManager.childCount; i++) {
+      extent += itemExtentBuilder(i, layoutDimensions) ?? 0;
+    }
+    return extent;
+  }
+
   @override
   void paint(PaintingContext context, Offset offset) {
     // Vertical, non-reversed lists only, which is all the lyrics view uses.

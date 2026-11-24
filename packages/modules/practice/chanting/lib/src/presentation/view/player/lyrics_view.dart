@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:chanting/src/domain/entity/chanting_state_entity.dart';
 import 'package:chanting/src/presentation/viewmodel/chanting_cubit.dart';
@@ -59,6 +60,9 @@ class _LyricsViewState extends State<LyricsView>
   /// The minimum duration between consecutive seek operations
   /// to avoid excessive updates.
   static const Duration _seekThrottle = Duration(milliseconds: 100);
+
+  /// Duration of the snap that aligns the nearest line after a manual scroll.
+  static const Duration _snapDuration = Duration(milliseconds: 250);
 
   /// Scroll controller to manage programmatic scrolling and
   /// listen to user scroll events.
@@ -197,7 +201,52 @@ class _LyricsViewState extends State<LyricsView>
       setState(() => _mode = _Mode.resuming);
       _resumeTimer?.cancel();
       _resumeTimer = Timer(_resumeDelay, _onResumeTimer);
+      // A touch that stops a fling holds the list; snap once it is released.
+      if (!_isPointerDown) _snapToNearestLine();
     }
+  }
+
+  void _onPointerUp() {
+    _isPointerDown = false;
+    if (_mode != _Mode.resuming ||
+        !_scrollController.hasClients ||
+        _scrollController.position.isScrollingNotifier.value) {
+      return;
+    }
+    // Pointer down cancelled the timer, so restart it for the held list.
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(_resumeDelay, _onResumeTimer);
+    _snapToNearestLine();
+  }
+
+  /// Aligns the line nearest the anchor to [LyricsView.topOffset] and seeks to
+  /// it, since the throttled seeks may have skipped the final position.
+  void _snapToNearestLine() {
+    if (!_scrollController.hasClients || _lyricLineHeights.isEmpty) return;
+
+    final lineIndex = _calculateActiveLineIndexFromScroll();
+    context.read<ChantingCubit>().seekToLine(lineIndex);
+
+    final position = _scrollController.position;
+    final target = _lineOffset(
+      lineIndex,
+    ).clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((target - position.pixels).abs() < 1) return;
+
+    _scrollController.animateTo(
+      target,
+      duration: _snapDuration,
+      curve: Curves.easeOut,
+    );
+  }
+
+  /// Scroll offset that aligns the line's top with [LyricsView.topOffset].
+  double _lineOffset(int lineIndex) {
+    double offset = 0;
+    for (int i = 0; i < lineIndex; i++) {
+      offset += _lyricLineHeights[i];
+    }
+    return offset;
   }
 
   void _onResumeTimer() {
@@ -237,14 +286,10 @@ class _LyricsViewState extends State<LyricsView>
     _resumeTimer?.cancel();
     _mode = _Mode.synced;
 
-    // Summing heights before the line gives the offset where it begins; the
-    // top padding makes offset 0 align the first line at [topOffset].
-    double target = 0;
-    for (int i = 0; i < lineIndex; i++) {
-      target += _lyricLineHeights[i];
-    }
     final position = _scrollController.position;
-    target = target.clamp(position.minScrollExtent, position.maxScrollExtent);
+    final target = _lineOffset(
+      lineIndex,
+    ).clamp(position.minScrollExtent, position.maxScrollExtent);
 
     var delta = target - position.pixels;
     if (delta.abs() < 1) return;
@@ -352,9 +397,19 @@ class _LyricsViewState extends State<LyricsView>
             return _lyricLineHeights[index];
           },
         ),
-        SliverPadding(
-          padding: EdgeInsets.only(bottom: 300),
-        ), // Extra space at the bottom
+        // Lets the last line scroll up to [topOffset] on any screen height.
+        SliverLayoutBuilder(
+          builder: (context, constraints) => SliverPadding(
+            padding: EdgeInsets.only(
+              bottom: math.max(
+                0.0,
+                constraints.viewportMainAxisExtent -
+                    widget.topOffset -
+                    _lyricLineHeights.last,
+              ),
+            ),
+          ),
+        ),
       ]);
     }
 
@@ -364,7 +419,7 @@ class _LyricsViewState extends State<LyricsView>
         _resumeTimer?.cancel();
         _stopWorm();
       },
-      onPointerUp: (_) => _isPointerDown = false,
+      onPointerUp: (_) => _onPointerUp(),
       onPointerCancel: (_) => _isPointerDown = false,
       child: LyricTextStyle(
         style: _lyricsTextStyle,
