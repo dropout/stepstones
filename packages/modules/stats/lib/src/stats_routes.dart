@@ -9,16 +9,12 @@ part 'stats_routes.g.dart';
   path: '/profileStats/:profileId',
   name: 'PROFILE_STATS',
 )
-class ProfileStatsRoute extends GoRouteData
-    with AuthRedirectHook, $ProfileStatsRoute {
+class ProfileStatsRoute extends AuthGuardedRouteData with $ProfileStatsRoute {
   final String profileId;
   const ProfileStatsRoute({required this.profileId});
   @override
   Widget build(BuildContext context, GoRouterState state) =>
     ProfileStatsScreen(profileId: profileId);
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-    authRedirectHook(context, state);
 }
 
 List<RouteBase> $statsRoutes = [

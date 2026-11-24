@@ -35,14 +35,19 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppProviders(
       initResult: initResult,
-      child: BlocBuilder<RemoteSettingsCubit, RemoteSettingsState>(
-        builder: (context, state) {
-          if (state.settings.maintenanceModeEnabled) {
-            return buildMaintenanceModeApp(context);
-          } else {
-            return buildApp(context);
-          }
-        },
+      child: BlocListener<AuthStateCubit, AuthState>(
+        // Guarded pages must react to sign-out and session expiry, not only to navigation.
+        listenWhen: (previous, current) => previous is AuthStateSignedIn && current is! AuthStateSignedIn,
+        listener: (context, _) => router.reevaluateTopRedirect(context),
+        child: BlocBuilder<RemoteSettingsCubit, RemoteSettingsState>(
+          builder: (context, state) {
+            if (state.settings.maintenanceModeEnabled) {
+              return buildMaintenanceModeApp(context);
+            } else {
+              return buildApp(context);
+            }
+          },
+        ),
       ),
     );
   }

@@ -42,16 +42,12 @@ class TimerRoute extends GoRouteData with $TimerRoute {
   path: '/timerSettingsHistory/:profileId',
   name: 'TIMER_SETTINGS_HISTORY',
 )
-class TimerSettingsHistoryRoute extends GoRouteData
-    with AuthRedirectHook, $TimerSettingsHistoryRoute {
+class TimerSettingsHistoryRoute extends AuthGuardedRouteData with $TimerSettingsHistoryRoute {
   final String profileId;
   const TimerSettingsHistoryRoute({required this.profileId});
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       TimerSettingsHistoryScreen(profileId: profileId);
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
 List<RouteBase> $timerRoutes = [$timerRoute, $timerSettingsHistoryRoute];

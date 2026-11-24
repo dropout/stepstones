@@ -15,8 +15,7 @@ part 'profile_routes.g.dart';
   path: '/onboarding/:profileId',
   name: 'ONBOARDING',
 )
-class OnboardingRoute extends GoRouteData
-    with AuthRedirectHook, $OnboardingRoute {
+class OnboardingRoute extends AuthGuardedRouteData with $OnboardingRoute {
   final String profileId;
   final OnboardingIntent intent;
   const OnboardingRoute({
@@ -26,13 +25,10 @@ class OnboardingRoute extends GoRouteData
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       OnboardingWizardScreen(profileId: profileId, intent: intent);
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
 @TypedGoRoute<ProfileRoute>(path: '/profile/:profileId', name: 'PROFILE')
-class ProfileRoute extends GoRouteData with AuthRedirectHook, $ProfileRoute {
+class ProfileRoute extends AuthGuardedRouteData with $ProfileRoute {
   final String profileId;
 
   const ProfileRoute({required this.profileId});
@@ -40,48 +36,36 @@ class ProfileRoute extends GoRouteData with AuthRedirectHook, $ProfileRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       ProfileScreen(profileId: profileId);
-
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
 @TypedGoRoute<ProfileEditRoute>(path: '/editProfile', name: 'EDIT_PROFILE')
-class ProfileEditRoute extends GoRouteData
-    with AuthRedirectHook, $ProfileEditRoute {
+class ProfileEditRoute extends AuthGuardedRouteData with $ProfileEditRoute {
   final String profileId;
 
   const ProfileEditRoute({required this.profileId});
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       ProfileEditScreen(profileId: profileId);
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
+// Not guarded: deleting the account signs the user out while the completion screen shows, and the screen handles reauth itself.
 @TypedGoRoute<ProfileDeleteRoute>(
   path: '/deleteProfile',
   name: 'DELETE_PROFILE',
 )
-class ProfileDeleteRoute extends GoRouteData
-    with AuthRedirectHook, $ProfileDeleteRoute {
+class ProfileDeleteRoute extends GoRouteData with $ProfileDeleteRoute {
   final String profileId;
   const ProfileDeleteRoute({required this.profileId});
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       DeleteProfileScreen(profileId: profileId);
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
 @TypedGoRoute<ProfileSettingsRoute>(
   path: '/profileSettings/:profileId',
   name: 'PROFILE_SETTINGS',
 )
-class ProfileSettingsRoute extends GoRouteData
-    with AuthRedirectHook, $ProfileSettingsRoute {
+class ProfileSettingsRoute extends AuthGuardedRouteData with $ProfileSettingsRoute {
   final String profileId;
   const ProfileSettingsRoute({required this.profileId});
   @override
@@ -90,9 +74,6 @@ class ProfileSettingsRoute extends GoRouteData
         profileId: profileId,
         clearCacheCapability: GetIt.I.get<ClearCacheCapability>(),
       );
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
 /// Will be used to register the profile module's routes with the app's router.

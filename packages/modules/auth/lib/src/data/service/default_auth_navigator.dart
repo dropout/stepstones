@@ -6,6 +6,9 @@ class DefaultAuthNavigator extends AuthNavigator {
   DefaultAuthNavigator(super.router);
 
   @override
+  String get loginLocation => const LoginRoute().location;
+
+  @override
   Future<void> navigateToLogin({
     NavigationType type = NavigationType.push
   }) async => navigateTo(LoginRoute(), type: type);

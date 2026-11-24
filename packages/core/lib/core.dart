@@ -64,7 +64,7 @@ export 'src/navigator/stats_navigator.dart';
 export 'src/navigator/donate_navigator.dart';
 
 export 'src/presentation/app_keys.dart';
-export 'src/presentation/auth_redirect_hook.dart';
+export 'src/presentation/auth_guarded_route_data.dart';
 export 'src/presentation/design_spec.dart';
 export 'src/presentation/view/app_bar/custom_app_bar.dart';
 export 'src/presentation/view/app_bar/custom_back_button.dart';

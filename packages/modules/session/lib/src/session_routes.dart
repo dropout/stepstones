@@ -35,16 +35,12 @@ class SessionCompletedRoute extends GoRouteData with $SessionCompletedRoute {
 }
 
 @TypedGoRoute<SessionHistoryRoute>(path: '/activity', name: 'ACTIVITY')
-class SessionHistoryRoute extends GoRouteData
-    with AuthRedirectHook, $SessionHistoryRoute {
+class SessionHistoryRoute extends AuthGuardedRouteData with $SessionHistoryRoute {
   final String profileId;
   const SessionHistoryRoute({required this.profileId});
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       SessionHistoryScreen(profileId: profileId);
-  @override
-  String? redirect(BuildContext context, GoRouterState state) =>
-      authRedirectHook(context, state);
 }
 
 final List<RouteBase> $sessionRoutes = [

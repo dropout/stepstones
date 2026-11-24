@@ -8,7 +8,7 @@ import 'package:donate/src/presentation/widget/donate_screen.dart';
 part 'donate_routes.g.dart';
 
 @TypedGoRoute<DonateRoute>(path: '/donate', name: 'DONATE')
-class DonateRoute extends GoRouteData with AuthRedirectHook, $DonateRoute {
+class DonateRoute extends AuthGuardedRouteData with $DonateRoute {
   const DonateRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) =>
