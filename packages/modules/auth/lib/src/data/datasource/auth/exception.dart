@@ -47,5 +47,5 @@ class SignInCancelled implements Exception {
   final String msg;
   const SignInCancelled(this.msg);
   @override
-  String toString() => 'SignInWithAppleFailure: $msg';
+  String toString() => 'SignInCancelled: $msg';
 }

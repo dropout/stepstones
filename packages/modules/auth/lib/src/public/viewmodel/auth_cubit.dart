@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core.dart';
-import 'package:auth/src/data/datasource/auth/exception.dart';
+import 'package:auth/src/public/types/auth_public_failure.dart';
 import 'package:auth/src/public/api/auth_public_api.dart';
 
 
@@ -64,7 +64,7 @@ class AuthCubit extends Cubit<AuthState> with LoggerMixin implements AuthStateCu
       _logAnalyticsSuccessfulSignin();
       logger.t('Successfully signed in with Google');
       _handleSuccessfulSigninRedirect(userId, isFirstSignin);
-    } on SignInCancelled {
+    } on AuthPublicSignInCancelled {
       logger.t('Sign in cancelled');
       emit(const AuthState.signedOut());
     } catch (e, stack) {
@@ -92,7 +92,7 @@ class AuthCubit extends Cubit<AuthState> with LoggerMixin implements AuthStateCu
       _logAnalyticsSuccessfulSignin();
       _handleSuccessfulSigninRedirect(userId, isFirstSignin);
       logger.t('Successfully signed in with Apple');
-    } on SignInCancelled {
+    } on AuthPublicSignInCancelled {
       logger.t('Sign in cancelled');
       emit(const AuthState.signedOut());
     } catch (e, stack) {
@@ -128,7 +128,7 @@ class AuthCubit extends Cubit<AuthState> with LoggerMixin implements AuthStateCu
       // Email/password sign-in is currently only used for integration tests,
       // so we don't need to handle first-time sign-in redirects here.
       profileNavigator.navigateToProfile(userId, type: .replace);
-    } on SignInCancelled {
+    } on AuthPublicSignInCancelled {
       logger.t('Sign in cancelled');
       emit(const AuthState.signedOut());
     } catch (e, stack) {

@@ -64,4 +64,26 @@ void main() {
 
     expect(api.reauthenticateWithGoogle, throwsA(isA<AuthPublicSignInCancelled>()));
   });
+
+  test('maps other errors to AuthPublicUnknownFailure and keeps the cause', () async {
+    final cause = Exception('network');
+    when(() => repository.reauthenticateWithAuthProvider(any())).thenThrow(cause);
+
+    await expectLater(
+      api.reauthenticateWithApple,
+      throwsA(isA<AuthPublicUnknownFailure>().having((f) => f.cause, 'cause', same(cause))),
+    );
+  });
+
+  test('maps deleteUser errors to public failures', () {
+    when(() => repository.deleteUser()).thenThrow(Exception('requires-recent-login'));
+
+    expect(api.deleteUser, throwsA(isA<AuthPublicUnknownFailure>()));
+  });
+
+  test('maps auth session stream errors to public failures', () {
+    when(() => repository.authStateChange).thenAnswer((_) => Stream.error(const SignInCancelled('cancelled')));
+
+    expect(api.authSessionStream, emitsError(isA<AuthPublicSignInCancelled>()));
+  });
 }

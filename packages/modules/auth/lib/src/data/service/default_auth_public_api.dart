@@ -1,20 +1,20 @@
+import 'dart:async';
+
+import 'package:auth/src/data/mapper/auth_public_failure_mapper.dart';
 import 'package:auth/src/domain/repository/auth_repository.dart';
 import 'package:auth/src/domain/usecase/sign_in_with_auth_provider_use_case.dart';
 import 'package:auth/src/domain/usecase/sign_in_with_email_and_password_use_case.dart';
 import 'package:auth/src/domain/usecase/sign_out_use_case.dart';
 import 'package:auth/src/public/api/auth_public_api.dart';
-import 'package:auth/src/public/mappers/auth_public_failure_mapper.dart';
 
-/// Default implementation of [AuthPublicApi] that uses [AuthRepository] and 
-/// various use cases to provide authentication functionality.
-/// TODO: Experimental exception handling
+/// Default [AuthPublicApi]; every error leaves the module as an [AuthPublicFailure].
 class DefaultAuthPublicApi implements AuthPublicApi {
   final AuthRepository authRepository;
 
   final SigninWithAuthProviderUseCase signInWithAuthProviderUseCase;
   final SignInWithEmailAndPasswordUseCase signInWithEmailAndPasswordUseCase;
   final SignoutUseCase signOutUseCase;
-  
+
   const DefaultAuthPublicApi({
     required this.authRepository,
     required this.signInWithAuthProviderUseCase,
@@ -24,86 +24,65 @@ class DefaultAuthPublicApi implements AuthPublicApi {
 
   @override
   Stream<AuthSession> get authSessionStream {
-    return authRepository.authStateChange.map((user) {
-      if (user == null) {
-        return (isAuthenticated: false, userId: null);
-      }
-      return (isAuthenticated: true, userId: user.uid);
-    });
+    return authRepository.authStateChange
+        .map<AuthSession>((user) {
+          if (user == null) {
+            return (isAuthenticated: false, userId: null);
+          }
+          return (isAuthenticated: true, userId: user.uid);
+        })
+        .transform(
+          StreamTransformer.fromHandlers(
+            handleError: (error, stackTrace, sink) => sink.addError(error.toPublicFailure(), stackTrace),
+          ),
+        );
   }
 
   @override
-  Future<AuthSigninResult> signInWithApple() async {
-    try {
-      final result = await signInWithAuthProviderUseCase.execute(.apple);
-      return (userId: result.user.uid, isFirstSignin: result.isFirstSignin);
-    } catch (error) {
-      throw error.toPublicFailure();
-    }
-  }
+  Future<AuthSigninResult> signInWithApple() => _guard(() async {
+    final result = await signInWithAuthProviderUseCase.execute(.apple);
+    return (userId: result.user.uid, isFirstSignin: result.isFirstSignin);
+  });
 
   @override
-  Future<AuthSigninResult> signInWithGoogle() async {
-    try {
-      final result = await signInWithAuthProviderUseCase.execute(.google);
-      return (userId: result.user.uid, isFirstSignin: result.isFirstSignin);
-    } catch (error) {
-      throw error.toPublicFailure();
-    }
-  }
+  Future<AuthSigninResult> signInWithGoogle() => _guard(() async {
+    final result = await signInWithAuthProviderUseCase.execute(.google);
+    return (userId: result.user.uid, isFirstSignin: result.isFirstSignin);
+  });
 
   @override
-  Future<void> reauthenticateWithApple() async {
-    try {
-      await authRepository.reauthenticateWithAuthProvider(.apple);
-    } catch (error) {
-      throw error.toPublicFailure();
-    }
-  }
+  Future<void> reauthenticateWithApple() => _guard(() => authRepository.reauthenticateWithAuthProvider(.apple));
 
   @override
-  Future<void> reauthenticateWithGoogle() async {
-    try {
-      await authRepository.reauthenticateWithAuthProvider(.google);
-    } catch (error) {
-      throw error.toPublicFailure();
-    }
-  }
+  Future<void> reauthenticateWithGoogle() => _guard(() => authRepository.reauthenticateWithAuthProvider(.google));
 
   @override
   Future<String> signUpWithEmailAndPassword({
     required String email,
     required String password,
-  }) async {
-    try {
-      final user = await authRepository.signupWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return user.uid;
-    } catch (error) {
-      throw error.toPublicFailure();
-    }
-  }
+  }) => _guard(() async {
+    final user = await authRepository.signupWithEmailAndPassword(email: email, password: password);
+    return user.uid;
+  });
 
   @override
   Future<String> signInWithEmailAndPassword({
     required String email,
     required String password,
-  }) async {
+  }) => _guard(() => signInWithEmailAndPasswordUseCase.execute(email: email, password: password));
+
+  @override
+  Future<void> signOut() => _guard(authRepository.signOut);
+
+  @override
+  Future<void> deleteUser() => _guard(authRepository.deleteUser);
+
+  /// Keeps the original stack trace so crash reports point at the real failure site.
+  Future<T> _guard<T>(Future<T> Function() action) async {
     try {
-      return await signInWithEmailAndPasswordUseCase.execute(
-        email: email,
-        password: password,
-      );
-    } catch (error) {
-      throw error.toPublicFailure();
+      return await action();
+    } catch (error, stackTrace) {
+      Error.throwWithStackTrace(error.toPublicFailure(), stackTrace);
     }
   }
-
-  @override
-  Future<void> signOut() => authRepository.signOut();
-
-  @override
-  Future<void> deleteUser() => authRepository.deleteUser();
 }
