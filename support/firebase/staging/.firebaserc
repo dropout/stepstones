@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "stepstones-staging"
+    "default": "stepstones-staging",
+    "staging": "stepstones-staging",
+    "prod": "stepstones-prod"
   }
 }

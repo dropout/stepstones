@@ -29,6 +29,8 @@ If no build mode specified, use `debug`.
 - Staging Cloud Functions lint: `npm --prefix support/firebase/staging/functions run lint`
 - Staging security rules tests (Firestore and Storage emulators): `npm --prefix support/firebase/staging/rules_test test`
     - First run needs `npm --prefix support/firebase/staging/rules_test install`.
+- Deploy the backend (run from `support/firebase/staging`; prod shares this source): `firebase deploy --project <staging|prod> --only firestore,storage,functions,remoteconfig`
+    - A new project first needs the Maps key secret: `firebase functions:secrets:set GOOGLE_MAPS_API_KEY --project <staging|prod>`
 - Grant or revoke the admin claim (run from `support/maintenance_scripts`): `node src/set_admin_claim.mjs --project=<firebase-project-id> (--email=<email>|--uid=<uid>) [--revoke] (--confirm|--dry-run)`
 - Integration Tests: `flutter test integration_test/<test_file>.dart --flavor <flavor> --dart-define=IS_TEST=true --dart-define=TEST_USER_EMAIL=<email> --dart-define=TEST_USER_PASSWORD=<password>`
 - Format: `dart format .`

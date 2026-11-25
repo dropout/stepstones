@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Stepstones Staging (debug)",
+            "name": "Staging (debug)",
             "type": "dart",
             "request": "launch",
             "flutterMode": "debug",
@@ -16,7 +16,7 @@
             ],
         },
         {
-            "name": "stepstones Staging (profile)",
+            "name": "Staging (profile)",
             "type": "dart",
             "request": "launch",
             "flutterMode": "profile",
@@ -25,9 +25,20 @@
                 "--flavor",
                 "staging"
             ],
-        },        
+        },
         {
-            "name": "widgetbook",
+            "name": "Prod (debug)",
+            "type": "dart",
+            "request": "launch",
+            "flutterMode": "debug",
+            "program": "apps/mobile_app/lib/main_prod.dart",
+            "args": [
+                "--flavor",
+                "prod"
+            ],
+        },
+        {
+            "name": "Widgetbook",
             "type": "dart",
             "request": "launch",
             "flutterMode": "debug",

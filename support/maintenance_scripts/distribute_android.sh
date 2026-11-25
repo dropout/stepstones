@@ -27,7 +27,7 @@ case "$FLAVOR" in
   dev) ENTRYPOINT="lib/main_dev.dart"; APPLICATION_ID_SUFFIX=".dev" ;;
   qa) ENTRYPOINT="lib/main_test.dart"; APPLICATION_ID_SUFFIX=".test" ;;
   staging) ENTRYPOINT="lib/main_staging.dart"; APPLICATION_ID_SUFFIX=".staging" ;;
-  prod) ENTRYPOINT="lib/main_prod.dart"; APPLICATION_ID_SUFFIX=".prod" ;;
+  prod) ENTRYPOINT="lib/main_prod.dart"; APPLICATION_ID_SUFFIX="" ;;
   *) echo "Error: unknown Android flavor '$FLAVOR'."; usage ;;
 esac
 

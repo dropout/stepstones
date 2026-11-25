@@ -11,6 +11,7 @@
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		66C79E89309B33520010D62B /* LaunchScreenStaging.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 66C79E87309B33520010D62B /* LaunchScreenStaging.storyboard */; };
+		66C79E8C309B33520010D62B /* LaunchScreenProd.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 66C79E8A309B33520010D62B /* LaunchScreenProd.storyboard */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
@@ -50,6 +51,7 @@
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		66BCC1D630A2392C00DF8768 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		66C79E88309B33520010D62B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreenStaging.storyboard; sourceTree = "<group>"; };
+		66C79E8B309B33520010D62B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreenProd.storyboard; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 			children = (
 				66BCC1D630A2392C00DF8768 /* Runner.entitlements */,
 				66C79E87309B33520010D62B /* LaunchScreenStaging.storyboard */,
+				66C79E8A309B33520010D62B /* LaunchScreenProd.storyboard */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -241,6 +244,7 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				66C79E89309B33520010D62B /* LaunchScreenStaging.storyboard in Resources */,
+				66C79E8C309B33520010D62B /* LaunchScreenProd.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
@@ -274,6 +278,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Copy Firebase config";
 			outputFileListPaths = (
@@ -282,7 +287,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eu\n\nFLAVOR=\"${CONFIGURATION#*-}\"\nSOURCE=\"${PROJECT_DIR}/config/${FLAVOR}/GoogleService-Info.plist\"\nDEST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\nif [ ! -f \"$SOURCE\" ]; then\n  echo \"error: Missing Firebase config for flavor '${FLAVOR}': ${SOURCE}\" >&2\n  exit 1\nfi\n\ncp \"$SOURCE\" \"$DEST\"\n";
+			shellScript = "set -eu\n\nFLAVOR=\"${CONFIGURATION#*-}\"\nSOURCE=\"${PROJECT_DIR}/config/${FLAVOR}/GoogleService-Info.plist\"\nDEST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\n\nif [ ! -f \"$SOURCE\" ]; then\n  echo \"error: Missing Firebase config for flavor '${FLAVOR}': ${SOURCE}\" >&2\n  exit 1\nfi\n\ncp \"$SOURCE\" \"$DEST\"\n\n# Google Sign-In callback scheme differs per Firebase project.\nREVERSED_CLIENT_ID=\"$(/usr/libexec/PlistBuddy -c 'Print :REVERSED_CLIENT_ID' \"$SOURCE\" 2>/dev/null || true)\"\nif [ -z \"$REVERSED_CLIENT_ID\" ]; then\n  echo \"error: REVERSED_CLIENT_ID missing in ${SOURCE}; enable Google sign-in in Firebase and re-download the plist.\" >&2\n  exit 1\nfi\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 ${REVERSED_CLIENT_ID}\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
 		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -337,6 +342,14 @@
 				66C79E88309B33520010D62B /* Base */,
 			);
 			name = LaunchScreenStaging.storyboard;
+			sourceTree = "<group>";
+		};
+		66C79E8A309B33520010D62B /* LaunchScreenProd.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66C79E8B309B33520010D62B /* Base */,
+			);
+			name = LaunchScreenProd.storyboard;
 			sourceTree = "<group>";
 		};
 		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
@@ -428,7 +441,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones - Meditation & Chanting";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -567,7 +581,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Dev Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -677,7 +692,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Test";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Test Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -787,6 +803,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Stg";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				APP_DISPLAY_NAME = "Stg Stepstones";
 				LAUNCH_SCREEN_STORYBOARD = LaunchScreenStaging;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -897,13 +914,14 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Stepstones;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreenProd;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.stepstonesapp.stepstones.prod;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepstonesapp.stepstones;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1004,7 +1022,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Dev Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1108,7 +1127,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Test";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Test Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1212,6 +1232,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Stg";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				APP_DISPLAY_NAME = "Stg Stepstones";
 				LAUNCH_SCREEN_STORYBOARD = LaunchScreenStaging;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1316,13 +1337,14 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Stepstones;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreenProd;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.stepstonesapp.stepstones.prod;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepstonesapp.stepstones;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1418,7 +1440,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Dev Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1520,7 +1543,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Test";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Test Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1622,6 +1646,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones Stg";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				APP_DISPLAY_NAME = "Stg Stepstones";
 				LAUNCH_SCREEN_STORYBOARD = LaunchScreenStaging;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1724,13 +1749,14 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Stepstones;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreenProd;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.9.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.stepstonesapp.stepstones.prod;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepstonesapp.stepstones;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1886,7 +1912,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones - Meditation & Chanting";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1921,7 +1948,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Stepstones - Meditation & Chanting";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LAUNCH_SCREEN_STORYBOARD = "";
+				APP_DISPLAY_NAME = "Stepstones";
+				LAUNCH_SCREEN_STORYBOARD = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
