@@ -17,11 +17,11 @@ class LoginSignedOutView extends StatelessWidget {
     context.hapticsTap();
   }
 
-  void _onLoginWithAppleTap(BuildContext context) {
-    context.read<AuthStateCubit>().signinWithApple();
-    context.logEvent(name: 'login_with_apple_button_pressed');
-    context.hapticsTap();
-  }
+  // void _onLoginWithAppleTap(BuildContext context) {
+  //   context.read<AuthStateCubit>().signinWithApple();
+  //   context.logEvent(name: 'login_with_apple_button_pressed');
+  //   context.hapticsTap();
+  // }
 
   void _onLoginWithEmailAndPasswordTap(BuildContext context) {
     context.services.authNavigator.navigateToLoginWithEmailAndPassword();
@@ -143,35 +143,33 @@ class LoginSignedOutView extends StatelessWidget {
           // border: Border.all(color: Colors.black, width: 1.5),
           // borderRadius: BorderRadius.circular(DesignSpec.borderRadiusSm),
         ),
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: DesignSpec.padding2Xl,
-              horizontal: DesignSpec.paddingLg,
-            ),
-            child: Column(
-              mainAxisAlignment: .center,
-              crossAxisAlignment: .center,
-              children: [
-                Text(
-                  l10n.loginSignupBenefitsTitle,
-                  textAlign: .center,
-                  key: const Key('login_signup_benefits_title'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-                ),
-                Gap.small(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SignupBenefit(text: l10n.loginSignupBenefitChanting),
-                    Gap.xs(),
-                    SignupBenefit(text: l10n.loginSignupBenefitStats),
-                    Gap.xs(),
-                    SignupBenefit(text: l10n.loginSignupBenefitPresence),
-                  ],
-                ),
-              ],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: DesignSpec.padding2Xl,
+            horizontal: DesignSpec.paddingLg,
+          ),
+          child: Column(
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .center,
+            children: [
+              Text(
+                l10n.loginSignupBenefitsTitle,
+                textAlign: .center,
+                key: const Key('login_signup_benefits_title'),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+              ),
+              Gap.small(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SignupBenefit(text: l10n.loginSignupBenefitChanting),
+                  Gap.xs(),
+                  SignupBenefit(text: l10n.loginSignupBenefitStats),
+                  Gap.xs(),
+                  SignupBenefit(text: l10n.loginSignupBenefitPresence),
+                ],
+              ),
+            ],
           ),
         ),
       ),

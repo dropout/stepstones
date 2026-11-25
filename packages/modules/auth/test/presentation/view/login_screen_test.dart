@@ -48,10 +48,10 @@ void main() {
 
         expect(find.text('Bejelentkezés Google-lal'), findsOneWidget);
         expect(find.text('Bejelentkezés Apple-lel'), findsOneWidget);
-        expect(find.text('Jelentkezz be, és mélyítsd a gyakorlásodat'), findsOneWidget);
-        expect(find.text('Férj hozzá az énekek könyvtárához'), findsOneWidget);
-        expect(find.text('Építs stabil gyakorlatot statisztikákkal'), findsOneWidget);
-        expect(find.text('Találj támogatást a Jelenlét funkcióval'), findsOneWidget);
+        expect(find.text('Oszd meg velünk, és élvezd az előnyöket:'), findsOneWidget);
+        expect(find.text('Hozzáférés az énekek könyvtárához'), findsOneWidget);
+        expect(find.text('Kövesd a gyakorlásod fejlődését'), findsOneWidget);
+        expect(find.text('Találj támogatást közös gyakorlásban'), findsOneWidget);
 
         expect(find.textContaining('ÁSZF-et', findRichText: true), findsOneWidget);
         expect(find.textContaining('Adatvédelmi nyilatkozatot', findRichText: true), findsOneWidget);
@@ -124,36 +124,37 @@ void main() {
         verify(() => mockAuthCubit.signinWithGoogle(onComplete: any(named: 'onComplete'))).called(1);
       });
 
-      testWidgets('LoginScreen has working login with Apple button', (WidgetTester tester) async {
-        when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());
-
-        when(() => mockUrlLauncher.launchInAppWebView(any())).thenAnswer((_) => Future.value(true));
-
-        when(() => mockAuthCubit.signinWithApple(onComplete: any(named: 'onComplete')))
-            .thenAnswer((_) => Future.value(null));
-
-        await tester.pumpWidget(
-          Provider<Services>(
-            create: (context) => mockServices,
-            child: AuthTestHelper.withLocalizationProvider(
-              BlocProvider<AuthStateCubit>(
-                create: (context) => mockAuthCubit,
-                child: ShaderRenderingScope(enabled: false, child: LoginScreen()),
-              ),
-            ),
-          ),
-        );
-
-        // Pump the widget multiple times to allow animations and async operations to complete
-        for (var i = 0; i < 30; i++) {
-          await tester.pump(const Duration(milliseconds: 100));
-        }
-
-        final appleButton = find.widgetWithText(AppButton, 'Bejelentkezés Apple-lel');
-        expect(appleButton, findsOneWidget);
-        await tester.tap(appleButton);
-        verify(() => mockAuthCubit.signinWithApple(onComplete: any(named: 'onComplete'))).called(1);
-      });
+      // TODO: Re-enable this test when the Apple sign-in button's onTap is re-enabled in LoginSignedOutView.
+      // testWidgets('LoginScreen has working login with Apple button', (WidgetTester tester) async {
+      //   when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());
+      //
+      //   when(() => mockUrlLauncher.launchInAppWebView(any())).thenAnswer((_) => Future.value(true));
+      //
+      //   when(() => mockAuthCubit.signinWithApple(onComplete: any(named: 'onComplete')))
+      //       .thenAnswer((_) => Future.value(null));
+      //
+      //   await tester.pumpWidget(
+      //     Provider<Services>(
+      //       create: (context) => mockServices,
+      //       child: AuthTestHelper.withLocalizationProvider(
+      //         BlocProvider<AuthStateCubit>(
+      //           create: (context) => mockAuthCubit,
+      //           child: ShaderRenderingScope(enabled: false, child: LoginScreen()),
+      //         ),
+      //       ),
+      //     ),
+      //   );
+      //
+      //   // Pump the widget multiple times to allow animations and async operations to complete
+      //   for (var i = 0; i < 30; i++) {
+      //     await tester.pump(const Duration(milliseconds: 100));
+      //   }
+      //
+      //   final appleButton = find.widgetWithText(AppButton, 'Bejelentkezés Apple-lel');
+      //   expect(appleButton, findsOneWidget);
+      //   await tester.tap(appleButton);
+      //   verify(() => mockAuthCubit.signinWithApple(onComplete: any(named: 'onComplete'))).called(1);
+      // });
 
       testWidgets('LoginScreen has working ToU button', (WidgetTester tester) async {
         when(() => mockAuthCubit.state).thenReturn(const AuthState.signedOut());

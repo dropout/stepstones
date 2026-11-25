@@ -41,7 +41,7 @@ class AuthLocalizationsHu extends AuthLocalizations {
 
   @override
   String get loginSignupBenefitsTitle =>
-      'Jelentkezz be, és mélyítsd a gyakorlásodat';
+      'Oszd meg velünk, és élvezd az előnyöket:';
 
   @override
   String get loginSignupBenefitChanting => 'Hozzáférés az énekek könyvtárához';
