@@ -2,10 +2,13 @@ import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:core/core.dart';
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
 import 'package:profile/src/public/model/profile.dart';
 import 'package:profile/src/public/view/profile_image.dart';
 
@@ -70,9 +73,9 @@ class FormBuilderProfileImagePicker extends FormBuilderField<Uint8List> {
 class FormBuilderImagePickerState
     extends FormBuilderFieldState<FormBuilderProfileImagePicker, Uint8List> {}
 
-enum ProfileImagePickerProcessState { idle, pickingImage }
-
-class ProfileImagePicker extends StatefulWidget {
+/// Provides a [ProfileImagePickerCubit] scoped to the picker, so the
+/// memory-heavy safe image detector only lives while the picker is shown.
+class ProfileImagePicker extends StatelessWidget {
   final String label;
   final Profile profile;
   final Uint8List? imageData;
@@ -92,129 +95,84 @@ class ProfileImagePicker extends StatefulWidget {
   });
 
   @override
-  State<ProfileImagePicker> createState() => _ProfileImagePickerState();
+  Widget build(BuildContext context) {
+    return BlocProvider<ProfileImagePickerCubit>(
+      create: (_) => GetIt.I.get<ProfileImagePickerCubit>()..initialize(),
+      child: ProfileImagePickerContent(
+        profile: profile,
+        label: label,
+        imageData: imageData,
+        onImageSelected: onImageSelected,
+        onError: onError,
+        pickImage: pickImage,
+      ),
+    );
+  }
 }
 
-class _ProfileImagePickerState extends State<ProfileImagePicker> {
+class ProfileImagePickerContent extends StatelessWidget {
   /// The size of the edit indicator that appears on the profile image picker.
   static const double _indicatorSize = 32.0;
 
-  /// Loading state for the resources needed for image safety detection.
-  ProcessingState _nsfwDetectorLoadingState = .processing;
+  final String label;
+  final Profile profile;
+  final Uint8List? imageData;
 
-  /// The current processing state of the profile image picker.
-  ProfileImagePickerProcessState _processingState =
-      ProfileImagePickerProcessState.idle;
+  final void Function(Uint8List)? onImageSelected;
+  final void Function(ProfileImagePickerError, dynamic)? onError;
+  final PickProfileImage pickImage;
 
-  late final SafeImageDetector _safeImageDetectorService;
-  late ProfileImageSelectionController _imageSelectionController;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeResources();
-  }
-
-  /// Initializes the resources needed for image safety detection.
-  /// Don't add this to services singleton it consumes a lot of memory and is
-  /// only needed for this widget.
-  void _initializeResources() async {
-    final crashlyticsService = context.services.crashlyticsService;
-
-    try {
-      _safeImageDetectorService = await context
-          .services
-          .safeImageDetectorFactory
-          .create();
-      _initializeController();
-
-      if (mounted) {
-        setState(() {
-          _nsfwDetectorLoadingState = ProcessingState.completed;
-        });
-      } else {
-        _safeImageDetectorService.dispose();
-      }
-    } catch (error, stackTrace) {
-      crashlyticsService.recordError(
-        exception: error,
-        stackTrace: stackTrace,
-        reason: 'Failed to initialize safe image detector',
-      );
-      if (mounted) {
-        setState(() {
-          _nsfwDetectorLoadingState = ProcessingState.error;
-        });
-      }
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant ProfileImagePicker oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.pickImage != widget.pickImage) {
-      _initializeController();
-    }
-  }
-
-  void _initializeController() {
-    _imageSelectionController = ProfileImageSelectionController(
-      pickImage: widget.pickImage,
-      safeImageDetectorService: _safeImageDetectorService,
-    );
-  }
+  const ProfileImagePickerContent({
+    required this.profile,
+    required this.label,
+    required this.pickImage,
+    this.imageData,
+    this.onImageSelected,
+    this.onError,
+    super.key,
+  });
 
   void _onWidgetTapped(BuildContext context) {
-    if (_processingState == ProfileImagePickerProcessState.pickingImage) {
+    final cubit = context.read<ProfileImagePickerCubit>();
+    final state = cubit.state;
+    if (state is ProfileImagePickerReadyState && state.isPicking) {
       return;
     }
 
-    _selectFile();
+    cubit.selectImage(pickImage);
     context.hapticsTap();
   }
 
-  void _selectFile() async {
-    setState(() {
-      _processingState = ProfileImagePickerProcessState.pickingImage;
-    });
-
-    final result = await _imageSelectionController.selectProfileImage();
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _processingState = ProfileImagePickerProcessState.idle;
-    });
-
-    if (result.imageData != null) {
-      widget.onImageSelected?.call(result.imageData!);
-    }
-
-    if (result.error != null) {
-      debugPrint('Error selecting profile image: ${result.error}');
-      widget.onError?.call(result.error!, result.details);
+  void _onStateChanged(BuildContext context, ProfileImagePickerState state) {
+    switch (state) {
+      case ProfileImagePickerSelectedState(:final imageData):
+        onImageSelected?.call(imageData);
+      case ProfileImagePickerFailedState(:final error, :final details):
+        onError?.call(error, details);
+      default:
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Handle the loading state of the NSFW detector
-    switch (_nsfwDetectorLoadingState) {
-      case ProcessingState.processing:
-        return buildLoading(context);
-      case ProcessingState.completed:
-        return buildLoaded(context);
-      case ProcessingState.error:
-        return const SizedBox.shrink();
-      default:
-        return const SizedBox.shrink();
-    }
+    return BlocConsumer<ProfileImagePickerCubit, ProfileImagePickerState>(
+      listenWhen: (_, state) => state is ProfileImagePickerSelectedState || state is ProfileImagePickerFailedState,
+      listener: _onStateChanged,
+      // One-shot results are followed by ready, so keep the current view.
+      buildWhen: (_, state) => state is! ProfileImagePickerSelectedState && state is! ProfileImagePickerFailedState,
+      builder: (context, state) {
+        return switch (state) {
+          ProfileImagePickerInitialState() || ProfileImagePickerLoadingState() => _buildLoading(),
+          ProfileImagePickerReadyState(:final isPicking) => _buildLoaded(context, isPicking: isPicking),
+          ProfileImagePickerSelectedState() || ProfileImagePickerFailedState() => _buildLoaded(context),
+          ProfileImagePickerErrorState() => const SizedBox.shrink(),
+        };
+      },
+    );
   }
 
-  Widget buildLoading(BuildContext context) {
+  Widget _buildLoading() {
     return SizedBox(
       width: DesignSpec.circleLg,
       height: DesignSpec.circleLg,
@@ -222,7 +180,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
     );
   }
 
-  Widget buildLoaded(BuildContext context) {
+  Widget _buildLoaded(BuildContext context, {bool isPicking = false}) {
     final Offset indicatorPos = _computeEditBadgePosition(45.0);
     return GestureDetector(
       onTap: () => _onWidgetTapped(context),
@@ -233,10 +191,8 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
           children: [
             _buildCurrentImage(),
 
-            // show a loading indicator when picking an image
-            // this makes sense when cold starting,
-            // because it may take a while on some devices
-            if (_processingState == ProfileImagePickerProcessState.pickingImage)
+            // Picking can take a while on cold start on some devices.
+            if (isPicking)
               SizedBox.expand(
                 child: CircularProgressIndicator(
                   strokeWidth: 4.0,
@@ -244,7 +200,6 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
                 ),
               ),
 
-            // show edit indicator
             Positioned(
               left: indicatorPos.dx,
               top: indicatorPos.dy,
@@ -257,12 +212,11 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
   }
 
   Widget _buildCurrentImage() {
-    if (widget.imageData != null) {
+    if (imageData != null) {
       return ProfileImagePickerCurrentImage(
-        imageProvider: MemoryImage(widget.imageData!),
+        imageProvider: MemoryImage(imageData!),
       );
     }
-
 
     return SizedBox.expand(
       child: DecoratedBox(
@@ -272,12 +226,12 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
           border: Border.all(color: Colors.black, width: 4.0),
         ),
         child: ProfileImage(
-          profileId: widget.profile.id,
-          profileName: widget.profile.displayName,
-          profilePhotoBlurhash: widget.profile.photoBlurhash,
+          profileId: profile.id,
+          profileName: profile.displayName,
+          profilePhotoBlurhash: profile.photoBlurhash,
           size: DesignSpec.circleLg,
         ),
-      )
+      ),
     );
   }
 
@@ -293,13 +247,5 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
     final double top =
         center + radius * math.sin(angleRadians) - _indicatorSize / 2;
     return Offset(left, top);
-  }
-
-  @override
-  void dispose() {
-    if (_nsfwDetectorLoadingState == ProcessingState.completed) {
-      _safeImageDetectorService.dispose();
-    }
-    super.dispose();
   }
 }

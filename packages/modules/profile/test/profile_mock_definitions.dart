@@ -10,6 +10,7 @@ import 'package:profile/src/domain/usecase/delete_profile_use_case.dart';
 import 'package:profile/src/domain/usecase/update_profile_settings_use_case.dart';
 import 'package:profile/src/domain/usecase/update_profile_use_case.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
 
@@ -21,6 +22,17 @@ class MockProfileCubit extends MockCubit<ProfileState>
 
 class MockProfileEditCubit extends MockCubit<ProfileEditState>
     implements ProfileEditCubit {}
+
+class MockProfileImagePickerCubit extends MockCubit<ProfileImagePickerState>
+    implements ProfileImagePickerCubit {
+  /// A picker cubit fixed to [state] that never loads the real detector.
+  static MockProfileImagePickerCubit withState(ProfileImagePickerState state) {
+    final cubit = MockProfileImagePickerCubit();
+    when(() => cubit.state).thenReturn(state);
+    when(() => cubit.initialize()).thenAnswer((_) async {});
+    return cubit;
+  }
+}
 
 class MockProfileStatsUpdater extends Mock
     implements ProfileStatsReportUpdaterService {}

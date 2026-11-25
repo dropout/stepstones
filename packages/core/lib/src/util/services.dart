@@ -1,7 +1,5 @@
-import 'package:core/src/infrastructure/platform/default_safe_image_detector.dart';
 import 'package:core/src/navigator/donate_navigator.dart';
 import 'package:core/src/navigator/stats_navigator.dart';
-import 'package:core/src/service/safe_image_detector.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
 
@@ -51,8 +49,6 @@ class Services {
   final StatsNavigator statsNavigator;
   final DonateNavigator donateNavigator;
 
-  final SafeImageDetectorFactory safeImageDetectorFactory;
-
   /// Injectable so widget tests can avoid the sqflite / path_provider backed default.
   final BaseCacheManager imageCacheManager;
 
@@ -68,7 +64,6 @@ class Services {
     required this.functionsService,
     required this.urlLauncher,
     required this.mindfulMinutesService,
-    required this.safeImageDetectorFactory,
     required this.imageCacheManager,
     
     required this.homeNavigator,
@@ -84,12 +79,9 @@ class Services {
 
 class ServicesBuilder {
   late UrlLauncher _urlLauncher;
-  late SafeImageDetectorFactory _safeImageDetectorFactory;
 
   ServicesBuilder() {
     _urlLauncher = const UrlLauncher();
-    //TODO: Revisit how safe image detector factory is used, aim to remove it from services
-    _safeImageDetectorFactory = const DefaultSafeImageDetectorFactory();
   }
 
   Services build() {
@@ -115,8 +107,7 @@ class ServicesBuilder {
       functionsService: GetIt.I.get<FunctionsService>(),
       urlLauncher: _urlLauncher,
       mindfulMinutesService: GetIt.I.get<MindfulMinutesService>(),
-      
-      safeImageDetectorFactory: _safeImageDetectorFactory,
+
       imageCacheManager: DefaultCacheManager(),
     );
   }

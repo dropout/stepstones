@@ -25,6 +25,8 @@ import 'package:profile/src/public/model/profile_settings.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
+
 import '../../profile_mock_definitions.dart';
 import '../../profile_test_helper.dart';
 
@@ -42,6 +44,10 @@ void main() {
 
     setUp(() {
       GetIt.I.registerFactory<ProfileEditCubit>(() => mockProfileEditCubit);
+      // Picker renders nothing, so these tests stay focused on the screen.
+      GetIt.I.registerFactory<ProfileImagePickerCubit>(
+        () => MockProfileImagePickerCubit.withState(const ProfileImagePickerState.error()),
+      );
 
       mockProfileEditCubit = MockProfileEditCubit();
       mockCrashlyticsService = MockCrashlyticsService();

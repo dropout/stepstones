@@ -5,10 +5,12 @@ import 'dart:typed_data';
 import 'package:faker/faker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:profile/src/data/datasource/faker_profile_extension.dart';
 import 'package:profile/src/presentation/view/form_builder_profile_image_picker.dart';
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
 
@@ -44,12 +46,19 @@ void main() {
       when(() => mockServices.hapticsService).thenReturn(mockHapticsService);
       when(() => mockServices.crashlyticsService)
         .thenReturn(mockCrashlyticsService);
-      when(() => mockServices.safeImageDetectorFactory)
-        .thenReturn(safeImageDetectorFactory);
       when(() => mockHapticsService.tap()).thenReturn(null);
       when(() => safeImageDetectorFactory.create())
         .thenAnswer((_) async => safeImageDetector);
+
+      GetIt.I.registerFactory<ProfileImagePickerCubit>(
+        () => ProfileImagePickerCubit(
+          safeImageDetectorFactory: safeImageDetectorFactory,
+          crashlyticsService: mockCrashlyticsService,
+        ),
+      );
     });
+
+    tearDown(() => GetIt.I.reset());
 
     testWidgets('does not use the detector while building', (
       WidgetTester tester,
@@ -69,6 +78,61 @@ void main() {
       verifyNever(() => safeImageDetector.detectImageSafety(any()));
     });
 
+    testWidgets('updates the field value after a safe pick', (
+      WidgetTester tester,
+    ) async {
+      when(() => safeImageDetector.detectImageSafety(any()))
+        .thenAnswer((_) async => ImageSafetyDetectionResult(true, 0.1));
+      Uint8List? changedValue;
+
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          _buildTestApp(
+            mockServices: mockServices,
+            child: FormBuilderProfileImagePicker(
+              name: 'imageData',
+              label: 'Profile Image',
+              profile: profileWithoutPhoto,
+              onChanged: (value) => changedValue = value,
+              pickImage: () => _createTempXFile(
+                _validImageBytes,
+                'widget_profile_image.png',
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        await tester.tap(find.byType(ProfileImagePickerContent));
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+        await tester.pump();
+      });
+
+      verify(() => safeImageDetector.detectImageSafety(any())).called(1);
+      verify(() => mockHapticsService.tap()).called(1);
+      expect(changedValue, isNotEmpty);
+    });
+
+    testWidgets('disposes the detector when removed', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          mockServices: mockServices,
+          child: FormBuilderProfileImagePicker(
+            name: 'imageData',
+            label: 'Profile Image',
+            profile: profileWithoutPhoto,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.pumpWidget(const SizedBox.shrink());
+
+      verify(() => safeImageDetector.dispose()).called(1);
+    });
+
     test('reports decode failures before using the detector', () async {
       final safeImageDetector = MockSafeImageDetector();
       final controller = ProfileImageSelectionController(
@@ -83,7 +147,6 @@ void main() {
 
       expect(result.error, ProfileImagePickerError.imageLoadingFailed);
       expect(result.imageData, isNull);
-      // expect(safeImageDetector.detectCalls, 0);
       verifyNever(() => safeImageDetector.detectImageSafety(any()));
     });
 

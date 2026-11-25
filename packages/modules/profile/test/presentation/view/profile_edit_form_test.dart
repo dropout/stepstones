@@ -4,9 +4,11 @@ import 'package:faker/faker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:nock/nock.dart';
 import 'package:profile/src/presentation/view/form_builder_profile_image_picker.dart';
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
 import 'package:provider/provider.dart';
 
 import 'package:core/core.dart';
@@ -41,14 +43,21 @@ void main() {
       safeImageDetector = MockSafeImageDetector();
 
       when(() => mockServices.crashlyticsService).thenReturn(mockCrashlyticsService);
-      when(() => mockServices.safeImageDetectorFactory).thenReturn(mockSafeImageDetectorFactory);
       when(() => mockSafeImageDetectorFactory.create()).thenAnswer((_) async => safeImageDetector);
+      GetIt.I.registerFactory<ProfileImagePickerCubit>(
+        () => ProfileImagePickerCubit(
+          safeImageDetectorFactory: mockSafeImageDetectorFactory,
+          crashlyticsService: mockCrashlyticsService,
+        ),
+      );
       when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
       when(() => mockServices.imageCacheManager).thenReturn(FakeImageCacheManager());
       when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) async => faker.profilePhotoUrl());
 
       nock.cleanAll();
     });
+
+    tearDown(() => GetIt.I.reset());
 
     testWidgets('renders all form fields with default values', (WidgetTester tester) async {
       final profileWithoutPhoto = profile.copyWith(photoBlurhash: null);

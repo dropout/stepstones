@@ -13,6 +13,8 @@ import 'package:profile/src/presentation/view/profile_edit_form.dart';
 import 'package:profile/src/presentation/view/screen/profile_edit_screen.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
+
 import '../../profile_mock_definitions.dart';
 import '../../profile_test_helper.dart';
 
@@ -30,6 +32,10 @@ void main() {
 
     setUp(() {
       GetIt.I.registerFactory<ProfileEditCubit>(() => mockProfileEditCubit);
+      // Picker renders nothing, so these tests stay focused on the screen.
+      GetIt.I.registerFactory<ProfileImagePickerCubit>(
+        () => MockProfileImagePickerCubit.withState(const ProfileImagePickerState.error()),
+      );
 
       mockProfileEditCubit = MockProfileEditCubit();
       mockCrashlyticsService = MockCrashlyticsService();

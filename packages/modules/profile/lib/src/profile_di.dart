@@ -27,6 +27,7 @@ import 'package:profile/src/presentation/viewmodel/delete_profile_cubit.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
 import 'package:profile/src/public/viewmodel/location_prompt_cubit.dart';
 import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
+import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
 import 'package:profile/src/public/api/profile_public_api.dart';
 
 
@@ -134,6 +135,13 @@ extension ProfileModuleDependencyInjection on GetIt {
         loadProfileUseCase: GetIt.I.get<LoadProfileUseCase>(),
         updateProfileUseCase: GetIt.I.get<UpdateProfileUseCase>(),
         updateProfileSettingsUseCase: GetIt.I.get<UpdateProfileSettingsUseCase>(),
+      ),
+    );
+
+    registerFactory<ProfileImagePickerCubit>(
+      () => ProfileImagePickerCubit(
+        safeImageDetectorFactory: GetIt.I.get<SafeImageDetectorFactory>(),
+        crashlyticsService: GetIt.I.get<CrashlyticsService>(),
       ),
     );
 
