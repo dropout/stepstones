@@ -43,7 +43,7 @@ class const HomeScreenAppbar({
       no: CustomAppBar(
         leading: Today(key: ValueKey(DateTime.now().toDayId())),
         trailing: [
-          TrailingSlot(child: SessionTypeToggle(activeMode: HomeScreenViewState.sitting, onModeChanged: null).reveal(1)),
+          TrailingSlot(child: SessionTypeToggle(activeMode: homeScreenState.sessionType, onModeChanged: null).reveal(1)),
           TrailingSlot(child: ProfileButton(key: Key('home_screen_appbar_profile_button')).reveal(2)),
         ],
       ),

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:core/core.dart';
@@ -41,7 +40,7 @@ class const HomeScreen({
       extendBodyBehindAppBar: true,
       body: ParchmentBackground(
         scrollOffset: _parchmentScrollOffset,
-        // The seed for the parchment noise shader, 
+        // The seed for the parchment noise shader,
         // which changes slowly over time to create subtle variations.
         // Each screen where it appears will have a slightly different parchment texture.
         // Therefore a constant for screen identity is added to the seed.
@@ -49,8 +48,7 @@ class const HomeScreen({
         child: Stack(
           fit: StackFit.expand,
           children: [
-            buildBody(context, state), 
-            // buildBottomMenu(context, state)
+            buildBody(context, state),
           ],
         ),
       ),
@@ -60,38 +58,18 @@ class const HomeScreen({
   /// Builds the animated body that switches between the sitting and chanting
   /// settings views based on [HomeScreenState.sessionType].
   Widget buildBody(BuildContext context, HomeScreenState state) {
-    return BlocBuilder<AuthStateCubit, AuthState>(
-      builder: (context, authState) {
-        HomeScreenViewState sessionType = state.sessionType;
-        // TODO: Move this logic to usecase or cubit
-        if (authState is! AuthStateSignedIn) {
-          sessionType = .sitting;
-        }
-        return AnimatedSwitcher(
-          // key: ValueKey(sessionType),
-          duration: Durations.medium1,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          switchInCurve: Curves.easeIn,
-          switchOutCurve: Curves.easeOut,
-          child: switch (sessionType) {
-            HomeScreenViewState.sitting => buildTimerSettingsView(
-              context,
-              state,
-            ),
-            HomeScreenViewState.chanting => buildChantingSettingsView(context),
-          },
-        );
+    return AnimatedSwitcher(
+      duration: Durations.medium1,
+      transitionBuilder: (child, animation) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      child: switch (state.sessionType) {
+        HomeScreenViewState.sitting => TimerSettingsView.withCubit(),
+        HomeScreenViewState.chanting => ChantingSettingsView.withCubit(),
       },
     );
   }
 
-  /// Builds the sitting-session branch of the home screen.
-  Widget buildTimerSettingsView(BuildContext context, HomeScreenState state) =>
-      TimerSettingsView.withCubit();
-
-  /// Builds the chanting-session branch of the home screen.
-  Widget buildChantingSettingsView(BuildContext context) =>
-      ChantingSettingsView.withCubit();
 }

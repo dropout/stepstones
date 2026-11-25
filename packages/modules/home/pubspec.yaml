@@ -25,6 +25,7 @@ dependencies:
 
   firebase_provider: ^1.0.0
   assets: ^0.0.1
+  auth: ^0.0.1
   core: ^0.0.1
   profile: ^0.0.1
   timer: ^0.0.1

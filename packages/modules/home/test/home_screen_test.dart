@@ -1,3 +1,4 @@
+import 'package:auth/auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
@@ -30,6 +31,7 @@ void main() {
     late MockCrashlyticsService mockCrashlyticsService;
     late MockOverlayService mockOverlayService;
     late MockHapticsService mockHapticsService;
+    late MockAuthPublicApi mockAuthPublicApi;
 
     // doesn't make sense to mock this because the FragmentShader
     // cannot be mocked neither, so you need to load the shader anyhow
@@ -52,6 +54,7 @@ void main() {
       mockOverlayService = MockOverlayService();
       mockHapticsService = MockHapticsService();
       mockChantingSettingsCubit = MockChantingSettingsCubit();
+      mockAuthPublicApi = MockAuthPublicApi();
 
       when(() => mockAuthBloc.state).thenReturn(const AuthState.signedOut());
       when(() => mockProfileCubit.state).thenReturn(ProfileState.initial());
@@ -61,7 +64,12 @@ void main() {
       when(() => mockServices.overlayService).thenReturn(mockOverlayService);
       when(() => mockServices.hapticsService).thenReturn(mockHapticsService);
 
-      GetIt.I.registerFactory<HomeScreenCubit>(() => HomeScreenCubit(crashlyticsService: mockCrashlyticsService));
+      GetIt.I.registerFactory<HomeScreenCubit>(
+        () => HomeScreenCubit(
+          authPublicApi: mockAuthPublicApi, 
+          crashlyticsService: mockCrashlyticsService,
+        ),
+      );
 
       GetIt.I.registerFactory<TimerSettingsCubit>(() => mockTimerSettingsCubit);
 
@@ -76,6 +84,7 @@ void main() {
     testWidgets('can display timer settings when signed out', (tester) async {
       setTestViewport(tester);
       when(() => mockAuthBloc.state).thenReturn(AuthState.signedOut());
+      stubAuthSession(mockAuthPublicApi, isAuthenticated: false);
       when(() => mockTimerSettingsCubit.state).thenReturn(TimerSettingsState(timerSettings: TimerSettings()));
 
       await tester.pumpWidget(
@@ -140,6 +149,7 @@ void main() {
     testWidgets('can display timer settings when signed in', (tester) async {
       setTestViewport(tester);
       when(() => mockAuthBloc.state).thenReturn(AuthState.signedIn(userId: 'userid'));
+      stubAuthSession(mockAuthPublicApi, isAuthenticated: true);
       when(() => mockTimerSettingsCubit.state).thenReturn(TimerSettingsState(timerSettings: TimerSettings()));
 
       await tester.pumpWidget(
@@ -168,6 +178,7 @@ void main() {
     testWidgets('can display chanting settings when signed in', (tester) async {
       setTestViewport(tester);
       when(() => mockAuthBloc.state).thenReturn(AuthState.signedIn(userId: 'userid'));
+      stubAuthSession(mockAuthPublicApi, isAuthenticated: true);
       when(() => mockTimerSettingsCubit.state).thenReturn(TimerSettingsState(timerSettings: TimerSettings()));
       when(() => mockChantingSettingsCubit.state)
           .thenReturn(ChantingSettingsState(availableChants: [], isLoading: false, playlist: []));
@@ -197,4 +208,9 @@ void main() {
       expect(find.byType(ChantingSettingsView), findsOneWidget);
     });
   });
+}
+
+void stubAuthSession(MockAuthPublicApi api, {required bool isAuthenticated}) {
+  final AuthSession session = (isAuthenticated: isAuthenticated, userId: isAuthenticated ? 'userid' : null);
+  when(() => api.authSessionStream).thenAnswer((_) => Stream.value(session));
 }

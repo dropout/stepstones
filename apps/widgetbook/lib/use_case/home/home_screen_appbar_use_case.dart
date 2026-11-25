@@ -43,7 +43,10 @@ Widget buildHomeScreenAppbar(BuildContext context) {
     child: Scaffold(
       appBar: HomeScreenAppbar(
         topInset: MediaQuery.paddingOf(context).top,
-        homeScreenState: HomeScreenState(sessionType: sessionType),
+        homeScreenState: HomeScreenState(
+          preferredSessionType: sessionType, 
+          isSignedIn: signedIn
+        ),
       ),
       body: const SizedBox.shrink(),
     ),
