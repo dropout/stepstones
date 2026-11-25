@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:faker/faker.dart';
 import 'package:profile/src/data/datasource/faker_profile_extension.dart';
 import 'package:profile/src/presentation/view/profile_view.dart';
@@ -32,6 +33,8 @@ void main() {
 
       when(() => mockServices.resourceResolver)
           .thenReturn(mockResourceResolver);
+      when(() => mockServices.imageCacheManager)
+          .thenReturn(FakeImageCacheManager());
       when(() => mockResourceResolver.resolveStoragePath(any()))
           .thenAnswer((_) async => 'https://example.com/profile.jpg');
     });

@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:nock/nock.dart';
 import 'package:profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:session/src/data/datasource/faker_session_extension.dart';
@@ -19,6 +17,7 @@ import 'package:session/src/public/view/signed_in_completed_view.dart';
 import 'package:social/social.dart';
 
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 
 import '../../../session_mock_definitions.dart';
 import '../../../session_test_helper.dart';
@@ -32,7 +31,6 @@ void main() {
   setUpAll(() {
     registerFallbackValue(Duration.zero);
     registerFallbackValue(SharedPreferencesKey.homeScreenState);
-    nock.init();
   });
 
   setUp(() {
@@ -59,20 +57,11 @@ void main() {
     when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) {
       return Future.value('https://example.com/profile.jpg');
     });
-
-    nock.cleanAll();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/path_provider'),
-      (MethodCall methodCall) async => '.',
-    );
+    when(() => mockServices.imageCacheManager).thenReturn(FakeImageCacheManager());
   });
 
   tearDown(() {
     GetIt.I.reset();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/path_provider'),
-      null,
-    );
   });
 
   late ProfileUpdateResult updateResult;

@@ -47,6 +47,7 @@ dependencies:
   audio_session: ^0.2.4
   blurhash_dart: ^1.2.1
   cached_network_image: ^4.0.0
+  flutter_cache_manager: ^3.4.1
   flutter_animate: ^4.5.2
   flutter_blurhash: ^0.9.1
   flutter_litert: ^3.8.0

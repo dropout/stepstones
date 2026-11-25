@@ -37,7 +37,6 @@ dependencies:
   flip_board: ^1.0.0
   particle_field: ^1.0.0
   faker: ^2.2.0
-  sqflite_common_ffi: ^2.4.2+1
   flutter_mindful_minutes:
     git:
       url: git@github.com:dropout/flutter_mindful_minutes.git
@@ -52,7 +51,6 @@ dev_dependencies:
   json_serializable: ^6.7.1    
   mocktail: ^1.0.5
   bloc_test: ^10.0.0
-  nock: ^1.2.3
   
 flutter:
   generate: true

@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,6 +49,7 @@ void main() {
     when(() => mockServices.profileNavigator).thenReturn(mockProfileNavigator);
 
     when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
+    when(() => mockServices.imageCacheManager).thenReturn(FakeImageCacheManager());
     when(
       () => mockResourceResolver.resolveStoragePath(any()),
     ).thenAnswer((_) async => 'https://example.com/profile.jpg');

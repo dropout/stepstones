@@ -10,6 +10,7 @@ import 'package:profile/src/presentation/view/form_builder_profile_image_picker.
 import 'package:provider/provider.dart';
 
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:profile/src/data/datasource/faker_profile_extension.dart';
 import 'package:profile/src/public/model/profile.dart';
 import 'package:profile/src/presentation/view/profile_edit_form.dart';
@@ -43,6 +44,7 @@ void main() {
       when(() => mockServices.safeImageDetectorFactory).thenReturn(mockSafeImageDetectorFactory);
       when(() => mockSafeImageDetectorFactory.create()).thenAnswer((_) async => safeImageDetector);
       when(() => mockServices.resourceResolver).thenReturn(mockResourceResolver);
+      when(() => mockServices.imageCacheManager).thenReturn(FakeImageCacheManager());
       when(() => mockResourceResolver.resolveStoragePath(any())).thenAnswer((_) async => faker.profilePhotoUrl());
 
       nock.cleanAll();

@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:faker/faker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:profile/src/public/model/profile.dart';
 import 'package:profile/src/public/view/profile_image.dart';
 import 'package:profile/src/public/viewmodel/profile_cubit.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:profile/src/presentation/view/profile_footer.dart';
 import 'package:profile/src/presentation/view/profile_menu.dart';
@@ -26,14 +26,6 @@ void main() {
     late MockCrashlyticsService mockCrashlyticsService;
     late MockResourceResolver mockResourceResolver;
 
-    // TODO: Try to eliminate the need for this, when CachedNetworkImage is used
-    setUpAll(() async {
-      // nock.init();
-
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    });
-
     setUp(() async {
       mockProfileCubit = MockProfileCubit();
       mockServices = MockServices();
@@ -46,6 +38,9 @@ void main() {
       when(
         () => mockServices.resourceResolver,
       ).thenReturn(mockResourceResolver);
+      when(
+        () => mockServices.imageCacheManager,
+      ).thenReturn(FakeImageCacheManager());
       when(
         () => mockResourceResolver.resolveStoragePath(any()),
       ).thenAnswer((_) async => 'https://example.com/profile.jpg');

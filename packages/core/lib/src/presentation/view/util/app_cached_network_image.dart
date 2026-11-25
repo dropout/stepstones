@@ -6,6 +6,7 @@ import 'package:core/src/presentation/view/util/app_context.dart';
 import 'package:core/src/presentation/view/util/image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// The [AppCachedNetworkImage] widget is a custom implementation
 /// of a cached network image that will first resolve an image URL
@@ -106,6 +107,7 @@ class _AppCachedNetworkImageState extends State<AppCachedNetworkImage> {
         key: ValueKey(currentImageUrl),
         imageUrl: currentImageUrl!,
         crashlyticsService: context.services.crashlyticsService,
+        cacheManager: context.services.imageCacheManager,
         circular: widget.circular,
         borderRadius: widget.borderRadius,
       );
@@ -145,12 +147,14 @@ class _AppCachedNetworkImageState extends State<AppCachedNetworkImage> {
 class _CustomCachedNetworkImage extends StatefulWidget {
   final String imageUrl;
   final CrashlyticsService crashlyticsService;
+  final BaseCacheManager cacheManager;
   final bool circular;
   final double borderRadius;
 
   const _CustomCachedNetworkImage({
     required this.imageUrl,
     required this.crashlyticsService,
+    required this.cacheManager,
     this.borderRadius = 0.0,
     this.circular = false,
     super.key,
@@ -172,6 +176,7 @@ class _CustomCachedNetworkImageState extends State<_CustomCachedNetworkImage> {
 
     imageProvider = CachedNetworkImageProvider(
       widget.imageUrl,
+      cacheManager: widget.cacheManager,
       errorListener: (error) {
         widget.crashlyticsService.recordError(exception: error);
       },

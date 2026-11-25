@@ -1,7 +1,7 @@
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:faker/faker.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:profile/profile.dart';
@@ -13,14 +13,12 @@ import 'package:stats/src/public/api/stats_public_api.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
-import 'package:nock/nock.dart';
 
 import 'package:stats/src/presentation/view/profile_stats_view.dart';
 import 'package:stats/src/presentation/view/stats/tab/day_tab.dart';
 import 'package:stats/src/presentation/view/stats/tab/month_tab.dart';
 import 'package:stats/src/presentation/view/stats/tab/week_tab.dart';
 import 'package:stats/src/presentation/view/stats/tab/year_tab.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../stats_mock_definitions.dart';
 import '../../../stats_test_helper.dart';
@@ -37,16 +35,6 @@ void main() {
     late CrashlyticsService mockCrashlyticsService;
     late ResourceResolver mockResourceResolver;
     
-    // Setup disaster for testin widgets with cached network image widget
-    setUpAll(() async {
-      nock.init();
-
-      // Initialize sqflite_ffi for testing because 
-      // app cached network image uses sqflite for caching images
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    });
-
     setUp(() async {
       mockProfileBloc = MockProfileCubit();
       mockStatsPublicApi = MockStatsPublicApi();
@@ -75,27 +63,13 @@ void main() {
         () => mockServices.hapticsService,
       ).thenReturn(MockHapticsService());
 
-
-      nock.cleanAll();
-      // Mock the MethodChannel for path_provider to return a valid path
-      // CachedNetworkImage uses path_provider to get the cache directory, 
-      // so we need to mock it for testing
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('plugins.flutter.io/path_provider'),
-          (MethodCall methodCall) async => '.',
-        );
+      when(
+        () => mockServices.imageCacheManager,
+      ).thenReturn(FakeImageCacheManager());
     });
 
     tearDown(() async {
       await GetIt.I.reset();
-
-      // Clear the mock handler for the MethodChannel to avoid affecting other tests
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        const MethodChannel('plugins.flutter.io/path_provider'),
-        null, // <--- Removes the mock handler
-      );
     });
 
     testWidgets('has all the required widgets to display', (

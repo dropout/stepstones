@@ -40,7 +40,6 @@ dependencies:
   image_picker: ^1.2.3
   particle_field: ^1.0.0
   rnd: 0.2.0
-  sqflite_common_ffi: ^2.4.2+1
   uuid: ^4.6.0
   vector_math: 2.4.3
   faker: ^2.2.0

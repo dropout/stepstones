@@ -1,10 +1,7 @@
 import 'package:faker/faker.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:nock/nock.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:profile/src/data/datasource/faker_profile_extension.dart';
 import 'package:profile/src/public/model/milestone_progress.dart';
@@ -16,6 +13,7 @@ import 'package:profile/src/public/view/stats/label_value_detail.dart';
 
 
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 
 import '../../../profile_test_helper.dart';
 
@@ -27,15 +25,6 @@ void main() {
     late MockServices mockServices;
     late MockCrashlyticsService mockCrashlyticsService;
     late ResourceResolver mockResourceResolver;
-
-    setUpAll(() async {
-      nock.init();
-
-      // Initialize sqflite_ffi for testing because 
-      // app cached network image uses sqflite for caching images
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    });
 
     setUp(() async {
       mockServices = MockServices();
@@ -52,26 +41,8 @@ void main() {
         () => mockResourceResolver.resolveStoragePath(any()),
       ).thenAnswer((_) async => 'https://example.com/profile.jpg');
 
-
-      nock.cleanAll();
-      // Mock the MethodChannel for path_provider to return a valid path
-      // CachedNetworkImage uses path_provider to get the cache directory, 
-      // so we need to mock it for testing
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('plugins.flutter.io/path_provider'),
-          (MethodCall methodCall) async => '.',
-        );
-
-    });
-
-    tearDown(() async {      
-      // Clear the mock handler for the MethodChannel to avoid affecting other tests
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        const MethodChannel('plugins.flutter.io/path_provider'),
-        null, // <--- Removes the mock handler
-      );
+      when(() => mockServices.imageCacheManager)
+        .thenReturn(FakeImageCacheManager());
     });
 
     testWidgets('can show statistics summary data', (WidgetTester tester) async {
