@@ -6,6 +6,12 @@
       "runtimeExecutable": "bash",
       "runtimeArgs": ["-c", "cd apps/widgetbook && flutter run -d web-server --web-port 8085"],
       "port": 8085
+    },
+    {
+      "name": "hosting",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd support/firebase/staging && npm --prefix site run build && firebase emulators:start --only hosting --project prod"],
+      "port": 5002
     }
   ]
 }
