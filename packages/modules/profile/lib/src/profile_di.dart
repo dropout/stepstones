@@ -30,44 +30,29 @@ import 'package:profile/src/presentation/viewmodel/profile_edit_cubit.dart';
 import 'package:profile/src/presentation/viewmodel/profile_image_picker_cubit.dart';
 import 'package:profile/src/public/api/profile_public_api.dart';
 
-
 extension ProfileModuleDependencyInjection on GetIt {
   void registerProfileModuleDependencies() {
-
     // Navigator
-    registerLazySingleton<ProfileNavigator>(
-      () => DefaultProfileNavigator(get<GoRouter>())
-    );
+    registerLazySingleton<ProfileNavigator>(() => DefaultProfileNavigator(get<GoRouter>()));
 
     // Data providers
     registerLazySingleton<ProfileDataProvider>(
-      () =>
-          FirebaseProfileDataProvider(GetIt.I.get<FirebaseProvider>().firestore),
+      () => FirebaseProfileDataProvider(GetIt.I.get<FirebaseProvider>().firestore),
     );
 
     // Repositories
     registerLazySingleton<ProfileRepository>(
-      () => DefaultProfileRepository(
-        profileDataProvider: GetIt.I.get<ProfileDataProvider>(),
-      ),
+      () => DefaultProfileRepository(profileDataProvider: GetIt.I.get<ProfileDataProvider>()),
     );
 
     registerLazySingleton<StatsAuditRepository>(
-      () => FirebaseStatsAuditRepository(
-        GetIt.I.get<FirebaseProvider>().firestore,
-      ),
+      () => FirebaseStatsAuditRepository(GetIt.I.get<FirebaseProvider>().firestore),
     );
 
     // Services
-    registerLazySingleton<ProfileAuthPort>(
-      () => DefaultProfileAuthPort(authApi: GetIt.I.get<AuthPublicApi>()),
-    );
-    registerLazySingleton<SafeImageDetectorFactory>(
-      () => DefaultSafeImageDetectorFactory(),
-    );
-    registerLazySingleton<ProfileStatsReportUpdaterService>(
-      () => ProfileStatsReportUpdaterService(),
-    );
+    registerLazySingleton<ProfileAuthPort>(() => DefaultProfileAuthPort(authApi: GetIt.I.get<AuthPublicApi>()));
+    registerLazySingleton<SafeImageDetectorFactory>(() => DefaultSafeImageDetectorFactory());
+    registerLazySingleton<ProfileStatsReportUpdaterService>(() => ProfileStatsReportUpdaterService());
     registerLazySingleton<StatsAuditService>(
       () => StatsAuditService(
         repository: GetIt.I.get<StatsAuditRepository>(),
@@ -107,11 +92,7 @@ extension ProfileModuleDependencyInjection on GetIt {
       ),
     );
 
-    registerLazySingleton(
-      () => UpdateProfileSettingsUseCase(
-        profileRepository: GetIt.I.get<ProfileRepository>(),
-      ),
-    );
+    registerLazySingleton(() => UpdateProfileSettingsUseCase(profileRepository: GetIt.I.get<ProfileRepository>()));
 
     registerLazySingleton(
       () => ResetOnboardingUseCase(
@@ -120,13 +101,7 @@ extension ProfileModuleDependencyInjection on GetIt {
       ),
     );
 
-    registerLazySingleton(
-      () => DeleteProfileUseCase(
-        authPort: GetIt.I.get<ProfileAuthPort>(),
-        profileRepository: GetIt.I.get<ProfileRepository>(),
-        storageRepository: GetIt.I.get<StorageRepository>(),
-      ),
-    );    
+    registerLazySingleton(() => DeleteProfileUseCase(authPort: GetIt.I.get<ProfileAuthPort>()));
 
     // View models
     registerFactory<ProfileEditCubit>(
@@ -177,6 +152,5 @@ extension ProfileModuleDependencyInjection on GetIt {
         updateProfileStatsWithSessionUseCase: GetIt.I.get<UpdateProfileStatsWithSessionUseCase>(),
       ),
     );
-
   }
 }

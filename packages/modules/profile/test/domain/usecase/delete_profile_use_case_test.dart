@@ -1,4 +1,3 @@
-import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -7,49 +6,32 @@ import 'package:profile/src/domain/usecase/delete_profile_use_case.dart';
 
 import '../../profile_mock_definitions.dart';
 
-
 void main() {
   late MockProfileAuthPort authService;
   late DeleteProfileUseCase useCase;
-  late MockProfileRepository profileRepository;
-  late MockStorageRepository storageRepository;
 
   setUpAll(() => registerFallbackValue(ReauthProvider.google));
 
   setUp(() {
     authService = MockProfileAuthPort();
-    profileRepository = MockProfileRepository();
-    storageRepository = MockStorageRepository();
 
-    useCase = DeleteProfileUseCase(
-      authPort: authService,
-      profileRepository: profileRepository,
-      storageRepository: storageRepository,
-    );
+    useCase = DeleteProfileUseCase(authPort: authService);
   });
 
   group('DeleteProfileUseCase.execute', () {
     test('returns completed when user deletion succeeds', () async {
       when(() => authService.deleteUser()).thenAnswer((_) async {});
-      when(() => authService.getAuthenticatedUserId())
-          .thenAnswer((_) async => 'user123');
-      when(() => profileRepository.delete(any())).thenAnswer((_) async {});
-      when(() => storageRepository.deleteProfileFolder(any())).thenAnswer((_) async {});
+      when(() => authService.getAuthenticatedUserId()).thenAnswer((_) async => 'user123');
 
       final result = await useCase.execute();
 
       expect(result, DeleteProfileResult.completed);
       verify(() => authService.deleteUser()).called(1);
-      verify(() => profileRepository.delete('user123')).called(1);
-      verify(() => storageRepository.deleteProfileFolder('user123')).called(1);
     });
 
     test('returns authRequired when deletion requires recent login', () async {
-      when(() => authService.getAuthenticatedUserId())
-          .thenAnswer((_) async => 'user123');
-      when(
-        () => authService.deleteUser(),
-      ).thenThrow(Exception('requires-recent-login'));
+      when(() => authService.getAuthenticatedUserId()).thenAnswer((_) async => 'user123');
+      when(() => authService.deleteUser()).thenThrow(Exception('requires-recent-login'));
 
       final result = await useCase.execute();
 
@@ -57,10 +39,9 @@ void main() {
       verify(() => authService.deleteUser()).called(1);
     });
 
-    test('rethrows non-auth-related exceptions', () async {    
+    test('rethrows non-auth-related exceptions', () async {
       final exception = Exception('network-error');
-      when(() => authService.getAuthenticatedUserId())
-          .thenAnswer((_) async => 'user123');
+      when(() => authService.getAuthenticatedUserId()).thenAnswer((_) async => 'user123');
       when(() => authService.deleteUser()).thenThrow(exception);
 
       expect(() => useCase.execute(), throwsA(same(exception)));
@@ -82,22 +63,15 @@ void main() {
     setUp(() {
       when(() => authService.getAuthenticatedUserId()).thenAnswer((_) async => 'user123');
       when(() => authService.deleteUser()).thenAnswer((_) async {});
-      when(() => profileRepository.delete(any())).thenAnswer((_) async {});
-      when(() => storageRepository.deleteProfileFolder(any())).thenAnswer((_) async {});
     });
 
-    test('reauthenticates before deleting the account and data', () async {
+    test('reauthenticates before deleting the account', () async {
       when(() => authService.reauthenticate(any())).thenAnswer((_) async {});
 
       final result = await useCase.execute(reauthenticateWith: ReauthProvider.apple);
 
       expect(result, DeleteProfileResult.completed);
-      verifyInOrder([
-        () => authService.reauthenticate(ReauthProvider.apple),
-        () => authService.deleteUser(),
-        () => profileRepository.delete('user123'),
-        () => storageRepository.deleteProfileFolder('user123'),
-      ]);
+      verifyInOrder([() => authService.reauthenticate(ReauthProvider.apple), () => authService.deleteUser()]);
     });
 
     test('deletes nothing when the user confirms with a different account', () async {
@@ -107,8 +81,6 @@ void main() {
 
       expect(result, DeleteProfileResult.accountMismatch);
       verifyNever(() => authService.deleteUser());
-      verifyNever(() => profileRepository.delete(any()));
-      verifyNever(() => storageRepository.deleteProfileFolder(any()));
     });
 
     test('deletes nothing when the user cancels reauthentication', () async {

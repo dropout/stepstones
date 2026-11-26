@@ -4,6 +4,7 @@
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "test": "npm run build && node --test test/*.test.js",
+    "test:emulator": "npm run build && cd .. && firebase emulators:exec --only firestore,storage --project demo-stepstones-functions \"node --test functions/test/emulator/*.test.js\"",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
