@@ -35,6 +35,8 @@
 		</array>
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NSCameraUsageDescription</key>
@@ -45,10 +47,6 @@
 		<string>The application writes mindful minutes data to Apple Health to give you better insights.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Access to the photo library is used for selecting a profile picture.</string>
-		<key>NSHealthShareUsageDescription</key>
-		<string>We record your mindful/meditation sessions to your Health data so you can track progress.</string>
-		<key>NSHealthUpdateUsageDescription</key>
-		<string>We update your mindful minutes to reflect sessions you log from the app.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

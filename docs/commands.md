@@ -36,6 +36,15 @@ If no build mode specified, use `debug`.
 - Format: `dart format .`
 - Clean: `flutter clean`
 
+## Store release (TestFlight and Google Play testing tracks)
+- iOS to App Store Connect / TestFlight + Crashlytics symbols: `bash support/maintenance_scripts/release_store_ios.sh prod [--dry-run]`
+    - Uploads with the Apple ID signed in to Xcode (Xcode > Settings > Accounts) for team `2CQVL5KB7V`.
+    - Requires a clean git tree; bumps only the build number in `apps/mobile_app/pubspec.yaml` and commits it after the upload.
+- Android App Bundle for Google Play + Crashlytics symbols: `bash support/maintenance_scripts/release_store_android.sh prod [--dry-run]`
+    - Upload the printed `.aab` to a testing track in Play Console.
+    - Requires `apps/mobile_app/android/key.properties` (copy `key.properties.example`); fails if the bundle is debug-signed.
+    - Create the upload keystore once (keep it and its passwords in a password manager): `keytool -genkeypair -v -keystore apps/mobile_app/android/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
+
 ## Admin app (macOS)
 Run from `apps/admin_app`. The app is signed with the development team because Firebase Auth needs keychain access.
 - Run against local emulators (no config file needed): `flutter run -d macos -t lib/main_dev.dart`
