@@ -119,11 +119,11 @@ class ChantingSettingsView extends StatelessWidget {
                 style: context.theme.textTheme.headlineLarge!.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: switch (DesignSpec.breakpointForWidth(constraints.maxWidth)) {
-                    .xs => 32,
-                    .sm => 36,
-                    .md => 40,
-                    .lg => 44,
-                    .xl => 48,
+                    .xs => 36,
+                    .sm => 40,
+                    .md => 44,
+                    .lg => 48,
+                    .xl => 52,
                   },
                 ),
               ).reveal(1),

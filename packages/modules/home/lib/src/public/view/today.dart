@@ -18,8 +18,8 @@ class Today extends StatelessWidget {
           style: textTheme.bodyMedium!.copyWith(
             fontSize: 16,
             color: Colors.black,
-            fontWeight: FontWeight.w800,
-            height: 1.0,
+            fontWeight: FontWeight.w600,
+            height: 1.2,
           ),
         ),
         Transform.translate(
@@ -27,9 +27,9 @@ class Today extends StatelessWidget {
           child: Text(
             DateFormat('EEEE').format(today),
             style: textTheme.headlineMedium!.copyWith(
-              fontSize: 28,
+              fontSize: 24,
               color: Colors.black,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               height: 1.0,
             ),
           ),
