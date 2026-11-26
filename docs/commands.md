@@ -30,6 +30,9 @@ If no build mode specified, use `debug`.
 - Staging security rules tests (Firestore and Storage emulators): `npm --prefix support/firebase/staging/rules_test test`
     - First run needs `npm --prefix support/firebase/staging/rules_test install`.
 - Deploy the backend (run from `support/firebase/staging`; prod shares this source): `firebase deploy --project <staging|prod> --only firestore,storage,functions,remoteconfig`
+- Deploy the legal and support pages (Markdown in `site/`, built with Eleventy into the git-ignored `public/` by the hosting predeploy; served at `https://stepstones-prod.web.app/privacy`, `/support`, `/delete-account`; run from `support/firebase/staging`): `firebase deploy --project prod --only hosting`
+- Test Cloud Functions (run from `support/firebase/staging/functions`): `npm test`; emulator-backed tests: `npm run test:emulator`
+- Preview those pages locally with live reload (run from `support/firebase/staging/site`): `npm install && npm run serve` (http://localhost:8080)
     - A new project first needs the Maps key secret: `firebase functions:secrets:set GOOGLE_MAPS_API_KEY --project <staging|prod>`
 - Grant or revoke the admin claim (run from `support/maintenance_scripts`): `node src/set_admin_claim.mjs --project=<firebase-project-id> (--email=<email>|--uid=<uid>) [--revoke] (--confirm|--dry-run)`
 - Integration Tests: `flutter test integration_test/<test_file>.dart --flavor <flavor> --dart-define=IS_TEST=true --dart-define=TEST_USER_EMAIL=<email> --dart-define=TEST_USER_PASSWORD=<password>`
