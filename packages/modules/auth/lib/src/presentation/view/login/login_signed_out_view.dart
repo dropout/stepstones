@@ -17,11 +17,11 @@ class LoginSignedOutView extends StatelessWidget {
     context.hapticsTap();
   }
 
-  // void _onLoginWithAppleTap(BuildContext context) {
-  //   context.read<AuthStateCubit>().signinWithApple();
-  //   context.logEvent(name: 'login_with_apple_button_pressed');
-  //   context.hapticsTap();
-  // }
+  void _onLoginWithAppleTap(BuildContext context) {
+    context.read<AuthStateCubit>().signinWithApple();
+    context.logEvent(name: 'login_with_apple_button_pressed');
+    context.hapticsTap();
+  }
 
   void _onLoginWithEmailAndPasswordTap(BuildContext context) {
     context.services.authNavigator.navigateToLoginWithEmailAndPassword();
@@ -194,7 +194,7 @@ class LoginSignedOutView extends StatelessWidget {
             text: AuthLocalizations.of(context).loginSigninApple,
             bColor: Colors.black,
             fColor: AppColors.appWhite,
-            // onTap: () => _onLoginWithAppleTap(context),
+            onTap: () => _onLoginWithAppleTap(context),
           ).reveal(4),
           Gap.medium(),
           buildEmailAndPasswordButton(context).reveal(5),
