@@ -131,6 +131,12 @@ abstract class SessionLocalizations {
   /// **'Sessions'**
   String get sessionsHistory;
 
+  /// No description provided for @sessionsHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions have been recorded yet.'**
+  String get sessionsHistoryEmpty;
+
   /// No description provided for @minutesPluralWithNumber.
   ///
   /// In en, this message translates to:

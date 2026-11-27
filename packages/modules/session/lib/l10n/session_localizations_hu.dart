@@ -37,6 +37,9 @@ class SessionLocalizationsHu extends SessionLocalizations {
   String get sessionsHistory => 'Ülések';
 
   @override
+  String get sessionsHistoryEmpty => 'Még nincs rögzített ülés.';
+
+  @override
   String minutesPluralWithNumber(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

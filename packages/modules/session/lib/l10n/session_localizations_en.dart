@@ -37,6 +37,9 @@ class SessionLocalizationsEn extends SessionLocalizations {
   String get sessionsHistory => 'Sessions';
 
   @override
+  String get sessionsHistoryEmpty => 'No sessions have been recorded yet.';
+
+  @override
   String minutesPluralWithNumber(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

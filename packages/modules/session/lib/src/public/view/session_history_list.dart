@@ -24,6 +24,29 @@ class const SessionHistoryList({
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
     final groups = _groupByDay();
+
+    if (groups.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Column(
+          mainAxisAlignment: .start,
+          children: [
+            Gap.xxl(),
+            const Icon(Icons.info_rounded, size: 64),
+            Gap.medium(),
+            Text(
+              SessionLocalizations.of(context).sessionsHistoryEmpty,
+              key: const Key('sessions_history_empty'),
+              textAlign: .center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: .w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     final children = <Widget>[
       for (final (index, entry) in groups.entries.indexed) ...[
         Column(
@@ -54,6 +77,8 @@ class const SessionHistoryList({
       delegate: SliverChildListDelegate(children),
     );
   }
+
+  
 
 }
 

@@ -5,5 +5,6 @@
   "sessionResultCompleted": "Teljesítettél",
   "sessionResultMinutes": "{count, plural, =0{percet} =1{percet} =2{percet} few{percet} many{percet} other{percet}}",
   "sessionsHistory": "Ülések",
+  "sessionsHistoryEmpty": "Még nincs rögzített ülésed.",
   "minutesPluralWithNumber": "{count, plural, =0{{count} perc} =1{{count} perc} =2{{count} perc} few{{count} perc} many{{count} perc} other{{count} perc}}"
 }
