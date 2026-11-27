@@ -1,9 +1,10 @@
-import '../../../l10n/session_localizations.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 import 'package:core/core.dart';
-import '../model/session.dart';
+import 'package:session/l10n/session_localizations.dart';
+import 'package:session/src/public/model/session.dart';
+
 
 class const SessionHistoryList({
   required final List<Session> sessions,
@@ -24,24 +25,28 @@ class const SessionHistoryList({
     final locale = Localizations.localeOf(context);
     final groups = _groupByDay();
     final children = <Widget>[
-      for (final entry in groups.entries) ...[
-        Text(
-          DateFormat.yMMMMd(locale.toString()).format(entry.key),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Gap.small(),
-        ...entry.value.map((s) {
-
-          return SessionHistoryListItem(
-            startTime: s.startTime,
-            endTime: s.endTime,
-            duration: s.duration,
-            type: s.type,
-          );
-        }).toList().intersperse(Gap.small()),
-        Gap.medium(),
+      for (final (index, entry) in groups.entries.indexed) ...[
+        Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            Text(
+              DateFormat.yMMMMd(locale.toString()).format(entry.key),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Gap.small(),
+            ...entry.value.map((s) {
+              return SessionHistoryListItem(
+                startTime: s.startTime,
+                endTime: s.endTime,
+                duration: s.duration,
+                type: s.type,
+              );
+            }).toList().intersperse(Gap.small()),
+            Gap.medium(),
+          ],
+        ).reveal(index + 1),
       ]
     ];
 
