@@ -1,7 +1,7 @@
 ---
 layout: layout.njk
 title: Stepstones
-subtitle: A meditation timer and chanting app.
+subtitle: Sitting & Chanting. Private testing.
 permalink: /index.html
 ---
 
