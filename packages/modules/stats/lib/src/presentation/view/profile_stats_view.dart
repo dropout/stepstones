@@ -13,40 +13,36 @@ import 'stats/tab/month_tab.dart';
 import 'stats/tab/week_tab.dart';
 import 'stats/tab/year_tab.dart';
 
-class const ProfileStatsView({
-  required final Profile profile,
-  super.key,
-}) extends StatefulWidget {
+class const ProfileStatsView({required final Profile profile, super.key})
+    extends StatefulWidget {
   @override
   State<ProfileStatsView> createState() => _ProfileStatsViewState();
 }
 
 class _ProfileStatsViewState extends State<ProfileStatsView>
     with TickerProviderStateMixin, TitleEffectMixin {
-  
   /// Tab controller for barchart tabs
   late final TabController primaryTC;
 
   @override
   void initState() {
     super.initState();
-    primaryTC = TabController(length: 4, vsync: this);    
+    primaryTC = TabController(length: 4, vsync: this);
   }
 
   @override
-  Widget build(BuildContext context) =>
-    DefaultScreenSetup(
-      title: StatsLocalizations.of(context).profileStats,
-      scrollPhysics: const ClampingScrollPhysics(),
-      slivers: [
-        StatsDataAreaSliver(
-          profile: widget.profile,
-          profileName: widget.profile.displayName,
-          profilePhotoBlurhash: widget.profile.photoBlurhash,
-        ),
-        ...buildBarchartSlivers(context, widget.profile.id),
-      ],
-    );
+  Widget build(BuildContext context) => DefaultScreenSetup(
+    title: StatsLocalizations.of(context).profileStats,
+    scrollPhysics: const ClampingScrollPhysics(),
+    slivers: [
+      StatsDataAreaSliver(
+        profile: widget.profile,
+        profileName: widget.profile.displayName,
+        profilePhotoBlurhash: widget.profile.photoBlurhash,
+      ),
+      ...buildBarchartSlivers(context, widget.profile.id),
+    ],
+  );
 
   List<Widget> buildBarchartSlivers(BuildContext context, String profileId) {
     return [
@@ -110,7 +106,7 @@ class _ProfileStatsViewState extends State<ProfileStatsView>
           ),
         ],
       ),
-    );
+    ).reveal(5);    
   }
 
   Widget buildTabBarItem(BuildContext context, String label, {Key? key}) {
@@ -122,7 +118,7 @@ class _ProfileStatsViewState extends State<ProfileStatsView>
 
   Widget buildTabBarView(BuildContext context, String profileId) {
     return AppBreakPointBuilder(
-      wide:(context, constraints) => Padding(
+      wide: (context, constraints) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: DesignSpec.paddingLg),
         child: SizedBox(
           height: 540,
@@ -158,7 +154,7 @@ class _ProfileStatsViewState extends State<ProfileStatsView>
           ),
         ),
       ),
-    );
+    ).reveal(6);
   }
 
   @override

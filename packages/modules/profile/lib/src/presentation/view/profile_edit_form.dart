@@ -44,9 +44,9 @@ class _ProfileEditFormState extends State<ProfileEditForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ProfileBasicsFields(profile: widget.profile, formStateKey: _formKey),
+          ProfileBasicsFields(profile: widget.profile, formStateKey: _formKey).reveal(1),
           Gap.medium(),
-          ProfileLocationField(profile: widget.profile, formStateKey: _formKey),
+          ProfileLocationField(profile: widget.profile, formStateKey: _formKey).reveal(2),
           Gap.medium(),
         ],
       )
